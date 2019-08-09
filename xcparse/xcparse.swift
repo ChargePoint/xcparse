@@ -38,7 +38,12 @@ class Xcparse {
         let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json")
         let xcresultJSONData = Data(xcresultJSON.utf8)
         
-        let json = try! JSONSerialization.jsonObject(with: xcresultJSONData, options: []) as? [String:AnyObject]
+        var json : [String:AnyObject]
+        do {
+            json = try JSONSerialization.jsonObject(with: xcresultJSONData, options: []) as! [String:AnyObject]
+        } catch {
+            return
+        }
         
         let actionRecord: ActionsInvocationRecord = try! CPTJSONAdapter.model(of: ActionsInvocationRecord.self, fromJSONDictionary: json) as! ActionsInvocationRecord
         
@@ -102,14 +107,8 @@ class Xcparse {
             }
         }
         let dir = console.shellCommand("mkdir \(destination)/testScreenshots/")
-        if dir != "" {
-            print(dir)
-        }
         for i in 0...screenshotRefIDs.count-1 {
             let save = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format raw --id \(screenshotRefIDs[i]) > \(destination)/testScreenshots/\(screenshotNames[i])")
-            if(save != "") {
-                print(save)
-            }
         }
         
     }
@@ -118,7 +117,12 @@ class Xcparse {
         let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json")
         let xcresultJSONData = Data(xcresultJSON.utf8)
         
-        let json = try! JSONSerialization.jsonObject(with: xcresultJSONData, options: []) as? [String:AnyObject]
+        var json : [String:AnyObject]
+        do {
+            json = try JSONSerialization.jsonObject(with: xcresultJSONData, options: []) as! [String:AnyObject]
+        } catch {
+            return
+        }
         
         let actionRecord: ActionsInvocationRecord = try! CPTJSONAdapter.model(of: ActionsInvocationRecord.self, fromJSONDictionary: json) as! ActionsInvocationRecord
         
@@ -135,7 +139,6 @@ class Xcparse {
         }
         for id in coverageReferenceIDs {
             let result = console.shellCommand("xcrun xcresulttool export --path \(xcresultPath) --id \(id) --output-path \(destination)/action.xccovreport --type file")
-            print(result)
         }
     }
     
@@ -172,7 +175,7 @@ class Xcparse {
         case .help:
             console.printUsage()
         case .unknown, .quit:
-            console.writeMessage("Unknown option \(value)")
+            console.writeMessage("\nUnknown option \(argument)\n")
             console.printUsage()
         }
     }

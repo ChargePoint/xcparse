@@ -27,22 +27,12 @@ class Console {
     func printUsage() {
 
         let executableName = (CommandLine.arguments[0] as NSString).lastPathComponent
-        writeMessage("USAGE:")
-        writeMessage("\(executableName) -x path destination")
-        writeMessage("OR")
-        writeMessage("\(executableName) --xcov path destination")
-        writeMessage("OR")
-        writeMessage("\(executableName) -s path destination")
-        writeMessage("OR")
-        writeMessage("\(executableName) --screenshots path destination")
-        writeMessage("OR")
-        writeMessage("\(executableName) -h to show usage information")
-        writeMessage("OR")
-        writeMessage("\(executableName) --help to show usage information")
-        writeMessage("OR")
-        writeMessage("\(executableName) -q to quit")
-        writeMessage("OR")
-        writeMessage("\(executableName) --quit to quit")
+        writeMessage("usage (static mode): xcparse [-hq] [-s xcresultPath destination] [-x xcresultPath destination]\n")
+        writeMessage("usage (interactive mode): xcparse\n")
+        writeMessage(" -s, --screenshots : Extracts screenshots from xcresult file at xcresultPath and saves it in destination folder")
+        writeMessage(" -x, --xcov : Extracts coverage from xcresult file at xcresultPath and saves it in destination folder")
+        writeMessage(" -h, --help : Prints usage message")
+        writeMessage(" -q, --quit : Exits interactive mode. Cannot be used in static mode.")
     }
     
     // MARK: -

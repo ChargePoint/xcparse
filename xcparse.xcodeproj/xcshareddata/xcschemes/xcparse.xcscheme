@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--screenshots ~/Downloads/Test6.xcresult ~/Downloads/"
+            argument = "--quit"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

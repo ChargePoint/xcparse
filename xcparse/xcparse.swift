@@ -36,14 +36,11 @@ class Xcparse {
     
     func extractScreenshots(xcresultPath : String, destination : String) {
         let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json")
-        //print(xcresultJSON)
         let xcresultJSONData = Data(xcresultJSON.utf8)
         
         let json = try! JSONSerialization.jsonObject(with: xcresultJSONData, options: []) as? [String:AnyObject]
-        //print(json?["_type"]?["_name"])
         
         let actionRecord: ActionsInvocationRecord = try! CPTJSONAdapter.model(of: ActionsInvocationRecord.self, fromJSONDictionary: json) as! ActionsInvocationRecord
-        //print(actionRecord)
         
         var testReferenceIDs: [String] = []
         
@@ -55,14 +52,13 @@ class Xcparse {
             }
         }
         
-        //print("Test ref IDs: \(testReferenceIDs)")
         
         var summaryRefIDs: [String] = []
         for testRefID in testReferenceIDs {
             let testJSONString : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json --id \(testRefID)")
             let testJSON = try! JSONSerialization.jsonObject(with: Data(testJSONString.utf8), options: []) as? [String:AnyObject]
             let testPlanRunSummaries: ActionTestPlanRunSummaries = try! CPTJSONAdapter.model(of: ActionTestPlanRunSummaries.self, fromJSONDictionary: testJSON) as! ActionTestPlanRunSummaries
-            //print("Test plan summaries: \(testPlanRunSummaries)")
+            
             for summary in testPlanRunSummaries.summaries {
                 let testableSummaries = summary.testableSummaries
                 for testableSummary in testableSummaries {
@@ -85,17 +81,14 @@ class Xcparse {
             }
             
         }
-        //print("Subtest summary ref IDs:\n\(summaryRefIDs)")
         
         var screenshotRefIDs: [String] = []
         var screenshotNames: [String] = []
         for summaryRefID in summaryRefIDs {
             let testJSONString : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json --id \(summaryRefID)")
             let testJSON = try! JSONSerialization.jsonObject(with: Data(testJSONString.utf8), options: []) as? [String:AnyObject]
-            //let testActivitySummaries = testJSON?["_values"] as! [AnyHashable: Any]
-            //print(testJSONString)
+            
             let testSummary : ActionTestSummary = try! CPTJSONAdapter.model(of: ActionTestSummary.self, fromJSONDictionary: testJSON) as! ActionTestSummary
-            //print(testSummary)
             for activitySummary in testSummary.activitySummaries {
                 let attachments = activitySummary.attachments
                 for attachment in attachments {
@@ -108,10 +101,6 @@ class Xcparse {
                 }
             }
         }
-        print("Screenshot IDs: \n\(screenshotRefIDs)")
-        print("Screenshot Names: \n\(screenshotNames)")
-        print("Screenshot IDs count: \(screenshotRefIDs.count)")
-        print("Screenshot names count: \(screenshotNames.count)")
         let dir = console.shellCommand("mkdir \(destination)/testScreenshots/")
         if dir != "" {
             print(dir)
@@ -122,24 +111,16 @@ class Xcparse {
                 print(save)
             }
         }
-        // TODO: Alex - we need to get down to the ID of
-        // ActionTestPlanRunSUmmaries.summaries([ActionAbstractTestSummary/ActionTestPlanRunSummary]).testableSummaries([ActionAbstractTestSummary/ActionTestableSummary]).tests([ActionAbstractTestSummary/ActionTestSummaryGroup]).subtests([ActionAbstractTestSummary/ActionTestSummaryGroup]).subtests([ActionTestMetadata]).summaryRef.id
-        
-        // It's important to note here that in order to do this next parsing, we need to implement the supertypes behind our parsers & start using
-        // MTLJSONSerializing protocol's + (Class)classForParsingJSONDictionary:(NSDictionary *)JSONDictionary;
         
     }
     
     func extractCoverage(xcresultPath : String, destination : String) {
         let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json")
-        //print(xcresultJSON)
         let xcresultJSONData = Data(xcresultJSON.utf8)
         
         let json = try! JSONSerialization.jsonObject(with: xcresultJSONData, options: []) as? [String:AnyObject]
-        //print(json?["_type"]?["_name"])
         
         let actionRecord: ActionsInvocationRecord = try! CPTJSONAdapter.model(of: ActionsInvocationRecord.self, fromJSONDictionary: json) as! ActionsInvocationRecord
-        //print(actionRecord)
         
         var coverageReferenceIDs: [String] = []
         
@@ -170,7 +151,6 @@ class Xcparse {
         }
         let substr = String(argument[startIndex...])
         let (option, value) = getOption(substr)
-        console.writeMessage("Argument count: \(argCount) Option: \(option) value: \(value)")
         switch (option) {
         case .screenshot:
             if argCount != 4 {

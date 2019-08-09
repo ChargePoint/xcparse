@@ -349,8 +349,8 @@
 			baseConfigurationReference = 87B5FC3D7BC690000BEC9E85 /* Pods-xcparse.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = xcparse/xcparse.entitlements;
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Developer ID Application: ChargePoint, Inc. (LF3ZYA4TZA)";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = LF3ZYA4TZA;
 				ENABLE_HARDENED_RUNTIME = YES;
 				LD_RUNPATH_SEARCH_PATHS = (

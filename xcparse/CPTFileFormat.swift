@@ -9,9 +9,6 @@
 import Foundation
 import Mantle
 
-// TODO: Alex - need to figure out Supertype
-// TODO: Alex - need to figure out JSON parsing
-
 @objc public class ActionAbstractTestSummary : MTLModel, MTLJSONSerializing {
     @objc var name : String? = nil
     
@@ -640,7 +637,6 @@ struct ObjectID : Codable {
     }
 }
 
-// TODO: Alex - come back to this commented property
 @objc public class SortedKeyValueArrayPair : MTLModel, MTLJSONSerializing {
     @objc var key: String = ""
     // @objc var value: SchemaSerializable
@@ -663,7 +659,6 @@ struct ObjectID : Codable {
     }
 }
 
-// TODO: Alex - come back to this commented property
 @objc public class TypeDefinition : MTLModel, MTLJSONSerializing {
     @objc var name: String = ""
     @objc var supertype: TypeDefinition? = nil

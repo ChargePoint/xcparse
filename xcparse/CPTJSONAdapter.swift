@@ -101,12 +101,10 @@ import Mantle
         return MTLValueTransformer.mtl_transformer(with: formatter, forObjectClass: NSValue.self)
     }
     
-    // TODO: Alex - need to debug why we can't get the Date/NSDate transformers to be picked up by Mantle automatically
     @objc static public func DateJSONTransformer() -> ValueTransformer! {
         return self.NSDateJSONTransformer()
     }
     
-    // TODO: Alex - need to debug why we can't get the Date/NSDate transformers to be picked up by Mantle automatically
     @objc static public func NSDateJSONTransformer() -> ValueTransformer! {
         return MTLValueTransformer.mtl_dateTransformer(withDateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSSZZZ", locale: Locale.current)
     }

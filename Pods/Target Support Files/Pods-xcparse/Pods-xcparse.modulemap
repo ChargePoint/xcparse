@@ -1,0 +1,6 @@
+framework module Pods_xcparse {
+  umbrella header "Pods-xcparse-umbrella.h"
+
+  export *
+  module * { export * }
+}

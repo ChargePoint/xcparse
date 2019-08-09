@@ -1,2 +1,3 @@
-# xcparse
-Command line tool for parsing Xcode 11+ xcresult
+xcparse
+===============
+A command line tool to extract code coverage & screenshots from Xcode 11+ XCResult file

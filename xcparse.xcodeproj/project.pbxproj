@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		543F937622FCE5D800DC9B93 /* xcparse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 543F937522FCE5D800DC9B93 /* xcparse.swift */; };
+		543F937822FCEE0000DC9B93 /* Console.swift in Sources */ = {isa = PBXBuildFile; fileRef = 543F937722FCEE0000DC9B93 /* Console.swift */; };
 		624A1D5022F2298C007AA01C /* Pods_xcparse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C60705F927B32C02BC2DE21 /* Pods_xcparse.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		624A1D5122F2298C007AA01C /* Pods_xcparse.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8C60705F927B32C02BC2DE21 /* Pods_xcparse.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		62BB7AE322F2C8CF001D2E8A /* CPTJSONAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62BB7AE222F2C8CF001D2E8A /* CPTJSONAdapter.swift */; };
@@ -39,6 +41,8 @@
 
 /* Begin PBXFileReference section */
 		16D4744AE71778EA64A86C5C /* Pods-xcparse.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-xcparse.debug.xcconfig"; path = "Target Support Files/Pods-xcparse/Pods-xcparse.debug.xcconfig"; sourceTree = "<group>"; };
+		543F937522FCE5D800DC9B93 /* xcparse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = xcparse.swift; sourceTree = "<group>"; };
+		543F937722FCEE0000DC9B93 /* Console.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Console.swift; sourceTree = "<group>"; };
 		62BB7AE222F2C8CF001D2E8A /* CPTJSONAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPTJSONAdapter.swift; sourceTree = "<group>"; };
 		62BB7AE422F2C918001D2E8A /* CPTFileFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPTFileFormat.swift; sourceTree = "<group>"; };
 		62BC0BD922F238E6003528B1 /* xcparse.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = xcparse.entitlements; sourceTree = "<group>"; };
@@ -85,6 +89,8 @@
 				62BB7AE222F2C8CF001D2E8A /* CPTJSONAdapter.swift */,
 				62BB7AE422F2C918001D2E8A /* CPTFileFormat.swift */,
 				62DBD9F622F16BA900D02904 /* main.swift */,
+				543F937522FCE5D800DC9B93 /* xcparse.swift */,
+				543F937722FCEE0000DC9B93 /* Console.swift */,
 			);
 			path = xcparse;
 			sourceTree = "<group>";
@@ -192,8 +198,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				62BB7AE522F2C918001D2E8A /* CPTFileFormat.swift in Sources */,
+				543F937822FCEE0000DC9B93 /* Console.swift in Sources */,
 				62DBD9F722F16BA900D02904 /* main.swift in Sources */,
 				62BB7AE322F2C8CF001D2E8A /* CPTJSONAdapter.swift in Sources */,
+				543F937622FCE5D800DC9B93 /* xcparse.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

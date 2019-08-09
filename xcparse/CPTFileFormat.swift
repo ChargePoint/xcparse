@@ -12,8 +12,24 @@ import Mantle
 // TODO: Alex - need to figure out Supertype
 // TODO: Alex - need to figure out JSON parsing
 
-struct ActionAbstractTestSummary : Codable {
-    let name: String?
+@objc public class ActionAbstractTestSummary : MTLModel, MTLJSONSerializing {
+    @objc var name : String? = nil
+    
+    @objc public class func `class`(forParsingJSONDictionary JSONDictionary: [AnyHashable : Any]!) -> AnyClass! {
+        if(JSONDictionary["summaries"] != nil) {
+            return ActionTestPlanRunSummaries.self
+        }
+        else if(JSONDictionary["testableSummaries"] != nil) {
+            return ActionTestPlanRunSummary.self
+        }
+        else {
+            return self
+        }
+    }
+    
+    @objc public class func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+        return ["name" : "name._value"]
+    }
 }
 
 @objc public class ActionDeviceRecord : MTLModel, MTLJSONSerializing {
@@ -36,7 +52,7 @@ struct ActionAbstractTestSummary : Codable {
     @objc var logicalCPUCoresPerPackage: NSNumber? = nil // Int?
     @objc var platformRecord: ActionPlatformRecord? = nil
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "name": "name._value",
             "isConcreteDevice": "isConcreteDevice._value",
@@ -64,7 +80,7 @@ struct ActionAbstractTestSummary : Codable {
     @objc var identifier: String = ""
     @objc var userDescription: String = ""
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "identifier": "identifier._value",
             "userDescription": "userDescription._value",
@@ -82,7 +98,7 @@ struct ActionAbstractTestSummary : Codable {
     @objc var buildResult: ActionResult? = nil
     @objc var actionResult: ActionResult? = nil
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "schemeCommandName": "schemeCommandName._value",
             "schemeTaskName": "schemeTaskName._value",
@@ -95,11 +111,11 @@ struct ActionAbstractTestSummary : Codable {
         ]
     }
     
-    @objc static public func startedTimeJSONTransformer() -> ValueTransformer! {
+    @objc class public func startedTimeJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.DateJSONTransformer()
     }
     
-    @objc static public func endedTimeJSONTransformer() -> ValueTransformer! {
+    @objc class public func endedTimeJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.DateJSONTransformer()
     }
 }
@@ -115,7 +131,7 @@ struct ActionAbstractTestSummary : Codable {
     @objc var testsRef: Reference? = nil
     @objc var diagnosticsRef: Reference? = nil
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "resultName": "resultName._value",
             "status": "status._value",
@@ -137,7 +153,7 @@ struct ActionAbstractTestSummary : Codable {
     @objc var localComputerRecord: ActionDeviceRecord? = nil
     @objc var targetSDKRecord: ActionSDKRecord? = nil
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "displayName": "displayName._value",
             "targetArchitecture": "targetArchitecture._value",
@@ -154,7 +170,7 @@ struct ActionAbstractTestSummary : Codable {
     @objc var operatingSystemVersion: String = ""
     @objc var isInternal: Bool = false
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "name": "name._value",
             "identifier": "identifier._value",
@@ -173,23 +189,23 @@ struct ActionAbstractTestSummary : Codable {
     @objc var attachments: [ActionTestAttachment] = []
     @objc var subactivities: [ActionTestActivitySummary] = []
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "title": "title._value",
             "activityType": "activityType._value",
             "uuid": "uuid._value",
             "start": "start._value",
             "finish": "finish._value",
-            "attachments": "start._values",
+            "attachments": "attachments._values",
             "subactivities": "subactivities._values",
         ]
     }
     
-    @objc static public func attachmentsJSONTransformer() -> ValueTransformer! {
+    @objc class public func attachmentsJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: ActionTestAttachment.self);
     }
     
-    @objc static public func subactivitiesJSONTransformer() -> ValueTransformer! {
+    @objc class public func subactivitiesJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: ActionTestActivitySummary.self);
     }
 }
@@ -205,7 +221,7 @@ struct ActionAbstractTestSummary : Codable {
     @objc var payloadRef: Reference? = nil
     @objc var payloadSize: Int = 0
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "uniformTypeIdentifier": "uniformTypeIdentifier._value",
             "name": "name._value",
@@ -214,7 +230,7 @@ struct ActionAbstractTestSummary : Codable {
             "lifetime": "lifetime._value",
             "inActivityIdentifier": "inActivityIdentifier._value",
             "filename": "filename._value",
-            "payloadRef": "payloadRef._value",
+            "payloadRef": "payloadRef",
             "payloadSize": "payloadSize._value",
         ]
     }
@@ -226,7 +242,7 @@ struct ActionAbstractTestSummary : Codable {
     @objc var lineNumber: Int = 0
     @objc var isPerformanceFailure: Bool = false
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "message": "message._value",
             "fileName": "fileName._value",
@@ -236,13 +252,19 @@ struct ActionAbstractTestSummary : Codable {
     }
 }
 
-struct ActionTestMetadata : Codable {
-    let testStatus: String
-    let duration: Double?
-    //    let summaryRef: Reference?
-    let performanceMetricsCount: Int
-    let failureSummariesCount: Int
-    let activitySummariesCount: Int
+@objc public class ActionTestMetadata : ActionTestSummaryIdentifiableObject {
+    @objc var testStatus: String = ""
+    //let duration: Double? = nil
+    //@objc var summaryRef: Reference? = nil
+    @objc var performanceMetricsCount: Int = 0
+    @objc var failureSummariesCount: Int = 0
+    @objc var activitySummariesCount: Int = 0
+    
+    public override class func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+        return [
+            "summaryRef" : "summaryRef"
+        ]
+    }
 }
 
 @objc public class ActionTestPerformanceMetricSummary : MTLModel, MTLJSONSerializing {
@@ -257,7 +279,7 @@ struct ActionTestMetadata : Codable {
     @objc var maxRegression: NSNumber? = nil // Double
     @objc var maxStandardDeviation: NSNumber? = nil // Double
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "displayName": "displayName._value",
             "unitOfMeasurement": "unitOfMeasurement._value",
@@ -272,47 +294,47 @@ struct ActionTestMetadata : Codable {
         ]
     }
     
-    @objc static public func measurementsJSONTransformer() -> ValueTransformer! {
+    @objc class public func measurementsJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: NSNumber.self);
     }
 }
 
-@objc public class ActionTestPlanRunSummaries : MTLModel, MTLJSONSerializing {
+@objc public class ActionTestPlanRunSummaries : ActionAbstractTestSummary {
     @objc var summaries: [ActionTestPlanRunSummary] = []
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc public override class func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "summaries": "summaries._values",
         ]
     }
     
-    @objc static public func summariesJSONTransformer() -> ValueTransformer! {
+    @objc class public func summariesJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: ActionTestPlanRunSummary.self);
     }
 }
 
-@objc public class ActionTestPlanRunSummary : MTLModel, MTLJSONSerializing {
+@objc public class ActionTestPlanRunSummary : ActionAbstractTestSummary {
     @objc var testableSummaries: [ActionTestableSummary] = []
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc public override class func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "testableSummaries": "testableSummaries._values",
         ]
     }
     
-    @objc static public func testableSummariesJSONTransformer() -> ValueTransformer! {
+    @objc class public func testableSummariesJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: ActionTestableSummary.self);
     }
 }
 
-@objc public class ActionTestSummary : MTLModel, MTLJSONSerializing {
+@objc public class ActionTestSummary : ActionAbstractTestSummary {
     @objc var testStatus: String = ""
     @objc var duration: Double = 0
     @objc var performanceMetrics: [ActionTestPerformanceMetricSummary] = []
     @objc var failureSummaries: [ActionTestFailureSummary] = []
     @objc var activitySummaries: [ActionTestActivitySummary] = []
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc public override class func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "testStatus": "testStatus._value",
             "duration": "duration._value",
@@ -322,46 +344,61 @@ struct ActionTestMetadata : Codable {
         ]
     }
     
-    @objc static public func performanceMetricsJSONTransformer() -> ValueTransformer! {
+    @objc class public func performanceMetricsJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: ActionTestPerformanceMetricSummary.self);
     }
     
-    @objc static public func failureSummariesJSONTransformer() -> ValueTransformer! {
+    @objc class public func failureSummariesJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: ActionTestFailureSummary.self);
     }
     
-    @objc static public func activitySummariesJSONTransformer() -> ValueTransformer! {
+    @objc class public func activitySummariesJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: ActionTestActivitySummary.self);
     }
 }
 
-@objc public class ActionTestSummaryGroup : MTLModel, MTLJSONSerializing {
-    @objc var duration: Double = 0
-    @objc var subtests: [ActionTestSummaryIdentifiableObject] = []
+@objc public class ActionTestSummaryGroup : ActionTestSummaryIdentifiableObject {
+    //@objc var duration: Double = 0
+    //@objc var subtests: [ActionTestSummaryIdentifiableObject] = []
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc public override class func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "duration": "duration._value",
             "subtests": "subtests._values",
         ]
     }
     
-    @objc static public func subtestsJSONTransformer() -> ValueTransformer! {
+    @objc class public func subtestsJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: ActionTestSummaryIdentifiableObject.self);
     }
 }
 
 @objc public class ActionTestSummaryIdentifiableObject : MTLModel, MTLJSONSerializing {
     @objc var identifier: String? = nil
+    @objc var subtests: [ActionTestSummaryIdentifiableObject] = []
+    @objc var duration: Double = 0
+    @objc var summaryRef: Reference? = nil
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc public class func `class`(forParsingJSONDictionary JSONDictionary: [AnyHashable : Any]!) -> AnyClass! {
+        if(JSONDictionary["subtests"] != nil) {
+            return ActionTestSummaryGroup.self
+        }
+        else if(JSONDictionary["summaryRef"] != nil) {
+            return ActionTestMetadata.self
+        }
+        else {
+            return self
+        }
+    }
+    
+    @objc public class func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "identifier": "identifier._value",
         ]
     }
 }
 
-@objc public class ActionTestableSummary : MTLModel, MTLJSONSerializing {
+@objc public class ActionTestableSummary : ActionAbstractTestSummary {
     @objc var projectRelativePath: String? = nil
     @objc var targetName: String? = nil
     @objc var testKind: String? = nil
@@ -371,7 +408,7 @@ struct ActionTestMetadata : Codable {
     @objc var testLanguage: String? = nil
     @objc var testRegion: String? = nil
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc override public class func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "projectRelativePath": "projectRelativePath._value",
             "targetName": "targetName._value",
@@ -384,19 +421,19 @@ struct ActionTestMetadata : Codable {
         ]
     }
     
-    @objc static public func testsJSONTransformer() -> ValueTransformer! {
+    @objc class public func testsJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: ActionTestSummaryIdentifiableObject.self);
     }
     
-    @objc static public func failureSummariesJSONTransformer() -> ValueTransformer! {
+    @objc class public func failureSummariesJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: ActionTestFailureSummary.self);
     }
 }
 
-struct ActionsInvocationMetadata : Codable {
-    let creatingWorkspaceFilePath: String
-    let uniqueIdentifier: String
-    let schemeIdentifier: EntityIdentifier?
+@objc public class ActionsInvocationMetadata : MTLModel {
+    @objc var creatingWorkspaceFilePath: String = ""
+    @objc var uniqueIdentifier: String = ""
+    @objc var schemeIdentifier: EntityIdentifier? = nil
 }
 
 // This seems to be the base in most cases
@@ -404,74 +441,73 @@ struct ActionsInvocationMetadata : Codable {
     @objc public var metadataRef : Reference? = nil
     @objc var metrics : ResultMetrics?
     @objc var actions : [ActionRecord] = []
-    //    @objc var archive : ArchiveInfo? = nil
+    @objc var archive : ArchiveInfo? = nil
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "metadataRef": "metadataRef",
             "metrics": "metrics",
             "actions": "actions._values",
-            //            "archive": "archive",
+            "archive": "archive",
         ]
     }
     
-    @objc static public func actionsJSONTransformer() -> ValueTransformer! {
+    @objc class public func actionsJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: ActionRecord.self);
     }
 }
 
-struct ActivityLogCommandInvocationSection : Codable {
-    let commandDetails: String
-    let emittedOutput: String
-    let exitCode: Int?
+@objc public class ActivityLogCommandInvocationSection : ActivityLogSection {
+    @objc var commandDetails: String = ""
+    @objc var emittedOutput: String = ""
+    let exitCode: Int? = nil
 }
 
-struct ActivityLogMajorSection : Codable {
-    let subtitle: String
+@objc public class ActivityLogMajorSection : ActivityLogSection {
+    @objc var subtitle: String = ""
 }
 
-struct ActivityLogMessage : Codable {
-    let type: String
-    let title: String
-    let shortTitle: String?
-    let category: String?
-    //    let location: DocumentLocation?
-    let annotations: [ActivityLogMessageAnnotation]
+@objc public class ActivityLogMessage : MTLModel {
+    @objc var type: String = ""
+    @objc var title: String = ""
+    @objc var shortTitle: String? = nil
+    @objc var category: String? = nil
+    @objc var location: DocumentLocation? = nil
+    @objc var annotations: [ActivityLogMessageAnnotation] = []
 }
 
-struct ActivityLogMessageAnnotation : Codable {
-    let title: String
-    //    let location: DocumentLocation?
-    
+@objc public class ActivityLogMessageAnnotation : MTLModel {
+    @objc var title: String = ""
+    @objc var location: DocumentLocation? = nil
 }
 
-struct ActivityLogSection : Codable {
-    let domainType: String
-    let title: String
-    let startTime: Date?
-    let duration: Double
-    let result: String?
-    let subsections: [ActivityLogSection]
-    let messages: [ActivityLogMessage]
+@objc public class ActivityLogSection : MTLModel {
+    @objc var domainType: String = ""
+    @objc var title: String = ""
+    @objc var startTime: Date? = nil
+    let duration: Double = 0.0
+    @objc var result: String? = nil
+    @objc var subsections: [ActivityLogSection] = []
+    @objc var messages: [ActivityLogMessage] = []
 }
 
-struct ActivityLogTargetBuildSection : Codable {
-    let productType: String?
+@objc public class ActivityLogTargetBuildSection : ActivityLogMajorSection {
+    @objc var productType: String? = nil
 }
 
-struct ActivityLogUnitTestSection : Codable {
-    let testName: String?
-    let suiteName: String?
-    let summary: String?
-    let emittedOutput: String?
-    let performanceTestOutput: String?
-    let testsPassedString: String?
-    let runnablePath: String?
-    let runnableUTI: String?
+@objc public class ActivityLogUnitTestSection : ActivityLogSection {
+    @objc var testName: String? = nil
+    @objc var suiteName: String? = nil
+    @objc var summary: String? = nil
+    @objc var emittedOutput: String? = nil
+    @objc var performanceTestOutput: String? = nil
+    @objc var testsPassedString: String? = nil
+    @objc var runnablePath: String? = nil
+    @objc var runnableUTI: String? = nil
 }
 
-struct ArchiveInfo : Codable {
-    let path: String?
+@objc public class ArchiveInfo : MTLModel {
+    @objc var path: String? = nil
 }
 
 @objc public class CodeCoverageInfo : MTLModel, MTLJSONSerializing {
@@ -479,7 +515,7 @@ struct ArchiveInfo : Codable {
     @objc var reportRef: Reference? = nil
     @objc var archiveRef: Reference? = nil
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "hasCoverageData": "hasCoverageData._value",
             "reportRef": "reportRef",
@@ -492,7 +528,7 @@ struct ArchiveInfo : Codable {
     @objc var url: String = ""
     @objc var concreteTypeName: String = ""
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "url": "url._value",
             "concreteTypeName": "concreteTypeName._value",
@@ -500,20 +536,20 @@ struct ArchiveInfo : Codable {
     }
 }
 
-struct EntityIdentifier : Codable {
-    let entityName: String
-    let containerName: String
-    let entityType: String
-    let sharedState: String
+@objc public class EntityIdentifier : MTLModel {
+    @objc var entityName: String = ""
+    @objc var containerName: String = ""
+    @objc var entityType: String = ""
+    @objc var sharedState: String = ""
 }
 
-@objc class IssueSummary : MTLModel, MTLJSONSerializing {
+@objc public class IssueSummary : MTLModel, MTLJSONSerializing {
     @objc var issueType: String = ""
     @objc var message: String = ""
     @objc var producingTarget: String? = nil
     @objc var documentLocationInCreatingWorkspace: DocumentLocation? = nil
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "issueType": "issueType._value",
             "message": "message._value",
@@ -527,11 +563,12 @@ struct ObjectID : Codable {
     let hash: String
 }
 
+
 @objc public class Reference : MTLModel, MTLJSONSerializing {
     @objc var id: String = ""
     @objc var targetType: TypeDefinition? = nil
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "id": "id._value",
             "targetType": "targetType",
@@ -545,7 +582,7 @@ struct ObjectID : Codable {
     @objc var testFailureSummaries: [TestFailureIssueSummary] = []
     @objc var warningSummaries: [IssueSummary] = []
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "analyzerWarningSummaries": "analyzerWarningSummaries._values",
             "errorSummaries": "errorSummaries._values",
@@ -554,19 +591,19 @@ struct ObjectID : Codable {
         ]
     }
     
-    @objc static public func analyzerWarningSummariesJSONTransformer() -> ValueTransformer! {
+    @objc class public func analyzerWarningSummariesJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: IssueSummary.self);
     }
     
-    @objc static public func errorSummariesJSONTransformer() -> ValueTransformer! {
+    @objc class public func errorSummariesJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: IssueSummary.self);
     }
     
-    @objc static public func testFailureSummariesJSONTransformer() -> ValueTransformer! {
+    @objc class public func testFailureSummariesJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: TestFailureIssueSummary.self);
     }
     
-    @objc static public func warningSummariesJSONTransformer() -> ValueTransformer! {
+    @objc class public func warningSummariesJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: IssueSummary.self);
     }
 }
@@ -578,7 +615,7 @@ struct ObjectID : Codable {
     @objc var testsFailedCount: Int = 0
     @objc var warningCount: Int = 0
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "analyzerWarningCount": "analyzerWarningCount._value",
             "errorCount": "errorCount._value",
@@ -592,13 +629,13 @@ struct ObjectID : Codable {
 @objc public class SortedKeyValueArray : MTLModel, MTLJSONSerializing {
     @objc var storage: [SortedKeyValueArrayPair] = []
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "storage": "storage._values",
         ]
     }
     
-    @objc static public func storageJSONTransformer() -> ValueTransformer! {
+    @objc class public func storageJSONTransformer() -> ValueTransformer! {
         return CPTJSONAdapter.arrayTransformer(withModelClass: SortedKeyValueArrayPair.self);
     }
 }
@@ -608,7 +645,7 @@ struct ObjectID : Codable {
     @objc var key: String = ""
     // @objc var value: SchemaSerializable
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "key": "key._value",
 //            "value": "value",
@@ -616,10 +653,10 @@ struct ObjectID : Codable {
     }
 }
 
-@objc public class TestFailureIssueSummary : MTLModel, MTLJSONSerializing {
+@objc public class TestFailureIssueSummary : IssueSummary {
     @objc var testCaseName: String = ""
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "testCaseName": "testCaseName._value",
         ]
@@ -631,7 +668,7 @@ struct ObjectID : Codable {
     @objc var name: String = ""
     @objc var supertype: TypeDefinition? = nil
     
-    @objc static public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
+    @objc class public func jsonKeyPathsByPropertyKey() -> [AnyHashable : Any]! {
         return [
             "name": "name._value",
             "supertype": "supertype",

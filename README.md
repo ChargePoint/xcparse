@@ -6,7 +6,7 @@ A command line tool to extract code coverage & screenshots from Xcode 11+ XCResu
 
 
 ```
-xcparse [option] [option arguments]
+xcparse [-hq] [-s xcresultPath destination] [-x xcresultPath destination]
 ```
 
 ### Modes
@@ -25,9 +25,4 @@ This is the default mode in which xcparse runs if the user specifies an option.
 3. -q or --quit: Exits interactive mode.
 4. -h or --help: Prints usage information
 
-### Arguments
-
-1. xcresultPath
-2. destination
-
-**The above arguments must be specified when xcparse is run with the --xcov or --screenshots options.**
+**Arguments must be specified when xcparse is run with the --xcov or --screenshots options.**

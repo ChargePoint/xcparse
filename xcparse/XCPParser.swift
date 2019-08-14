@@ -1,5 +1,5 @@
 //
-//  xcparse.swift
+//  XCPParser.swift
 //  xcparse
 //
 //  Created by Rishab Sukumar on 8/8/19.
@@ -26,7 +26,7 @@ enum OptionType: String {
     }
 }
 
-class Xcparse {
+class XCPParser {
     
     let console = Console()
 
@@ -34,7 +34,7 @@ class Xcparse {
       return (OptionType(value: option), option)
     }
     
-    func extractScreenshots(xcresultPath : String, destination : String) {
+    func extractScreenshots(xcresultPath : String, destination : String) throws {
         let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json")
         let xcresultJSONData = Data(xcresultJSON.utf8)
         
@@ -45,15 +45,14 @@ class Xcparse {
             return
         }
         
-        let actionRecord: ActionsInvocationRecord = try! CPTJSONAdapter.model(of: ActionsInvocationRecord.self, fromJSONDictionary: json) as! ActionsInvocationRecord
+        let decoder = JSONDecoder()
+        let actionRecord = try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
         
         var testReferenceIDs: [String] = []
         
         for action in actionRecord.actions {
-            if let actionResult = action.actionResult {
-                if let testRef = actionResult.testsRef {
-                    testReferenceIDs.append(testRef.id)
-                }
+            if let testRef =  action.actionResult.testsRef {
+                testReferenceIDs.append(testRef.id)
             }
         }
         
@@ -61,22 +60,34 @@ class Xcparse {
         var summaryRefIDs: [String] = []
         for testRefID in testReferenceIDs {
             let testJSONString : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json --id \(testRefID)")
-            let testJSON = try! JSONSerialization.jsonObject(with: Data(testJSONString.utf8), options: []) as? [String:AnyObject]
-            let testPlanRunSummaries: ActionTestPlanRunSummaries = try! CPTJSONAdapter.model(of: ActionTestPlanRunSummaries.self, fromJSONDictionary: testJSON) as! ActionTestPlanRunSummaries
+            let testRefData = Data(testJSONString.utf8)
             
+            let testJSON = try! JSONSerialization.jsonObject(with: testRefData, options: []) as? [String:AnyObject]
+            
+            let testPlanRunSummaries = try decoder.decode(ActionTestPlanRunSummaries.self, from: testRefData)
+            
+            // TODO: Alex - We need to put this loop out of its misery
             for summary in testPlanRunSummaries.summaries {
                 let testableSummaries = summary.testableSummaries
                 for testableSummary in testableSummaries {
                     let tests = testableSummary.tests
                     for test in tests {
-                        let subtests1 = test.subtests
-                        for subtest1 in subtests1 {
-                            let subtests2 = subtest1.subtests
-                            for subtest2 in subtests2 {
-                                let subtests3 = subtest2.subtests
-                                for subtest3 in subtests3 {
-                                    if let summaryRef = subtest3.summaryRef {
-                                        summaryRefIDs.append(summaryRef.id)
+                        if let testSummaryGroup = test as? ActionTestSummaryGroup {
+                            let subtests1 = testSummaryGroup.subtests
+                            for subtest1 in subtests1 {
+                                if let testSummaryGroup2 = subtest1 as? ActionTestSummaryGroup {
+                                    let subtests2 = testSummaryGroup2.subtests
+                                    for subtest2 in subtests2 {
+                                        if let testSummaryGroup3 = subtest2 as? ActionTestSummaryGroup {
+                                            let subtests3 = testSummaryGroup3.subtests
+                                            for subtest3 in subtests3 {
+                                                if let testMetadata = subtest3 as? ActionTestMetadata {
+                                                    if let summaryRef = testMetadata.summaryRef {
+                                                        summaryRefIDs.append(summaryRef.id)
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -91,9 +102,12 @@ class Xcparse {
         var screenshotNames: [String] = []
         for summaryRefID in summaryRefIDs {
             let testJSONString : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json --id \(summaryRefID)")
-            let testJSON = try! JSONSerialization.jsonObject(with: Data(testJSONString.utf8), options: []) as? [String:AnyObject]
+            let summaryRefData = Data(testJSONString.utf8)
             
-            let testSummary : ActionTestSummary = try! CPTJSONAdapter.model(of: ActionTestSummary.self, fromJSONDictionary: testJSON) as! ActionTestSummary
+//            let testJSON = try! JSONSerialization.jsonObject(with: summaryRefData, options: []) as? [String:AnyObject]
+            
+            let testSummary = try decoder.decode(ActionTestSummary.self, from: summaryRefData)
+            
             for activitySummary in testSummary.activitySummaries {
                 let attachments = activitySummary.attachments
                 for attachment in attachments {
@@ -113,7 +127,7 @@ class Xcparse {
         
     }
     
-    func extractCoverage(xcresultPath : String, destination : String) {
+    func extractCoverage(xcresultPath : String, destination : String) throws {
         let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json")
         let xcresultJSONData = Data(xcresultJSON.utf8)
         
@@ -124,17 +138,14 @@ class Xcparse {
             return
         }
         
-        let actionRecord: ActionsInvocationRecord = try! CPTJSONAdapter.model(of: ActionsInvocationRecord.self, fromJSONDictionary: json) as! ActionsInvocationRecord
+        let decoder = JSONDecoder()
+        let actionRecord = try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
         
         var coverageReferenceIDs: [String] = []
         
         for action in actionRecord.actions {
-            if let actionResult = action.actionResult {
-                if let coverage = actionResult.coverage {
-                    if let reportRef = coverage.reportRef {
-                        coverageReferenceIDs.append(reportRef.id)
-                    }
-                }
+            if let reportRef = action.actionResult.coverage.reportRef {
+                coverageReferenceIDs.append(reportRef.id)
             }
         }
         for id in coverageReferenceIDs {
@@ -142,7 +153,7 @@ class Xcparse {
         }
     }
     
-    func staticMode() {
+    func staticMode() throws {
         let argCount = CommandLine.argc
         let argument = CommandLine.arguments[1]
         var startIndex : String.Index
@@ -161,7 +172,7 @@ class Xcparse {
                 console.printUsage()
             }
             else {
-                extractScreenshots(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
+                try extractScreenshots(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
             }
         case .xcov:
             if argCount != 4 {
@@ -169,7 +180,7 @@ class Xcparse {
                 console.printUsage()
             }
             else {
-                extractCoverage(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
+                try extractCoverage(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
             }
             break
         case .help:
@@ -180,7 +191,7 @@ class Xcparse {
         }
     }
     
-    func interactiveMode() {
+    func interactiveMode() throws {
         console.writeMessage("Welcome to xcparse. This program can extract screenshots and coverage files from an *.xcresult file.")
         var shouldQuit = false
         while !shouldQuit {
@@ -192,13 +203,13 @@ class Xcparse {
                 let path = console.getInput()
                 console.writeMessage("Type the path to the destination folder for your screenshots:")
                 let destinationPath = console.getInput()
-                extractScreenshots(xcresultPath: path, destination: destinationPath)
+                try extractScreenshots(xcresultPath: path, destination: destinationPath)
             case .xcov:
                 console.writeMessage("Type the path to your *.xcresult file:")
                 let path = console.getInput()
                 console.writeMessage("Type the path to the destination folder for your coverage file:")
                 let destinationPath = console.getInput()
-                extractCoverage(xcresultPath: path, destination: destinationPath)
+                try extractCoverage(xcresultPath: path, destination: destinationPath)
                 break
             case .quit:
                 shouldQuit = true

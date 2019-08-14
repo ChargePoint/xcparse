@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import XCParseCore
 
 enum OptionType: String {
     case screenshot = "s"

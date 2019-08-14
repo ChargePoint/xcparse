@@ -7,16 +7,15 @@
 //
 
 import Foundation
-import Mantle
 
 
 // MARK: -
 // MARK: Main
 
-let xcparse = Xcparse()
+let parser = XCPParser()
 if CommandLine.argc < 2 {
-    xcparse.interactiveMode()
+    try parser.interactiveMode()
 } else {
-    xcparse.staticMode()
+    try parser.staticMode()
 }
 

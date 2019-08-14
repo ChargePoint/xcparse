@@ -28,10 +28,11 @@ class Console {
 
         let executableName = (CommandLine.arguments[0] as NSString).lastPathComponent
         writeMessage("usage (static mode): xcparse [-hq] [-s xcresultPath destination] [-x xcresultPath destination]\n")
+        writeMessage("xcparse only accepts a single argument at a time.\n")
         writeMessage("usage (interactive mode): xcparse\n")
-        writeMessage(" -s, --screenshots : Extracts screenshots from xcresult file at xcresultPath and saves it in destination folder")
-        writeMessage(" -x, --xcov : Extracts coverage from xcresult file at xcresultPath and saves it in destination folder")
-        writeMessage(" -h, --help : Prints usage message")
+        writeMessage(" -s, --screenshots : Extracts screenshots from xcresult file at xcresultPath and saves it in destination folder.")
+        writeMessage(" -x, --xcov : Extracts coverage from xcresult file at xcresultPath and saves it in destination folder.")
+        writeMessage(" -h, --help : Prints usage message.")
         writeMessage(" -q, --quit : Exits interactive mode. Cannot be used in static mode.")
     }
     

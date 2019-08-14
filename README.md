@@ -9,7 +9,7 @@ A command line tool to extract code coverage & screenshots from Xcode 11+ XCResu
 xcparse [-hq] [-s xcresultPath destination] [-x xcresultPath destination]
 ```
 
-**xcparse only accepts a single argument at a time.** 
+**xcparse only accepts a single option at a time.** 
 
 ### Modes
 

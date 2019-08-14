@@ -2,8 +2,16 @@
 
 A command line tool to extract code coverage & screenshots from Xcode 11+ XCResult files.
 
-## Usage
+## Installation 
 
+Enter the following command  in terminal.
+
+```
+brew install chargepoint/xcparse/xcparse
+```
+This will tap into our xcparse homebrew tap and install the tool on your local machine.
+
+## Usage
 
 ```
 xcparse [-hq] [-s xcresultPath destination] [-x xcresultPath destination]
@@ -28,3 +36,8 @@ This is the default mode in which xcparse runs if the user specifies an option.
 4. -h or --help: Prints usage information
 
 **Arguments must be specified when xcparse is run with the --xcov or --screenshots options.**
+
+## Useful Commands
+
+1. brew untap - Untaps from specified homebrew tap
+2. brew uninstall - Uninstall homebrew tool

@@ -161,97 +161,97 @@ enum XCResultTypeFamily: String, ClassFamily {
     func getType() -> AnyObject.Type {
         switch self {
         case .ActionAbstractTestSummary:
-            return xcparse.ActionAbstractTestSummary.self
+            return XCParseCore.ActionAbstractTestSummary.self
         case .ActionDeviceRecord:
-            return xcparse.ActionDeviceRecord.self
+            return XCParseCore.ActionDeviceRecord.self
         case .ActionPlatformRecord:
-            return xcparse.ActionPlatformRecord.self
+            return XCParseCore.ActionPlatformRecord.self
         case .ActionRecord:
-            return xcparse.ActionRecord.self
+            return XCParseCore.ActionRecord.self
         case .ActionResult:
-            return xcparse.ActionResult.self
+            return XCParseCore.ActionResult.self
         case .ActionRunDestinationRecord:
-            return xcparse.ActionRunDestinationRecord.self
+            return XCParseCore.ActionRunDestinationRecord.self
         case .ActionSDKRecord:
-            return xcparse.ActionSDKRecord.self
+            return XCParseCore.ActionSDKRecord.self
         case .ActionTestActivitySummary:
-            return xcparse.ActionTestActivitySummary.self
+            return XCParseCore.ActionTestActivitySummary.self
         case .ActionTestAttachment:
-            return xcparse.ActionTestAttachment.self
+            return XCParseCore.ActionTestAttachment.self
         case .ActionTestFailureSummary:
-            return xcparse.ActionTestActivitySummary.self
+            return XCParseCore.ActionTestActivitySummary.self
         case .ActionTestMetadata:
-            return xcparse.ActionTestMetadata.self
+            return XCParseCore.ActionTestMetadata.self
         case .ActionTestPerformanceMetricSummary:
-            return xcparse.ActionTestPerformanceMetricSummary.self
+            return XCParseCore.ActionTestPerformanceMetricSummary.self
         case .ActionTestPlanRunSummaries:
-            return xcparse.ActionTestPlanRunSummaries.self
+            return XCParseCore.ActionTestPlanRunSummaries.self
         case .ActionTestPlanRunSummary:
-            return xcparse.ActionTestPlanRunSummary.self
+            return XCParseCore.ActionTestPlanRunSummary.self
         case .ActionTestSummary:
-            return xcparse.ActionTestSummary.self
+            return XCParseCore.ActionTestSummary.self
         case .ActionTestSummaryGroup:
-            return xcparse.ActionTestSummaryGroup.self
+            return XCParseCore.ActionTestSummaryGroup.self
         case .ActionTestSummaryIdentifiableObject:
-            return xcparse.ActionTestSummaryIdentifiableObject.self
+            return XCParseCore.ActionTestSummaryIdentifiableObject.self
         case .ActionTestableSummary:
-            return xcparse.ActionTestableSummary.self
+            return XCParseCore.ActionTestableSummary.self
         case .ActionsInvocationMetadata:
-            return xcparse.ActionsInvocationMetadata.self
+            return XCParseCore.ActionsInvocationMetadata.self
         case .ActionsInvocationRecord:
-            return xcparse.ActionsInvocationRecord.self
+            return XCParseCore.ActionsInvocationRecord.self
         case .ActivityLogCommandInvocationSection:
-            return xcparse.ActivityLogCommandInvocationSection.self
+            return XCParseCore.ActivityLogCommandInvocationSection.self
         case .ActivityLogMajorSection:
-            return xcparse.ActivityLogMajorSection.self
+            return XCParseCore.ActivityLogMajorSection.self
         case .ActivityLogMessage:
-            return xcparse.ActivityLogMessage.self
+            return XCParseCore.ActivityLogMessage.self
         case .ActivityLogMessageAnnotation:
-            return xcparse.ActivityLogMessageAnnotation.self
+            return XCParseCore.ActivityLogMessageAnnotation.self
         case .ActivityLogSection:
-            return xcparse.ActivityLogSection.self
+            return XCParseCore.ActivityLogSection.self
         case .ActivityLogTargetBuildSection:
-            return xcparse.ActivityLogTargetBuildSection.self
+            return XCParseCore.ActivityLogTargetBuildSection.self
         case .ActivityLogUnitTestSection:
-            return xcparse.ActivityLogUnitTestSection.self
+            return XCParseCore.ActivityLogUnitTestSection.self
         case .ArchiveInfo:
-            return xcparse.ArchiveInfo.self
+            return XCParseCore.ArchiveInfo.self
         case .Array:
-            return xcparse.XCResultArrayValue<XCResultObject>.self
+            return XCParseCore.XCResultArrayValue<XCResultObject>.self
         case .Bool:
-            return xcparse.XCResultValueType.self
+            return XCParseCore.XCResultValueType.self
         case .CodeCoverageInfo:
-            return xcparse.CodeCoverageInfo.self
+            return XCParseCore.CodeCoverageInfo.self
         case .Date:
-            return xcparse.XCResultValueType.self
+            return XCParseCore.XCResultValueType.self
         case .DocumentLocation:
-            return xcparse.DocumentLocation.self
+            return XCParseCore.DocumentLocation.self
         case .Double:
-            return xcparse.XCResultValueType.self
+            return XCParseCore.XCResultValueType.self
         case .EntityIdentifier:
-            return xcparse.EntityIdentifier.self
+            return XCParseCore.EntityIdentifier.self
         case .Int:
-            return xcparse.XCResultValueType.self
+            return XCParseCore.XCResultValueType.self
         case .IssueSummary:
-            return xcparse.IssueSummary.self
+            return XCParseCore.IssueSummary.self
         case .ObjectID:
-            return xcparse.ObjectID.self
+            return XCParseCore.ObjectID.self
         case .Reference:
-            return xcparse.Reference.self
+            return XCParseCore.Reference.self
         case .ResultIssueSummaries:
-            return xcparse.ResultIssueSummaries.self
+            return XCParseCore.ResultIssueSummaries.self
         case .ResultMetrics:
-            return xcparse.ResultMetrics.self
+            return XCParseCore.ResultMetrics.self
         case .SortedKeyValueArray:
             return AnyObject.self
         case .SortedKeyValueArrayPair:
             return AnyObject.self
         case .String:
-            return xcparse.XCResultValueType.self
+            return XCParseCore.XCResultValueType.self
         case .TestFailureIssueSummary:
-            return xcparse.TestFailureIssueSummary.self
+            return XCParseCore.TestFailureIssueSummary.self
         case .TypeDefinition:
-            return xcparse.TypeDefinition.self
+            return XCParseCore.TypeDefinition.self
         }
     }
 }

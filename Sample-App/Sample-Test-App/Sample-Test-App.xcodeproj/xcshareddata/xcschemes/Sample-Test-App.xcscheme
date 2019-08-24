@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "1100"
+   version = "1.7">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "54FABB082302265600369599"
+               BuildableName = "Sample-Test-App.app"
+               BlueprintName = "Sample-Test-App"
+               ReferencedContainer = "container:Sample-Test-App.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <TestPlans>
+         <TestPlanReference
+            reference = "container:Sample-Test-App.xctestplan"
+            default = "YES">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Sample-Test-App.xcodeproj/CPTMultipleConfigurations.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Sample-Test-App.xcodeproj/CPTTestPlanWithEmptyBundle.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Sample-Test-App.xcodeproj/CPTTestPlanWithSampleTests.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:CPTTestPlanWithUnitTest.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Sample-Test-App.xcodeproj/CPTMixedTestPlan.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:CPTSingleBundleSingleTest.xctestplan">
+         </TestPlanReference>
+      </TestPlans>
+      <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "54FABB1A2302265700369599"
+               BuildableName = "Sample-Test-AppTests.xctest"
+               BlueprintName = "Sample-Test-AppTests"
+               ReferencedContainer = "container:Sample-Test-App.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "54FABB252302265700369599"
+               BuildableName = "Sample-Test-AppUITests.xctest"
+               BlueprintName = "Sample-Test-AppUITests"
+               ReferencedContainer = "container:Sample-Test-App.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "5443C22D23037027009E7319"
+               BuildableName = "CPTEmptyTestBundle.xctest"
+               BlueprintName = "CPTEmptyTestBundle"
+               ReferencedContainer = "container:Sample-Test-App.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "5443C23B230370C0009E7319"
+               BuildableName = "CPTTitleChangeTests.xctest"
+               BlueprintName = "CPTTitleChangeTests"
+               ReferencedContainer = "container:Sample-Test-App.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "5443C25023037F72009E7319"
+               BuildableName = "CPTBundleWithMultipleSuites.xctest"
+               BlueprintName = "CPTBundleWithMultipleSuites"
+               ReferencedContainer = "container:Sample-Test-App.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "5443C26523047D57009E7319"
+               BuildableName = "CPTUnitTestBundle.xctest"
+               BlueprintName = "CPTUnitTestBundle"
+               ReferencedContainer = "container:Sample-Test-App.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "54FABB082302265600369599"
+            BuildableName = "Sample-Test-App.app"
+            BlueprintName = "Sample-Test-App"
+            ReferencedContainer = "container:Sample-Test-App.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "54FABB082302265600369599"
+            BuildableName = "Sample-Test-App.app"
+            BlueprintName = "Sample-Test-App"
+            ReferencedContainer = "container:Sample-Test-App.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>

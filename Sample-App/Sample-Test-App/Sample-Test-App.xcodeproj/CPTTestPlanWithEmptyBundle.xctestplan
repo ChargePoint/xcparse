@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "2E945ED3-27E0-4E40-A65E-41B0425E802B",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Sample-Test-App.xcodeproj",
+        "identifier" : "5443C22D23037027009E7319",
+        "name" : "CPTEmptyTestBundle"
+      }
+    }
+  ],
+  "version" : 1
+}

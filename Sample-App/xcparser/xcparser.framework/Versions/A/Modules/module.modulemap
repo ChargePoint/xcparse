@@ -1,0 +1,11 @@
+framework module xcparser {
+  umbrella header "xcparser.h"
+
+  export *
+  module * { export * }
+}
+
+module xcparser.Swift {
+    header "xcparser-Swift.h"
+    requires objc
+}

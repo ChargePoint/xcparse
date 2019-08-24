@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "9B6CEFD8-4B31-401B-B272-C10B82683360",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Sample-Test-App.xcodeproj",
+        "identifier" : "5443C23B230370C0009E7319",
+        "name" : "CPTTitleChangeTests"
+      }
+    }
+  ],
+  "version" : 1
+}

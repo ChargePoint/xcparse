@@ -14,7 +14,7 @@ This will tap into our xcparse homebrew tap and install the tool on your local m
 ## Usage
 
 ```
-xcparse [-hq] [-s xcresultPath destination] [-x xcresultPath destination]
+xcparse [-phq] [-s xcresultPath destination] [-x xcresultPath destination]
 ```
 
 **xcparse only accepts a single option at a time.** 
@@ -33,7 +33,8 @@ This is the default mode in which xcparse runs if the user specifies an option.
 1. -s or --screenshots: Extracts screenshots from specified *.xcresult file and saves them in specified destination folder.
 2. -x or --xcov: Extracts coverage from specified *.xcresult file and saves it in specified destination folder.
 3. -q or --quit: Exits interactive mode.
-4. -h or --help: Prints usage information
+4. -h or --help: Prints usage information.
+5. -p or --xcpretty: Exports *.xcresult logs in xcpretty-json-format.
 
 **Arguments must be specified when xcparse is run with the --xcov or --screenshots options.**
 

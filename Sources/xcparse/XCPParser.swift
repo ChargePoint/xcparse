@@ -13,6 +13,7 @@ enum OptionType: String {
     case screenshot = "s"
     case xcov = "x"
     case help = "h"
+    case xcpretty = "p"
     case quit = "q"
     case unknown
   
@@ -21,6 +22,7 @@ enum OptionType: String {
             case "s", "screenshots": self = .screenshot
             case "x", "xcov": self = .xcov
             case "h", "help": self = .help
+            case "p", "xcpretty": self = .xcpretty
             case "q", "quit": self = .quit
             default: self = .unknown
         }
@@ -154,6 +156,32 @@ class XCPParser {
         }
     }
     
+    func extractLogs(xcresultPath : String, destination : String) throws {
+        let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json")
+        let xcresultJSONData = Data(xcresultJSON.utf8)
+        
+        var json : [String:AnyObject]
+        do {
+            json = try JSONSerialization.jsonObject(with: xcresultJSONData, options: []) as! [String:AnyObject]
+        } catch {
+            return
+        }
+        
+        let decoder = JSONDecoder()
+        let actionRecord = try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
+        
+        var logReferenceIDs: [String] = []
+        
+        for action in actionRecord.actions {
+            if let logRef = action.actionResult.logRef {
+                logReferenceIDs.append(logRef.id)
+            }
+        }
+        for id in logReferenceIDs {
+            let result = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --id \(id) | XCPRETTY_JSON_FILE_OUTPUT=\(destination)/errors.json xcpretty -f `xcpretty-json-formatter`")
+        }
+    }
+    
     func staticMode() throws {
         let argCount = CommandLine.argc
         let argument = CommandLine.arguments[1]
@@ -183,7 +211,14 @@ class XCPParser {
             else {
                 try extractCoverage(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
             }
-            break
+        case .xcpretty:
+            if argCount != 4 {
+                console.writeMessage("Missing Arguments", to: .error)
+                console.printUsage()
+            }
+            else {
+                try extractLogs(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
+            }
         case .help:
             console.printUsage()
         case .unknown, .quit:
@@ -196,7 +231,7 @@ class XCPParser {
         console.writeMessage("Welcome to xcparse. This program can extract screenshots and coverage files from an *.xcresult file.")
         var shouldQuit = false
         while !shouldQuit {
-            console.writeMessage("Type 's' to extract screenshots, 'x' to extract code coverage files, 'h' for help, or 'q' to quit.")
+            console.writeMessage("Type 's' to extract screenshots, 'x' to extract code coverage files, 'p' to export *.xcresult logs in xcpretty-json-format, 'h' for help, or 'q' to quit.")
             let (option, value) = getOption(console.getInput())
             switch option {
             case .screenshot:
@@ -211,7 +246,12 @@ class XCPParser {
                 console.writeMessage("Type the path to the destination folder for your coverage file:")
                 let destinationPath = console.getInput()
                 try extractCoverage(xcresultPath: path, destination: destinationPath)
-                break
+            case .xcpretty:
+                console.writeMessage("Type the path to your *.xcresult file:")
+                let path = console.getInput()
+                console.writeMessage("Type the path to the destination folder for your coverage file:")
+                let destinationPath = console.getInput()
+                try extractLogs(xcresultPath: path, destination: destinationPath)
             case .quit:
                 shouldQuit = true
             case .help:

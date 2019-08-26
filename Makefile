@@ -6,6 +6,12 @@ build:
 	swift build -c release --disable-sandbox
 
 install: build
+ifeq ($(shell gem list \^xcpretty\$$ -i), false)
+	gem install xcpretty
+endif
+ifeq ($(shell gem list \^xcpretty-json-formatter\$$ -i), false)
+	gem install xcpretty-json-formatter
+endif
 	install ".build/release/xcparse" "$(bindir)"
 
 uninstall:

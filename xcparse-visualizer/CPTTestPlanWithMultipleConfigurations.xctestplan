@@ -1,0 +1,101 @@
+{
+  "configurations" : [
+    {
+      "id" : "3BCC2033-9AA3-4F62-ABDE-08574B9FF783",
+      "name" : "Light Mode",
+      "options" : {
+
+      }
+    },
+    {
+      "id" : "EBE4936B-705D-4ED1-9DA9-4F7C34A0152C",
+      "name" : "Dark Mode",
+      "options" : {
+        "commandLineArgumentEntries" : [
+          {
+            "argument" : "-CPTUIUserInterfaceStyle \"Dark\""
+          }
+        ]
+      }
+    },
+    {
+      "id" : "827F82D9-BA2B-421B-8ED9-B186D20DABE7",
+      "name" : "Random Order",
+      "options" : {
+        "commandLineArgumentEntries" : [
+
+        ],
+        "testExecutionOrdering" : "random"
+      }
+    },
+    {
+      "id" : "14CAB5EF-3AD0-439F-95F5-E898227C0C14",
+      "name" : "Keep All Screenshots",
+      "options" : {
+        "commandLineArgumentEntries" : [
+
+        ],
+        "uiTestingScreenshotsLifetime" : "keepAlways",
+        "userAttachmentLifetime" : "keepAlways"
+      }
+    },
+    {
+      "id" : "FCC36C7F-9203-4210-9E45-FE1C3DD6B563",
+      "name" : "No Screenshots",
+      "options" : {
+        "commandLineArgumentEntries" : [
+
+        ],
+        "uiTestingScreenshotsLifetime" : "keepNever",
+        "userAttachmentLifetime" : "keepNever"
+      }
+    },
+    {
+      "id" : "E3A51DD9-0FAF-4FE7-BD4E-5414BDCE3A84",
+      "name" : "Delete screenshots on success",
+      "options" : {
+        "commandLineArgumentEntries" : [
+
+        ]
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "-CPTUIUserInterfaceStyle \"Dark\""
+      }
+    ]
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:xcparse-visualizer.xcodeproj",
+        "identifier" : "5443C25023037F72009E7319",
+        "name" : "CPTBundleWithMultipleSuites"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:xcparse-visualizer.xcodeproj",
+        "identifier" : "5443C22D23037027009E7319",
+        "name" : "CPTEmptyTestBundle"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:xcparse-visualizer.xcodeproj",
+        "identifier" : "54FABB1A2302265700369599",
+        "name" : "xcparse-visualizerTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:xcparse-visualizer.xcodeproj",
+        "identifier" : "54FABB252302265700369599",
+        "name" : "xcparse-visualizerUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "F444536E-139E-4513-ABBD-66A1924C6BEB",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:xcparse-visualizer.xcodeproj",
+        "identifier" : "5443C23B230370C0009E7319",
+        "name" : "CPTTitleChangeTests"
+      }
+    }
+  ],
+  "version" : 1
+}

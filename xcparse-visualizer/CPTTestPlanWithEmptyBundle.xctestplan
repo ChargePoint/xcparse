@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "02D5567F-181C-4C65-AEFE-1DFE9078F602",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:xcparse-visualizer.xcodeproj",
+        "identifier" : "5443C22D23037027009E7319",
+        "name" : "CPTEmptyTestBundle"
+      }
+    }
+  ],
+  "version" : 1
+}

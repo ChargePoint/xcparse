@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "500C97D5-2ABA-46ED-923E-E2C55F484B00",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:xcparse-visualizer.xcodeproj",
+        "identifier" : "5443C26523047D57009E7319",
+        "name" : "CPTUnitTestBundle"
+      }
+    }
+  ],
+  "version" : 1
+}

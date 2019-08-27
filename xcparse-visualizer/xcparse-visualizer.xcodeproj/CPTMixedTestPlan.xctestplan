@@ -1,0 +1,97 @@
+{
+  "configurations" : [
+    {
+      "id" : "27CA1D05-24F8-4E99-8E92-E737C151AA9F",
+      "name" : "Light Mode",
+      "options" : {
+        "commandLineArgumentEntries" : [
+          {
+            "argument" : "-CPTUIUserInterfaceStyle \"Light\""
+          }
+        ]
+      }
+    },
+    {
+      "id" : "B7BBCF58-549E-490E-A4AE-FFBAD9F95E32",
+      "name" : "Dark Mode",
+      "options" : {
+        "commandLineArgumentEntries" : [
+          {
+            "argument" : "-CPTUIUserInterfaceStyle \"Dark\""
+          }
+        ]
+      }
+    },
+    {
+      "id" : "B466332A-8EA1-4C80-A43B-1536A1478C65",
+      "name" : "Keep all screenshots",
+      "options" : {
+        "uiTestingScreenshotsLifetime" : "keepAlways",
+        "userAttachmentLifetime" : "keepAlways"
+      }
+    },
+    {
+      "id" : "4F6FD14B-1ACC-4F78-BE7F-137A881A80E6",
+      "name" : "No screenshots",
+      "options" : {
+        "uiTestingScreenshotsLifetime" : "keepNever",
+        "userAttachmentLifetime" : "keepNever"
+      }
+    },
+    {
+      "id" : "0FEFB153-632A-47BA-A2BA-3DAE55C2B392",
+      "name" : "Delete screenshots on success",
+      "options" : {
+
+      }
+    },
+    {
+      "id" : "2617E195-C234-46FB-BF66-8A6BD95EBEBC",
+      "name" : "Random Order",
+      "options" : {
+        "testExecutionOrdering" : "random"
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Sample-Test-App.xcodeproj",
+        "identifier" : "5443C26523047D57009E7319",
+        "name" : "CPTUnitTestBundle"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Sample-Test-App.xcodeproj",
+        "identifier" : "5443C25023037F72009E7319",
+        "name" : "CPTBundleWithMultipleSuites"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Sample-Test-App.xcodeproj",
+        "identifier" : "54FABB1A2302265700369599",
+        "name" : "Sample-Test-AppTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Sample-Test-App.xcodeproj",
+        "identifier" : "5443C22D23037027009E7319",
+        "name" : "CPTEmptyTestBundle"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Sample-Test-App.xcodeproj",
+        "identifier" : "54FABB252302265700369599",
+        "name" : "Sample-Test-AppUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

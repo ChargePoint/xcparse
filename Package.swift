@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "xcparse",
+    name: "xcparse-package",
     platforms: [
        .macOS(.v10_13),
     ],
@@ -19,9 +19,11 @@ let package = Package(
             name: "xcparse",
             dependencies: [ "XCParseCore" ]),
         .target(name: "XCParseCore"),
+        .target(name: "xcparse-visualizer",
+                dependencies: [ "XCParseCore" ]),
         .testTarget(
             name: "xcparseTests",
-            dependencies: ["xcparse"]),
+            dependencies: ["xcparse"])
     ],
     swiftLanguageVersions: [.v5]
 )

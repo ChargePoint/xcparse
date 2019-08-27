@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "006A402D-3626-4BFB-AF09-B08712232159",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:xcparse-visualizer.xcodeproj",
+        "identifier" : "54FABB1A2302265700369599",
+        "name" : "xcparse-visualizerTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:xcparse-visualizer.xcodeproj",
+        "identifier" : "54FABB252302265700369599",
+        "name" : "xcparse-visualizerUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

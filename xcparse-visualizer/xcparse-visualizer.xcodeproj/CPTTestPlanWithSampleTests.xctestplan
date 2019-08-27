@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "3792B2CA-4278-4127-B77A-367758F3268D",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Sample-Test-App.xcodeproj",
+        "identifier" : "54FABB1A2302265700369599",
+        "name" : "Sample-Test-AppTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Sample-Test-App.xcodeproj",
+        "identifier" : "54FABB252302265700369599",
+        "name" : "Sample-Test-AppUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

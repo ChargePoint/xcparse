@@ -9,20 +9,23 @@
 import Foundation
 
 
-open class ActionAbstractTestSummary : Codable {
+open class ActionAbstractTestSummary : XCResultObject {
     public let name: String?
     
-    enum ActionAbstractTestSummaryCodingKeys: String, CodingKey {
+    public enum ActionAbstractTestSummaryCodingKeys: String, CodingKey {
         case name
     }
     
-    required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionAbstractTestSummaryCodingKeys.self)
         name = try container.decodeXCResultTypeIfPresent(forKey: .name)
+        try super.init(from: decoder)
+        let propertyList = ["name" : name]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActionDeviceRecord : Codable {
+open class ActionDeviceRecord : XCResultObject {
     public let name: String
     public let isConcreteDevice: Bool
     public let operatingSystemVersion: String
@@ -42,7 +45,7 @@ open class ActionDeviceRecord : Codable {
     public let logicalCPUCoresPerPackage: Int?
     public let platformRecord: ActionPlatformRecord
     
-    enum ActionDeviceRecordCodingKeys: String, CodingKey {
+    public enum ActionDeviceRecordCodingKeys: String, CodingKey {
         case name
         case isConcreteDevice
         case operatingSystemVersion
@@ -63,7 +66,7 @@ open class ActionDeviceRecord : Codable {
         case platformRecord
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionDeviceRecordCodingKeys.self)
         name = try container.decodeXCResultType(forKey: .name)
         isConcreteDevice = try container.decodeXCResultType(forKey: .isConcreteDevice)
@@ -83,26 +86,33 @@ open class ActionDeviceRecord : Codable {
         physicalCPUCoresPerPackage = try container.decodeXCResultTypeIfPresent(forKey: .physicalCPUCoresPerPackage)
         logicalCPUCoresPerPackage = try container.decodeXCResultTypeIfPresent(forKey: .logicalCPUCoresPerPackage)
         platformRecord = try container.decodeXCResultObject(forKey: .platformRecord)
+        try super.init(from: decoder)
+        let propertyList = ["name":name, "isConcreteDevice":isConcreteDevice, "operatingSystemVersion":operatingSystemVersion, "operatingSystemVersionWithBuildNumber":operatingSystemVersionWithBuildNumber, "nativeArchitecture":nativeArchitecture, "modelName":modelName, "modelCode":modelCode, "modelUTI":modelUTI, "identifier":identifier, "isWireless":isWireless, "cpuKind":cpuKind, "cpuCount":cpuCount, "cpuSpeedInMHz": cpuSpeedInMHz, "busSpeedInMHz": busSpeedInMHz,
+                            "ramSizeInMegabytes": ramSizeInMegabytes, "physicalCPUCoresPerPackage":physicalCPUCoresPerPackage, "logicalCPUCoresPerPackage":logicalCPUCoresPerPackage, "platformRecord":platformRecord] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActionPlatformRecord : Codable {
+open class ActionPlatformRecord : XCResultObject {
     public let identifier: String
     public let userDescription: String
     
-    enum ActionPlatformRecordCodingKeys: String, CodingKey {
+    public enum ActionPlatformRecordCodingKeys: String, CodingKey {
         case identifier
         case userDescription
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionPlatformRecordCodingKeys.self)
         identifier = try container.decodeXCResultType(forKey: .identifier)
         userDescription = try container.decodeXCResultType(forKey: .userDescription)
+        try super.init(from: decoder)
+        let propertyList = ["identifier":identifier, "userDescription":userDescription]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActionRecord : Codable {
+open class ActionRecord : XCResultObject {
     public let schemeCommandName: String
     public let schemeTaskName: String
     public let title: String?
@@ -112,7 +122,7 @@ open class ActionRecord : Codable {
     public let buildResult: ActionResult
     public let actionResult: ActionResult
     
-    enum ActionRecordCodingKeys: String, CodingKey {
+    public enum ActionRecordCodingKeys: String, CodingKey {
         case schemeCommandName
         case schemeTaskName
         case title
@@ -123,7 +133,7 @@ open class ActionRecord : Codable {
         case actionResult
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionRecordCodingKeys.self)
         schemeCommandName = try container.decodeXCResultType(forKey: .schemeCommandName)
         schemeTaskName = try container.decodeXCResultType(forKey: .schemeTaskName)
@@ -133,10 +143,13 @@ open class ActionRecord : Codable {
         runDestination = try container.decodeXCResultObject(forKey: .runDestination)
         buildResult = try container.decodeXCResultObject(forKey: .buildResult)
         actionResult = try container.decodeXCResultObject(forKey: .actionResult)
+        try super.init(from: decoder)
+        let propertyList = ["schemeCommandName": schemeCommandName, "schemeTaskName": schemeTaskName, "title": title, "startedTime":startedTime, "endedTime":endedTime, "runDestination":runDestination, "buildResult":buildResult, "actionResult": actionResult] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActionResult : Codable {
+open class ActionResult : XCResultObject {
     public let resultName: String
     public let status: String
     public let metrics: ResultMetrics
@@ -147,7 +160,7 @@ open class ActionResult : Codable {
     public let testsRef: Reference?
     public let diagnosticsRef: Reference?
     
-    enum ActionResultCodingKeys: String, CodingKey {
+    public enum ActionResultCodingKeys: String, CodingKey {
         case resultName
         case status
         case metrics
@@ -159,7 +172,7 @@ open class ActionResult : Codable {
         case diagnosticsRef
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionResultCodingKeys.self)
         resultName = try container.decodeXCResultType(forKey: .resultName)
         status = try container.decodeXCResultType(forKey: .status)
@@ -170,17 +183,20 @@ open class ActionResult : Codable {
         logRef = try container.decodeXCResultObjectIfPresent(forKey: .logRef)
         testsRef = try container.decodeXCResultObjectIfPresent(forKey: .testsRef)
         diagnosticsRef = try container.decodeXCResultObjectIfPresent(forKey: .diagnosticsRef)
+        try super.init(from: decoder)
+        let propertyList = ["resultName": resultName, "status": status, "metrics": metrics, "issues": issues, "coverage": coverage, "timelineRef": timelineRef, "logRef": logRef, "testsRef": testsRef, "diagnosticsRef": diagnosticsRef] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActionRunDestinationRecord : Codable {
+open class ActionRunDestinationRecord : XCResultObject {
     public let displayName: String
     public let targetArchitecture: String
     public let targetDeviceRecord: ActionDeviceRecord
     public let localComputerRecord: ActionDeviceRecord
     public let targetSDKRecord: ActionSDKRecord
     
-    enum ActionRunDestinationRecordCodingKeys: String, CodingKey {
+    public enum ActionRunDestinationRecordCodingKeys: String, CodingKey {
         case displayName
         case targetArchitecture
         case targetDeviceRecord
@@ -188,39 +204,45 @@ open class ActionRunDestinationRecord : Codable {
         case targetSDKRecord
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionRunDestinationRecordCodingKeys.self)
         displayName = try container.decodeXCResultType(forKey: .displayName)
         targetArchitecture = try container.decodeXCResultType(forKey: .targetArchitecture)
         targetDeviceRecord = try container.decodeXCResultObject(forKey: .targetDeviceRecord)
         localComputerRecord = try container.decodeXCResultObject(forKey: .localComputerRecord)
         targetSDKRecord = try container.decodeXCResultObject(forKey: .targetSDKRecord)
+        try super.init(from: decoder)
+        let propertyList = ["displayName": displayName, "targetArchitecture": targetArchitecture, "targetDeviceRecord": targetDeviceRecord, "localComputerRecord": localComputerRecord, "targetSDKRecord": targetSDKRecord] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActionSDKRecord : Codable {
+open class ActionSDKRecord : XCResultObject {
     public let name: String
     public let identifier: String
     public let operatingSystemVersion: String
     public let isInternal: Bool
     
-    enum ActionSDKRecordCodingKeys: String, CodingKey {
+    public enum ActionSDKRecordCodingKeys: String, CodingKey {
         case name
         case identifier
         case operatingSystemVersion
         case isInternal
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionSDKRecordCodingKeys.self)
         name = try container.decodeXCResultType(forKey: .name)
         identifier = try container.decodeXCResultType(forKey: .identifier)
         operatingSystemVersion = try container.decodeXCResultType(forKey: .operatingSystemVersion)
         isInternal = try container.decodeXCResultTypeIfPresent(forKey: .isInternal) ?? false
+        try super.init(from: decoder)
+        let propertyList = ["name": name, "identifier": identifier, "operatingSystemVersion": operatingSystemVersion, "isInternal": isInternal] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActionTestActivitySummary : Codable {
+open class ActionTestActivitySummary : XCResultObject {
     public let title: String
     public let activityType: String
     public let uuid: String
@@ -229,7 +251,7 @@ open class ActionTestActivitySummary : Codable {
     public let attachments: [ActionTestAttachment]
     public let subactivities: [ActionTestActivitySummary]
     
-    enum ActionTestActivitySummaryCodingKeys: String, CodingKey {
+    public enum ActionTestActivitySummaryCodingKeys: String, CodingKey {
         case title
         case activityType
         case uuid
@@ -239,7 +261,7 @@ open class ActionTestActivitySummary : Codable {
         case subactivities
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestActivitySummaryCodingKeys.self)
         title = try container.decodeXCResultType(forKey: .title)
         activityType = try container.decodeXCResultType(forKey: .activityType)
@@ -249,10 +271,13 @@ open class ActionTestActivitySummary : Codable {
         
         attachments = try container.decodeIfPresent(XCResultArrayValue<ActionTestAttachment>.self, forKey: .attachments)?.values ?? []
         subactivities = try container.decodeIfPresent(XCResultArrayValue<ActionTestActivitySummary>.self, forKey: .subactivities)?.values ?? []
+        try super.init(from: decoder)
+        let propertyList = ["title": title, "activityType": activityType, "uuid": uuid, "start": start, "finish": finish, "attachments": attachments, "subactivities": subactivities] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActionTestAttachment : Codable {
+open class ActionTestAttachment : XCResultObject {
     public let uniformTypeIdentifier: String
     public let name: String?
     public let timestamp: Date?
@@ -263,7 +288,7 @@ open class ActionTestAttachment : Codable {
     public let payloadRef: Reference?
     public let payloadSize: Int
     
-    enum ActionTestAttachmentCodingKeys: String, CodingKey {
+    public enum ActionTestAttachmentCodingKeys: String, CodingKey {
         case uniformTypeIdentifier
         case name
         case timestamp
@@ -275,7 +300,7 @@ open class ActionTestAttachment : Codable {
         case payloadSize
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestAttachmentCodingKeys.self)
         uniformTypeIdentifier = try container.decodeXCResultType(forKey: .uniformTypeIdentifier)
         name = try container.decodeXCResultTypeIfPresent(forKey: .name)
@@ -286,28 +311,34 @@ open class ActionTestAttachment : Codable {
         filename = try container.decodeXCResultTypeIfPresent(forKey: .filename)
         payloadRef = try container.decodeXCResultObjectIfPresent(forKey: .payloadRef)
         payloadSize = try container.decodeXCResultType(forKey: .payloadSize)
+        try super.init(from: decoder)
+        let propertyList = ["uniformTypeIdentifier": uniformTypeIdentifier, "name": name, "timestamp": timestamp, "lifetime": lifetime, "inActivityIdentifier": inActivityIdentifier, "filename": filename, "payloadRef": payloadRef, "payloadSize": payloadSize] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActionTestFailureSummary : Codable {
+open class ActionTestFailureSummary : XCResultObject {
     public let message: String?
     public let fileName: String
     public let lineNumber: Int
     public let isPerformanceFailure: Bool
     
-    enum ActionTestFailureSummaryCodingKeys: String, CodingKey {
+    public enum ActionTestFailureSummaryCodingKeys: String, CodingKey {
         case message
         case fileName
         case lineNumber
         case isPerformanceFailure
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestFailureSummaryCodingKeys.self)
         message = try container.decodeXCResultTypeIfPresent(forKey: .message)
         fileName = try container.decodeXCResultType(forKey: .fileName)
         lineNumber = try container.decodeXCResultType(forKey: .lineNumber)
         isPerformanceFailure = try container.decodeXCResultType(forKey: .isPerformanceFailure)
+        try super.init(from: decoder)
+        let propertyList = ["message": message, "fileName": fileName, "lineNumber": lineNumber, "isPerformanceFailure": isPerformanceFailure] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
@@ -319,7 +350,7 @@ open class ActionTestMetadata : ActionTestSummaryIdentifiableObject {
     public let failureSummariesCount: Int
     public let activitySummariesCount: Int
     
-    enum ActionTestMetadataCodingKeys: String, CodingKey {
+    public enum ActionTestMetadataCodingKeys: String, CodingKey {
         case testStatus
         case duration
         case summaryRef
@@ -328,7 +359,7 @@ open class ActionTestMetadata : ActionTestSummaryIdentifiableObject {
         case activitySummariesCount
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestMetadataCodingKeys.self)
         testStatus = try container.decodeXCResultType(forKey: .testStatus)
         duration = try container.decodeXCResultTypeIfPresent(forKey: .duration)
@@ -338,12 +369,13 @@ open class ActionTestMetadata : ActionTestSummaryIdentifiableObject {
         performanceMetricsCount = try container.decodeXCResultTypeIfPresent(forKey: .performanceMetricsCount) ?? 0
         failureSummariesCount = try container.decodeXCResultTypeIfPresent(forKey: .failureSummariesCount) ?? 0
         activitySummariesCount = try container.decodeXCResultTypeIfPresent(forKey: .activitySummariesCount) ?? 0
-        
         try super.init(from: decoder)
+        let propertyList = ["testStatus": testStatus, "duration": duration, "summaryRef": summaryRef, "performanceMetricsCount": performanceMetricsCount, "failureSummariesCount": failureSummariesCount, "activitySummariesCount": activitySummariesCount] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActionTestPerformanceMetricSummary : Codable {
+open class ActionTestPerformanceMetricSummary : XCResultObject {
     public let displayName: String
     public let unitOfMeasurement: String
     public let measurements: [Double]
@@ -355,7 +387,7 @@ open class ActionTestPerformanceMetricSummary : Codable {
     public let maxRegression: Double?
     public let maxStandardDeviation: Double?
     
-    enum ActionTestPerformanceMetricSummaryCodingKeys: String, CodingKey {
+    public enum ActionTestPerformanceMetricSummaryCodingKeys: String, CodingKey {
         case displayName
         case unitOfMeasurement
         case measurements
@@ -368,7 +400,7 @@ open class ActionTestPerformanceMetricSummary : Codable {
         case maxStandardDeviation
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestPerformanceMetricSummaryCodingKeys.self)
         displayName = try container.decodeXCResultType(forKey: .displayName)
         unitOfMeasurement = try container.decodeXCResultType(forKey: .unitOfMeasurement)
@@ -383,38 +415,46 @@ open class ActionTestPerformanceMetricSummary : Codable {
         maxPercentRelativeStandardDeviation = try container.decodeXCResultTypeIfPresent(forKey: .maxPercentRelativeStandardDeviation)
         maxRegression = try container.decodeXCResultTypeIfPresent(forKey: .maxRegression)
         maxStandardDeviation = try container.decodeXCResultTypeIfPresent(forKey: .maxStandardDeviation)
+        try super.init(from: decoder)
+        let propertyList = ["displayName": displayName, "unitOfMeasurement": unitOfMeasurement, "measurements": measurements, "identifier": identifier, "baselineName": baselineName, "baselineAverage": baselineAverage, "maxPercentRegression": maxPercentRegression, "maxPercentRelativeStandardDeviation": maxPercentRelativeStandardDeviation, "maxRegression": maxRegression, "maxStandardDeviation": maxStandardDeviation] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActionTestPlanRunSummaries : Codable {
+open class ActionTestPlanRunSummaries : XCResultObject {
     public let summaries: [ActionTestPlanRunSummary]
     
-    enum ActionTestPlanRunSummariesCodingKeys: String, CodingKey {
+    public enum ActionTestPlanRunSummariesCodingKeys: String, CodingKey {
         case summaries
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestPlanRunSummariesCodingKeys.self)
 
         let summaryValues = try container.decode(XCResultArrayValue<ActionTestPlanRunSummary>.self, forKey: .summaries)
         summaries = summaryValues.values
+        try super.init(from: decoder)
+        let propertyList = ["summaries": summaries] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
 open class ActionTestPlanRunSummary : ActionAbstractTestSummary {
     public let testableSummaries: [ActionTestableSummary]
     
-    enum ActionTestPlanRunSummaryCodingKeys: String, CodingKey {
+    public enum ActionTestPlanRunSummaryCodingKeys: String, CodingKey {
         case testableSummaries
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestPlanRunSummaryCodingKeys.self)
 
         let summaryValues = try container.decode(XCResultArrayValue<ActionTestableSummary>.self, forKey: .testableSummaries)
         testableSummaries = summaryValues.values
         
         try super.init(from: decoder)
+        let propertyList = ["testableSummaries": testableSummaries] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
@@ -425,7 +465,7 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
     public let failureSummaries: [ActionTestFailureSummary]
     public let activitySummaries: [ActionTestActivitySummary]
     
-    enum ActionTestSummaryCodingKeys: String, CodingKey {
+    public enum ActionTestSummaryCodingKeys: String, CodingKey {
         case testStatus
         case duration
         case performanceMetrics
@@ -433,7 +473,7 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
         case activitySummaries
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestSummaryCodingKeys.self)
         duration = try container.decodeXCResultType(forKey: .duration)
         testStatus = try container.decodeXCResultType(forKey: .testStatus)
@@ -443,6 +483,8 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
         activitySummaries = try container.decodeIfPresent(XCResultArrayValue<ActionTestActivitySummary>.self, forKey: .activitySummaries)?.values ?? []
         
         try super.init(from: decoder)
+        let propertyList = ["testStatus": testStatus, "duration": duration, "performanceMetrics": performanceMetrics, "failureSummaries": failureSummaries, "activitySummaries": activitySummaries] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
@@ -450,32 +492,36 @@ open class ActionTestSummaryGroup : ActionTestSummaryIdentifiableObject {
     public let duration: Double
     public let subtests: [ActionTestSummaryIdentifiableObject]
     
-    enum ActionTestSummaryGroupCodingKeys: String, CodingKey {
+    public enum ActionTestSummaryGroupCodingKeys: String, CodingKey {
         case duration
         case subtests
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestSummaryGroupCodingKeys.self)
         duration = try container.decodeXCResultType(forKey: .duration)
         
         let subtestsValues = try container.decode(XCResultArrayValue<ActionTestSummaryIdentifiableObject>.self, forKey: .subtests)
         subtests = subtestsValues.values
         try super.init(from: decoder)
+        let propertyList = ["duration": duration, "subtests": subtests] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
 open class ActionTestSummaryIdentifiableObject : ActionAbstractTestSummary {
     public let identifier: String?
     
-    enum ActionTestSummaryIdentifiableObjectCodingKeys: String, CodingKey {
+    public enum ActionTestSummaryIdentifiableObjectCodingKeys: String, CodingKey {
         case identifier
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestSummaryIdentifiableObjectCodingKeys.self)
         identifier = try container.decodeXCResultTypeIfPresent(forKey: .identifier)
         try super.init(from: decoder)
+        let propertyList = ["identifier": identifier] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
@@ -489,7 +535,7 @@ open class ActionTestableSummary : ActionAbstractTestSummary {
     public let testLanguage: String?
     public let testRegion: String?
     
-    enum ActionTestableSummaryCodingKeys: String, CodingKey {
+    public enum ActionTestableSummaryCodingKeys: String, CodingKey {
         case projectRelativePath
         case targetName
         case testKind
@@ -500,7 +546,7 @@ open class ActionTestableSummary : ActionAbstractTestSummary {
         case testRegion
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestableSummaryCodingKeys.self)
         projectRelativePath = try container.decodeXCResultTypeIfPresent(forKey: .projectRelativePath)
         targetName = try container.decodeXCResultTypeIfPresent(forKey: .targetName)
@@ -516,36 +562,41 @@ open class ActionTestableSummary : ActionAbstractTestSummary {
         testRegion = try container.decodeXCResultTypeIfPresent(forKey: .testRegion)
         
         try super.init(from: decoder)
+        let propertyList = ["projectRelativePath": projectRelativePath, "targetName": targetName, "testKind": testKind, "tests": tests, "diagnosticsDirectoryName": diagnosticsDirectoryName, "failureSummaries": failureSummaries, "testLanguage": testLanguage, "testRegion": testRegion] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActionsInvocationMetadata : Codable {
+open class ActionsInvocationMetadata : XCResultObject {
     public let creatingWorkspaceFilePath: String
     public let uniqueIdentifier: String
     public let schemeIdentifier: EntityIdentifier?
     
-    enum ActionsInvocationMetadataCodingKeys: String, CodingKey {
+    public enum ActionsInvocationMetadataCodingKeys: String, CodingKey {
         case creatingWorkspaceFilePath
         case uniqueIdentifier
         case schemeIdentifier
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionsInvocationMetadataCodingKeys.self)
         creatingWorkspaceFilePath = try container.decodeXCResultType(forKey: .creatingWorkspaceFilePath)
         uniqueIdentifier = try container.decodeXCResultType(forKey: .uniqueIdentifier)
         schemeIdentifier = try container.decodeXCResultObjectIfPresent(forKey: .schemeIdentifier)
+        try super.init(from: decoder)
+        let propertyList = ["creatingWorkspaceFilePath": creatingWorkspaceFilePath, "uniqueIdentifier": uniqueIdentifier, "schemeIdentifier": schemeIdentifier] as [String: Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-public class ActionsInvocationRecord : Codable {
+open class ActionsInvocationRecord : XCResultObject {
     public let metadataRef: Reference?
     public let metrics: ResultMetrics
     public let issues: ResultIssueSummaries
     public let actions: [ActionRecord]
     public let archive: ArchiveInfo?
     
-    enum ActionsInvocationRecordCodingKeys: String, CodingKey {
+    public enum ActionsInvocationRecordCodingKeys: String, CodingKey {
         case metadataRef
         case metrics
         case issues
@@ -553,7 +604,7 @@ public class ActionsInvocationRecord : Codable {
         case archive
     }
     
-    required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionsInvocationRecordCodingKeys.self)
         metadataRef = try container.decodeXCResultObjectIfPresent(forKey: .metadataRef)
         metrics = try container.decodeXCResultObject(forKey: .metrics)
@@ -561,8 +612,10 @@ public class ActionsInvocationRecord : Codable {
         
         let actionValues = try container.decode(XCResultArrayValue<ActionRecord>.self, forKey: .actions)
         actions = actionValues.values
-        
         archive = try container.decodeXCResultObjectIfPresent(forKey: .archive)
+        try super.init(from: decoder)
+        let propertyList = ["metadataRef": metadataRef as Reference?, "metrics": metrics as ResultMetrics, "issues": issues as ResultIssueSummaries, "actions": actions as [ActionRecord], "archive": archive as ArchiveInfo?] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
@@ -571,44 +624,47 @@ open class ActivityLogCommandInvocationSection : ActivityLogSection {
     public let emittedOutput: String
     public let exitCode: Int?
     
-    enum ActivityLogCommandInvocationSectionCodingKeys: String, CodingKey {
+    public enum ActivityLogCommandInvocationSectionCodingKeys: String, CodingKey {
         case commandDetails
         case emittedOutput
         case exitCode
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActivityLogCommandInvocationSectionCodingKeys.self)
         commandDetails = try container.decodeXCResultType(forKey: .commandDetails)
         emittedOutput = try container.decodeXCResultType(forKey: .emittedOutput)
         exitCode = try container.decodeXCResultTypeIfPresent(forKey: .exitCode)
         try super.init(from: decoder)
+        let propertyList = ["commandDetails": commandDetails, "emittedOutput": emittedOutput, "exitCode": exitCode] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
 open class ActivityLogMajorSection : ActivityLogSection {
     public let subtitle: String
     
-    enum ActivityLogMajorSectionCodingKeys: String, CodingKey {
+    public enum ActivityLogMajorSectionCodingKeys: String, CodingKey {
         case subtitle
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActivityLogMajorSectionCodingKeys.self)
         subtitle = try container.decodeXCResultType(forKey: .subtitle)
         try super.init(from: decoder)
+        let propertyList = ["subtitle": subtitle] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActivityLogMessage : Codable {
-    public let type: String
+open class ActivityLogMessage : XCResultObject {
     public let title: String
     public let shortTitle: String?
     public let category: String?
     public let location: DocumentLocation?
     public let annotations: [ActivityLogMessageAnnotation]
     
-    enum ActivityLogMessageCodingKeys: String, CodingKey {
+    public enum ActivityLogMessageCodingKeys: String, CodingKey {
         case type
         case title
         case shortTitle
@@ -617,9 +673,8 @@ open class ActivityLogMessage : Codable {
         case annotations
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActivityLogMessageCodingKeys.self)
-        type = try container.decodeXCResultType(forKey: .type)
         title = try container.decodeXCResultType(forKey: .title)
         shortTitle = try container.decodeXCResultTypeIfPresent(forKey: .shortTitle)
         category = try container.decodeXCResultTypeIfPresent(forKey: .category)
@@ -627,26 +682,33 @@ open class ActivityLogMessage : Codable {
         
         let annotationValues = try container.decode(XCResultArrayValue<ActivityLogMessageAnnotation>.self, forKey: .annotations)
         annotations = annotationValues.values
+        try super.init(from: decoder)
+        type = try container.decodeXCResultType(forKey: .type)
+        let propertyList = ["type": type, "title": title, "shortTitle": shortTitle, "category": category, "location": location, "annotations": annotations] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActivityLogMessageAnnotation : Codable {
+open class ActivityLogMessageAnnotation : XCResultObject {
     public let title: String
     public let location: DocumentLocation?
     
-    enum ActivityLogMessageCodingKeys: String, CodingKey {
+    public enum ActivityLogMessageCodingKeys: String, CodingKey {
         case title
         case location
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActivityLogMessageCodingKeys.self)
         title = try container.decodeXCResultType(forKey: .title)
         location = try container.decodeXCResultObjectIfPresent(forKey: .location)
+        try super.init(from: decoder)
+        let propertyList = ["title": title, "location": location] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ActivityLogSection : Codable {
+open class ActivityLogSection : XCResultObject {
     public let domainType: String
     public let title: String
     public let startTime: Date?
@@ -655,7 +717,7 @@ open class ActivityLogSection : Codable {
     public let subsections: [ActivityLogSection]
     public let messages: [ActivityLogMessage]
     
-    enum ActivityLogSectionCodingKeys: String, CodingKey {
+    public enum ActivityLogSectionCodingKeys: String, CodingKey {
         case domainType
         case title
         case startTime
@@ -665,7 +727,7 @@ open class ActivityLogSection : Codable {
         case messages
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActivityLogSectionCodingKeys.self)
         domainType = try container.decodeXCResultType(forKey: .domainType)
         title = try container.decodeXCResultType(forKey: .title)
@@ -678,20 +740,25 @@ open class ActivityLogSection : Codable {
         
         let messageValues = try container.decode(XCResultArrayValue<ActivityLogMessage>.self, forKey: .messages)
         messages = messageValues.values
+        try super.init(from: decoder)
+        let propertyList = ["domainType": domainType, "title": title, "startTime": startTime, "duration": duration, "result": result, "subsections": subsections, "messages": messages] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
 open class ActivityLogTargetBuildSection : ActivityLogMajorSection {
     public let productType: String?
     
-    enum ActivityLogTargetBuildSectionCodingKeys: String, CodingKey {
+    public enum ActivityLogTargetBuildSectionCodingKeys: String, CodingKey {
         case productType
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActivityLogTargetBuildSectionCodingKeys.self)
         productType = try container.decodeXCResultTypeIfPresent(forKey: .productType)
         try super.init(from: decoder)
+        let propertyList = ["productType": productType] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
@@ -705,7 +772,7 @@ open class ActivityLogUnitTestSection : ActivityLogSection {
     public let runnablePath: String?
     public let runnableUTI: String?
     
-    enum ActivityLogUnitTestSectionCodingKeys: String, CodingKey {
+    public enum ActivityLogUnitTestSectionCodingKeys: String, CodingKey {
         case testName
         case suiteName
         case summary
@@ -716,7 +783,7 @@ open class ActivityLogUnitTestSection : ActivityLogSection {
         case runnableUTI
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActivityLogUnitTestSectionCodingKeys.self)
         testName = try container.decodeXCResultTypeIfPresent(forKey: .testName)
         suiteName = try container.decodeXCResultTypeIfPresent(forKey: .suiteName)
@@ -727,19 +794,24 @@ open class ActivityLogUnitTestSection : ActivityLogSection {
         runnablePath = try container.decodeXCResultTypeIfPresent(forKey: .runnablePath)
         runnableUTI = try container.decodeXCResultTypeIfPresent(forKey: .runnableUTI)
         try super.init(from: decoder)
+        let propertyList = ["testName": testName, "suiteName": suiteName, "summary": summary, "emittedOutput": emittedOutput, "performanceTestOutput": performanceTestOutput, "testsPassedString": testsPassedString, "runnablePath": runnablePath, "runnableUTI": runnableUTI] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ArchiveInfo : Codable {
+open class ArchiveInfo : XCResultObject {
     public let path: String?
     
-    enum ArchiveInfoCodingKeys: String, CodingKey {
+    public enum ArchiveInfoCodingKeys: String, CodingKey {
         case path
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ArchiveInfoCodingKeys.self)
         path = try container.decodeXCResultTypeIfPresent(forKey: .path)
+        try super.init(from: decoder)
+        let propertyList = ["path": path] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
@@ -751,22 +823,25 @@ open class ArchiveInfo : Codable {
 //    // TODO: Alex - fill this in
 //}
 
-open class CodeCoverageInfo : Codable {
+open class CodeCoverageInfo : XCResultObject {
     public let hasCoverageData: Bool
     public let reportRef: Reference?
     public let archiveRef: Reference?
     
-    enum CodeCoverageInfoCodingKeys: String, CodingKey {
+    public enum CodeCoverageInfoCodingKeys: String, CodingKey {
         case hasCoverageData
         case reportRef
         case archiveRef
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodeCoverageInfoCodingKeys.self)
         hasCoverageData = try container.decodeXCResultTypeIfPresent(forKey: .hasCoverageData) ?? false
         reportRef = try container.decodeXCResultObjectIfPresent(forKey: .reportRef)
         archiveRef = try container.decodeXCResultObjectIfPresent(forKey: .archiveRef)
+        try super.init(from: decoder)
+        let propertyList = ["hasCoverageData": hasCoverageData, "reportRef": reportRef, "archiveRef": archiveRef] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
@@ -774,19 +849,22 @@ open class CodeCoverageInfo : Codable {
 //    // TODO: Alex - fill this in
 //}
 
-open class DocumentLocation : Codable {
+open class DocumentLocation : XCResultObject {
     public let url: String
     public let concreteTypeName: String
     
-    enum DocumentLocationCodingKeys: String, CodingKey {
+    public enum DocumentLocationCodingKeys: String, CodingKey {
         case url
         case concreteTypeName
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: DocumentLocationCodingKeys.self)
         url = try container.decodeXCResultType(forKey: .url)
         concreteTypeName = try container.decodeXCResultType(forKey: .concreteTypeName)
+        try super.init(from: decoder)
+        let propertyList = ["url": url, "concreteTypeName": concreteTypeName] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
@@ -794,25 +872,28 @@ open class DocumentLocation : Codable {
 //    // TODO: Alex - fill this in
 //}
 
-open class EntityIdentifier : Codable {
+open class EntityIdentifier : XCResultObject {
     public let entityName: String
     public let containerName: String
     public let entityType: String
     public let sharedState: String
     
-    enum EntityIdentifierCodingKeys: String, CodingKey {
+    public enum EntityIdentifierCodingKeys: String, CodingKey {
         case entityName
         case containerName
         case entityType
         case sharedState
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: EntityIdentifierCodingKeys.self)
         entityName = try container.decodeXCResultType(forKey: .entityName)
         containerName = try container.decodeXCResultType(forKey: .containerName)
         entityType = try container.decodeXCResultType(forKey: .entityType)
         sharedState = try container.decodeXCResultType(forKey: .sharedState)
+        try super.init(from: decoder)
+        let propertyList = ["entityName": entityName, "containerName": containerName, "entityType": entityType, "sharedState": sharedState] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
@@ -820,87 +901,100 @@ open class EntityIdentifier : Codable {
 //    // TODO: Alex - fill this in
 //}
 
-open class IssueSummary : Codable {
+open class IssueSummary : XCResultObject {
     public let issueType: String
     public let message: String
     public let producingTarget: String?
     public let documentLocationInCreatingWorkspace: DocumentLocation?
     
-    enum EntityIdentifierCodingKeys: String, CodingKey {
+    public enum EntityIdentifierCodingKeys: String, CodingKey {
         case issueType
         case message
         case producingTarget
         case documentLocationInCreatingWorkspace
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: EntityIdentifierCodingKeys.self)
         issueType = try container.decodeXCResultType(forKey: .issueType)
         message = try container.decodeXCResultType(forKey: .message)
         producingTarget = try container.decodeXCResultTypeIfPresent(forKey: .producingTarget)
         documentLocationInCreatingWorkspace = try container.decodeXCResultObjectIfPresent(forKey: .documentLocationInCreatingWorkspace)
+        try super.init(from: decoder)
+        let propertyList = ["issueType": issueType, "message": message, "producingTarget": producingTarget, "documentLocationInCreatingWorkspace": documentLocationInCreatingWorkspace] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ObjectID : Codable {
+open class ObjectID : XCResultObject {
     public let hash: String
     
-    enum ObjectIDCodingKeys: String, CodingKey {
+    public enum ObjectIDCodingKeys: String, CodingKey {
         case hash
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ObjectIDCodingKeys.self)
         hash = try container.decodeXCResultType(forKey: .hash)
+        try super.init(from: decoder)
+        let propertyList = ["hash": hash] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
+        
     }
 }
 
-open class Reference : Codable {
+open class Reference : XCResultObject {
     public let id: String
     public let targetType: TypeDefinition?
     
-    enum ReferenceCodingKeys: String, CodingKey {
+    public enum ReferenceCodingKeys: String, CodingKey {
         case id
         case targetType
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ReferenceCodingKeys.self)
         id = try container.decodeXCResultType(forKey: .id)
         targetType = try container.decodeXCResultObjectIfPresent(forKey: .targetType)
+        try super.init(from: decoder)
+        let propertyList = ["id": id, "targetType": targetType] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ResultIssueSummaries : Codable {
+open class ResultIssueSummaries : XCResultObject {
     public let analyzerWarningSummaries: [IssueSummary]
     public let errorSummaries: [IssueSummary]
     public let testFailureSummaries: [TestFailureIssueSummary]
     public let warningSummaries: [IssueSummary]
     
-    enum ResultIssueSummariesCodingKeys: String, CodingKey {
+    public enum ResultIssueSummariesCodingKeys: String, CodingKey {
         case analyzerWarningSummaries
         case errorSummaries
         case testFailureSummaries
         case warningSummaries
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ResultIssueSummariesCodingKeys.self)
         analyzerWarningSummaries = try container.decodeIfPresent(XCResultArrayValue<IssueSummary>.self, forKey: .analyzerWarningSummaries)?.values ?? []
         errorSummaries = try container.decodeIfPresent(XCResultArrayValue<IssueSummary>.self, forKey: .errorSummaries)?.values ?? []
         testFailureSummaries = try container.decodeIfPresent(XCResultArrayValue<TestFailureIssueSummary>.self, forKey: .testFailureSummaries)?.values ?? []
         warningSummaries = try container.decodeIfPresent(XCResultArrayValue<IssueSummary>.self, forKey: .warningSummaries)?.values ?? []
+        try super.init(from: decoder)
+        let propertyList = ["analyzerWarningSummaries": analyzerWarningSummaries, "errorSummaries": errorSummaries, "testFailureSummaries": testFailureSummaries, "warningSummaries": warningSummaries] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class ResultMetrics : Codable {
+open class ResultMetrics : XCResultObject {
     public let analyzerWarningCount: Int
     public let errorCount: Int
     public let testsCount: Int
     public let testsFailedCount: Int
     public let warningCount: Int
     
-    enum ResultMetricsCodingKeys: String, CodingKey {
+    public enum ResultMetricsCodingKeys: String, CodingKey {
         case analyzerWarningCount
         case errorCount
         case testsCount
@@ -908,13 +1002,16 @@ open class ResultMetrics : Codable {
         case warningCount
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ResultMetricsCodingKeys.self)
         analyzerWarningCount = try container.decodeXCResultTypeIfPresent(forKey: .analyzerWarningCount) ?? 0
         errorCount = try container.decodeXCResultTypeIfPresent(forKey: .errorCount) ?? 0
         testsCount = try container.decodeXCResultTypeIfPresent(forKey: .testsCount) ?? 0
         testsFailedCount = try container.decodeXCResultTypeIfPresent(forKey: .testsFailedCount) ?? 0
         warningCount = try container.decodeXCResultTypeIfPresent(forKey: .warningCount) ?? 0
+        try super.init(from: decoder)
+        let propertyList = ["analyzerWarningCount": analyzerWarningCount, "errorCount": errorCount, "testsCount": testsCount, "testsFailedCount": testsFailedCount, "warningCount": warningCount] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
@@ -935,30 +1032,36 @@ open class ResultMetrics : Codable {
 open class TestFailureIssueSummary : IssueSummary {
     public let testCaseName: String
     
-    enum TestFailureIssueSummaryCodingKeys: String, CodingKey {
+    public enum TestFailureIssueSummaryCodingKeys: String, CodingKey {
         case testCaseName
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: TestFailureIssueSummaryCodingKeys.self)
         testCaseName = try container.decodeXCResultType(forKey: .testCaseName)
         try super.init(from: decoder)
+        let propertyList = ["testCaseName": testCaseName] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
 
-open class TypeDefinition : Codable {
+open class TypeDefinition : XCResultObject {
     public let name: String
     public let supertype: TypeDefinition?
     
-    enum TypeDefinitionCodingKeys: String, CodingKey {
+    public enum TypeDefinitionCodingKeys: String, CodingKey {
         case name
         case supertype
     }
     
-     required public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: TypeDefinitionCodingKeys.self)
         name = try container.decodeXCResultType(forKey: .name)
         supertype = try container.decodeXCResultObjectIfPresent(forKey: .supertype)
+        try super.init(from: decoder)
+        let propertyList = ["name": name, "supertype": supertype] as [String : Any]
+        self.appendToProperties(propertyList: propertyList)
     }
 }
+
 

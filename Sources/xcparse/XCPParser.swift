@@ -249,7 +249,7 @@ class XCPParser {
             case .xcpretty:
                 console.writeMessage("Type the path to your *.xcresult file:")
                 let path = console.getInput()
-                console.writeMessage("Type the path to the destination folder for your coverage file:")
+                console.writeMessage("Type the path to the destination folder for your xcpretty-json file:")
                 let destinationPath = console.getInput()
                 try extractLogs(xcresultPath: path, destination: destinationPath)
             case .quit:

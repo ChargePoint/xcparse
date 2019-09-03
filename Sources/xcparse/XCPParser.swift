@@ -176,10 +176,17 @@ class XCPParser {
             if let logRef = action.actionResult.logRef {
                 logReferenceIDs.append(logRef.id)
             }
+            if let logRef = action.buildResult.logRef {
+                logReferenceIDs.append(logRef.id)
+            }
         }
+        let temporaryDirectoryURL = try! FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: URL(string: "."), create: true)
         for id in logReferenceIDs {
-            let result = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --id \(id) | XCPRETTY_JSON_FILE_OUTPUT=\(destination)/errors.json xcpretty -f `xcpretty-json-formatter`")
+            let _ = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --id \(id) --format raw >> \(temporaryDirectoryURL.path)/logs")
         }
+        
+        let result = console.shellCommand("cat \(temporaryDirectoryURL.path)/logs | XCPRETTY_JSON_FILE_OUTPUT=\(destination)/errors.json xcpretty -f `xcpretty-json-formatter`")
+        let _ = console.shellCommand("rm \(temporaryDirectoryURL.path)/logs")
     }
     
     func staticMode() throws {

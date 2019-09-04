@@ -156,6 +156,23 @@ class XCPParser {
         }
     }
     
+    func getTestLogSections(subsections: [ActivityLogSection], url: String) {
+        for section in subsections {
+            if let testSection = section as? ActivityLogUnitTestSection {
+                if (testSection.emittedOutput != nil) {
+                    let emitted : String = testSection.emittedOutput ?? ""
+                    if let fileHandle = FileHandle(forWritingAtPath: "\(url)/log.txt") {
+                        fileHandle.seekToEndOfFile()
+                        fileHandle.write(emitted.data(using: .utf8)!)
+                    }
+                }
+            }
+            else {
+                getTestLogSections(subsections: section.subsections!, url: url)
+            }
+        }
+    }
+    
     func extractLogs(xcresultPath : String, destination : String) throws {
         let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json")
         let xcresultJSONData = Data(xcresultJSON.utf8)
@@ -181,12 +198,42 @@ class XCPParser {
             }
         }
         let temporaryDirectoryURL = try! FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: URL(string: "."), create: true)
+        let _ = console.shellCommand("touch \(temporaryDirectoryURL.path)/log.txt")
         for id in logReferenceIDs {
-            let _ = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --id \(id) --format raw >> \(temporaryDirectoryURL.path)/logs")
+
+            let logJSON : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --id \(id) --format json")
+            let logJSONData = Data(logJSON.utf8)
+            var json : [String:AnyObject]
+            do {
+                json = try JSONSerialization.jsonObject(with: logJSONData, options: []) as! [String:AnyObject]
+            } catch {
+                return
+            }
+            let logSection = try decoder.decode(ActivityLogSection.self, from: logJSONData)
+            if let commandSections = logSection.subsections as? [ActivityLogCommandInvocationSection] {
+                for section in commandSections {
+                    if (section.commandDetails != nil) {
+                        let command : String = section.commandDetails ?? ""
+                        if let fileHandle = FileHandle(forWritingAtPath: "\(temporaryDirectoryURL.path)/log.txt") {
+                            fileHandle.seekToEndOfFile()
+                            fileHandle.write(command.data(using: .utf8)!)
+                        }
+                    }
+                    if (section.emittedOutput != nil) {
+                        let emitted : String = section.emittedOutput ?? ""
+                        if let fileHandle = FileHandle(forWritingAtPath: "\(temporaryDirectoryURL.path)/log.txt") {
+                            fileHandle.seekToEndOfFile()
+                            fileHandle.write(emitted.data(using: .utf8)!)
+                        }
+                    }
+                }
+            }
+            else if logSection.subsections != nil {
+                getTestLogSections(subsections: logSection.subsections!, url: temporaryDirectoryURL.path)
+            }
         }
-        
-        let result = console.shellCommand("cat \(temporaryDirectoryURL.path)/logs | XCPRETTY_JSON_FILE_OUTPUT=\(destination)/errors.json xcpretty -f `xcpretty-json-formatter`")
-        let _ = console.shellCommand("rm \(temporaryDirectoryURL.path)/logs")
+        let result = console.shellCommand("cat \(temporaryDirectoryURL.path)/log.txt | XCPRETTY_JSON_FILE_OUTPUT=\(destination)/errors.json xcpretty -f `xcpretty-json-formatter`")
+        let _ = console.shellCommand("rm \(temporaryDirectoryURL.path)/log.txt")
     }
     
     func staticMode() throws {

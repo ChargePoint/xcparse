@@ -567,8 +567,8 @@ public class ActionsInvocationRecord : Codable {
 }
 
 open class ActivityLogCommandInvocationSection : ActivityLogSection {
-    public let commandDetails: String
-    public let emittedOutput: String
+    public let commandDetails: String?
+    public let emittedOutput: String?
     public let exitCode: Int?
     
     enum ActivityLogCommandInvocationSectionCodingKeys: String, CodingKey {
@@ -579,15 +579,15 @@ open class ActivityLogCommandInvocationSection : ActivityLogSection {
     
      required public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActivityLogCommandInvocationSectionCodingKeys.self)
-        commandDetails = try container.decodeXCResultType(forKey: .commandDetails)
-        emittedOutput = try container.decodeXCResultType(forKey: .emittedOutput)
+        commandDetails = try? container.decodeXCResultType(forKey: .commandDetails)
+        emittedOutput = try? container.decodeXCResultType(forKey: .emittedOutput)
         exitCode = try container.decodeXCResultTypeIfPresent(forKey: .exitCode)
         try super.init(from: decoder)
     }
 }
 
 open class ActivityLogMajorSection : ActivityLogSection {
-    public let subtitle: String
+    public let subtitle: String?
     
     enum ActivityLogMajorSectionCodingKeys: String, CodingKey {
         case subtitle
@@ -595,18 +595,18 @@ open class ActivityLogMajorSection : ActivityLogSection {
     
      required public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActivityLogMajorSectionCodingKeys.self)
-        subtitle = try container.decodeXCResultType(forKey: .subtitle)
+        subtitle = try? container.decodeXCResultType(forKey: .subtitle)
         try super.init(from: decoder)
     }
 }
 
 open class ActivityLogMessage : Codable {
     public let type: String
-    public let title: String
+    public let title: String?
     public let shortTitle: String?
     public let category: String?
     public let location: DocumentLocation?
-    public let annotations: [ActivityLogMessageAnnotation]
+    public let annotations: [ActivityLogMessageAnnotation]?
     
     enum ActivityLogMessageCodingKeys: String, CodingKey {
         case type
@@ -620,13 +620,13 @@ open class ActivityLogMessage : Codable {
      required public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActivityLogMessageCodingKeys.self)
         type = try container.decodeXCResultType(forKey: .type)
-        title = try container.decodeXCResultType(forKey: .title)
+        title = try? container.decodeXCResultType(forKey: .title)
         shortTitle = try container.decodeXCResultTypeIfPresent(forKey: .shortTitle)
         category = try container.decodeXCResultTypeIfPresent(forKey: .category)
         location = try container.decodeXCResultObjectIfPresent(forKey: .location)
         
-        let annotationValues = try container.decode(XCResultArrayValue<ActivityLogMessageAnnotation>.self, forKey: .annotations)
-        annotations = annotationValues.values
+        let annotationValues = try? container.decode(XCResultArrayValue<ActivityLogMessageAnnotation>.self, forKey: .annotations)
+        annotations = annotationValues?.values
     }
 }
 
@@ -650,10 +650,10 @@ open class ActivityLogSection : Codable {
     public let domainType: String
     public let title: String
     public let startTime: Date?
-    public let duration: Double
+    public let duration: Double?
     public let result: String?
-    public let subsections: [ActivityLogSection]
-    public let messages: [ActivityLogMessage]
+    public let subsections: [ActivityLogSection]?
+    public let messages: [ActivityLogMessage]?
     
     enum ActivityLogSectionCodingKeys: String, CodingKey {
         case domainType
@@ -670,14 +670,14 @@ open class ActivityLogSection : Codable {
         domainType = try container.decodeXCResultType(forKey: .domainType)
         title = try container.decodeXCResultType(forKey: .title)
         startTime = try container.decodeXCResultTypeIfPresent(forKey: .startTime)
-        duration = try container.decodeXCResultType(forKey: .duration)
+        duration = try? container.decodeXCResultType(forKey: .duration)
         result = try container.decodeXCResultTypeIfPresent(forKey: .result)
         
-        let subsectionValues = try container.decode(XCResultArrayValue<ActivityLogSection>.self, forKey: .subsections)
-        subsections = subsectionValues.values
+        let subsectionValues = try? container.decode(XCResultArrayValue<ActivityLogSection>.self, forKey: .subsections)
+        subsections = subsectionValues?.values
         
-        let messageValues = try container.decode(XCResultArrayValue<ActivityLogMessage>.self, forKey: .messages)
-        messages = messageValues.values
+        let messageValues = try? container.decode(XCResultArrayValue<ActivityLogMessage>.self, forKey: .messages)
+        messages = messageValues?.values
     }
 }
 

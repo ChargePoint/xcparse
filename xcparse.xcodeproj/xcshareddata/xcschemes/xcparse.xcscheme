@@ -60,6 +60,16 @@
             ReferencedContainer = "container:xcparse.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "-s /tmp/xcparse/Test-Xcode11\ With\ Spaces.xcresult /tmp/xcparse/My\ Folder\ With\ Spaces"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-x /tmp/xcparse/Test-Xcode11\ With\ Spaces.xcresult /tmp/xcparse/My\ Folder\ With\ Spaces"
+            isEnabled = "NO">
+         </CommandLineArgument>
+      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

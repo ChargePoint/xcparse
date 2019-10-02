@@ -36,7 +36,7 @@ class XCPParser {
     }
     
     func extractScreenshots(xcresultPath : String, destination : String) throws {
-        let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json")
+        let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \"\(xcresultPath)\" --format json")
         let xcresultJSONData = Data(xcresultJSON.utf8)
         
         var json : [String:AnyObject]
@@ -60,7 +60,7 @@ class XCPParser {
         
         var summaryRefIDs: [String] = []
         for testRefID in testReferenceIDs {
-            let testJSONString : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json --id \(testRefID)")
+            let testJSONString : String = console.shellCommand("xcrun xcresulttool get --path \"\(xcresultPath)\" --format json --id \(testRefID)")
             let testRefData = Data(testJSONString.utf8)
             
             let testJSON = try! JSONSerialization.jsonObject(with: testRefData, options: []) as? [String:AnyObject]
@@ -102,7 +102,7 @@ class XCPParser {
         var screenshotRefIDs: [String] = []
         var screenshotNames: [String] = []
         for summaryRefID in summaryRefIDs {
-            let testJSONString : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json --id \(summaryRefID)")
+            let testJSONString : String = console.shellCommand("xcrun xcresulttool get --path \"\(xcresultPath)\" --format json --id \(summaryRefID)")
             let summaryRefData = Data(testJSONString.utf8)
             
 //            let testJSON = try! JSONSerialization.jsonObject(with: summaryRefData, options: []) as? [String:AnyObject]
@@ -121,15 +121,15 @@ class XCPParser {
                 }
             }
         }
-        let dir = console.shellCommand("mkdir \(destination)/testScreenshots/")
+        let dir = console.shellCommand("mkdir \"\(destination)\"/testScreenshots/")
         for i in 0...screenshotRefIDs.count-1 {
-            let save = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format raw --id \(screenshotRefIDs[i]) > \(destination)/testScreenshots/\(screenshotNames[i])")
+            let save = console.shellCommand("xcrun xcresulttool get --path \"\(xcresultPath)\" --format raw --id \(screenshotRefIDs[i]) > \"\(destination)/testScreenshots/\(screenshotNames[i])\"")
         }
         
     }
     
     func extractCoverage(xcresultPath : String, destination : String) throws {
-        let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \(xcresultPath) --format json")
+        let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \"\(xcresultPath)\" --format json")
         let xcresultJSONData = Data(xcresultJSON.utf8)
         
         var json : [String:AnyObject]
@@ -150,7 +150,7 @@ class XCPParser {
             }
         }
         for id in coverageReferenceIDs {
-            let result = console.shellCommand("xcrun xcresulttool export --path \(xcresultPath) --id \(id) --output-path \(destination)/action.xccovreport --type file")
+            let result = console.shellCommand("xcrun xcresulttool export --path \"\(xcresultPath)\" --id \(id) --output-path \"\(destination)/action.xccovreport\" --type file")
         }
     }
     

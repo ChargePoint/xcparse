@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "xcparse::xcparse"
-               BuildableName = "xcparse"
-               BlueprintName = "xcparse"
+               BlueprintIdentifier = "xcparse::XCParseCore"
+               BuildableName = "XCParseCore.framework"
+               BlueprintName = "XCParseCore"
                ReferencedContainer = "container:xcparse.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,9 +28,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "xcparse::XCParseCore"
-               BuildableName = "XCParseCore.framework"
-               BlueprintName = "XCParseCore"
+               BlueprintIdentifier = "xcparse::xcparse"
+               BuildableName = "xcparse"
+               BlueprintName = "xcparse"
                ReferencedContainer = "container:xcparse.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

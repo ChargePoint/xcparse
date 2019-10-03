@@ -25,8 +25,6 @@ class Console {
     }
     
     func printUsage() {
-
-        let executableName = (CommandLine.arguments[0] as NSString).lastPathComponent
         writeMessage("usage (static mode): xcparse [-hq] [-s xcresultPath destination] [-x xcresultPath destination]\n")
         writeMessage("xcparse only accepts a single option at a time.\n")
         writeMessage("usage (interactive mode): xcparse\n")
@@ -39,7 +37,7 @@ class Console {
     // MARK: -
     // MARK: Shell
     // user3064009's answer on https://stackoverflow.com/questions/26971240/how-do-i-run-an-terminal-command-in-a-swift-script-e-g-xcodebuild
-    func shellCommand(_ command: String) -> String {
+    @discardableResult func shellCommand(_ command: String) -> String {
         let task = Process()
         task.launchPath = "/bin/bash"
         task.arguments = ["-c", command]

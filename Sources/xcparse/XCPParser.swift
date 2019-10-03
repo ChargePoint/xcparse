@@ -125,7 +125,6 @@ class XCPParser {
         for i in 0...screenshotRefIDs.count-1 {
             let save = console.shellCommand("xcrun xcresulttool get --path \"\(xcresultPath)\" --format raw --id \(screenshotRefIDs[i]) > \"\(destination)/testScreenshots/\(screenshotNames[i])\"")
         }
-        
     }
     
     func extractCoverage(xcresultPath : String, destination : String) throws {
@@ -143,14 +142,23 @@ class XCPParser {
         let actionRecord = try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
         
         var coverageReferenceIDs: [String] = []
+        var coverageArchiveIDs: [String] = []
         
         for action in actionRecord.actions {
             if let reportRef = action.actionResult.coverage.reportRef {
                 coverageReferenceIDs.append(reportRef.id)
             }
+            if let archiveRef = action.actionResult.coverage.archiveRef {
+                coverageArchiveIDs.append(archiveRef.id)
+            }
         }
-        for id in coverageReferenceIDs {
-            let result = console.shellCommand("xcrun xcresulttool export --path \"\(xcresultPath)\" --id \(id) --output-path \"\(destination)/action.xccovreport\" --type file")
+        for (reportId, archiveId) in zip(coverageReferenceIDs, coverageArchiveIDs) {
+            XCResultToolCommand.Export(path: xcresultPath, id: reportId,
+                                        outputPath: "\(destination)/action.xccovreport",
+                                        type: XCResultToolCommand.Export.ExportType.file).run()
+            XCResultToolCommand.Export(path: xcresultPath, id: archiveId,
+                                        outputPath: "\(destination)/action.xccovarchive",
+                                        type: XCResultToolCommand.Export.ExportType.directory).run()
         }
     }
     

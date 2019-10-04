@@ -2,6 +2,8 @@
 
 A command line tool to extract code coverage & screenshots from Xcode 11+ XCResult files.
 
+To learn more about Xcode 11's xcresult format, read [Rishab Sukumar's post on the ChargePoint Engineering blog](https://www.chargepoint.com/engineering/xcparse/)
+
 ## Installation 
 
 Enter the following command  in terminal.

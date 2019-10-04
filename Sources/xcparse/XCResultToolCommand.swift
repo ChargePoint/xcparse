@@ -6,6 +6,9 @@
 //  Copyright © 2019 ChargePoint, Inc. All rights reserved.
 //
 
+import Foundation
+import XCParseCore
+
 class XCResultToolCommand {
     
     let commandPrefix = "xcrun xcresulttool"
@@ -38,6 +41,20 @@ class XCResultToolCommand {
             self.outputPath = outputPath
             self.type = type
         }
+
+        init(path: String, attachment: ActionTestAttachment, outputPath: String) {
+            self.path = path
+
+            if let identifier = attachment.payloadRef?.id {
+                self.id = identifier;
+
+                // Now let's figure out the filename & path
+                let filename = attachment.filename ?? identifier
+                let attachmentOutputPath = URL.init(fileURLWithPath: outputPath).appendingPathComponent(filename)
+
+                self.outputPath = attachmentOutputPath.path
+            }
+        }
         
         @discardableResult override func run() -> String {
             let command = "\(commandPrefix) export --path \"\(self.path)\" --id \(self.id) --output-path \"\(self.outputPath)\" --type \(self.type.rawValue)"
@@ -66,6 +83,44 @@ class XCResultToolCommand {
             if self.outputPath != "" {
                 command += " > \"\(self.outputPath)\""
             }
+
+            return console.shellCommand(command)
+        }
+    }
+
+    class Graph: XCResultToolCommand {
+        var id: String = ""
+        var path: String = ""
+        var version: Int?
+
+        init(id: String, path: String, version: Int?) {
+            self.id = id
+            self.path = path
+            self.version = version
+        }
+
+        @discardableResult override func run() -> String {
+            var command = "\(commandPrefix) graph --path \"\(self.path)\""
+            if self.id != "" {
+                command += " --id \"\(self.id)\""
+            }
+            if let version = self.version {
+                command += " --version \(version)"
+            }
+
+            return console.shellCommand(command)
+        }
+    }
+
+    class MetadataGet: XCResultToolCommand {
+        var path: String = ""
+
+        init(path: String) {
+            self.path = path
+        }
+
+        @discardableResult override func run() -> String {
+            let command = "\(commandPrefix) metadata get --path \"\(self.path)\""
 
             return console.shellCommand(command)
         }

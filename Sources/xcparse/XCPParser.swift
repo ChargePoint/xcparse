@@ -36,6 +36,8 @@ class XCPParser {
     }
     
     func extractScreenshots(xcresultPath : String, destination : String) throws {
+        var attachments: [ActionTestAttachment] = []
+
         let xcresultJSON = XCResultToolCommand.Get(path: xcresultPath, id: "", outputPath: "", format: .json).run()
         let xcresultJSONData = Data(xcresultJSON.utf8)
         
@@ -59,6 +61,7 @@ class XCPParser {
             var testSummaries: [ActionTestSummary] = []
             var testMetadata: [ActionTestMetadata] = []
 
+            // Iterate through the testSummaryGroups until we get out all the test summaries & metadata
             repeat {
                 let summaryGroups = tests.compactMap { (identifiableObj) -> ActionTestSummaryGroup? in
                     if let testSummaryGroup = identifiableObj as? ActionTestSummaryGroup {
@@ -94,36 +97,52 @@ class XCPParser {
                 }
             } while tests.count > 0
 
+            // Need to extract out the testSummary until get all ActionTestActivitySummary
+            var activitySummaries = testSummaries.flatMap { $0.activitySummaries }
+
+            // Get all subactivities
+            var summariesToCheck = activitySummaries
+            repeat {
+                summariesToCheck = summariesToCheck.flatMap { $0.subactivities }
+
+                // Add the subactivities we found
+                activitySummaries.append(contentsOf: summariesToCheck)
+            } while summariesToCheck.count > 0
+
+            for activitySummary in activitySummaries {
+                let summaryAttachments = activitySummary.attachments
+                attachments.append(contentsOf: summaryAttachments)
+            }
+
             let testSummaryRefIDs = testMetadata.compactMap { $0.summaryRef?.id }
             summaryRefIDs.append(contentsOf: testSummaryRefIDs)
         }
-        
-        var screenshotRefIDs: [String] = []
-        var screenshotNames: [String] = []
+
         for summaryRefID in summaryRefIDs {
             let testJSONString = XCResultToolCommand.Get(path: xcresultPath, id: summaryRefID, outputPath: "", format: .json).run()
             let summaryRefData = Data(testJSONString.utf8)
             
             let testSummary = try decoder.decode(ActionTestSummary.self, from: summaryRefData)
-            
-            for activitySummary in testSummary.activitySummaries {
-                let attachments = activitySummary.attachments
-                for attachment in attachments {
-                    if let payloadRef = attachment.payloadRef {
-                        screenshotRefIDs.append(payloadRef.id)
-                    }
-                    if let filename = attachment.filename {
-                        screenshotNames.append(filename)
-                    }
-                }
+
+            var activitySummaries = testSummary.activitySummaries
+
+            var summariesToCheck = activitySummaries
+            repeat {
+                summariesToCheck = summariesToCheck.flatMap { $0.subactivities }
+
+                // Add the subactivities we found
+                activitySummaries.append(contentsOf: summariesToCheck)
+            } while summariesToCheck.count > 0
+
+            for activitySummary in activitySummaries {
+                let summaryAttachments = activitySummary.attachments
+                attachments.append(contentsOf: summaryAttachments)
             }
         }
         
         console.shellCommand("mkdir \"\(destination)\"/testScreenshots/")
-        for i in 0...screenshotRefIDs.count-1 {
-            let outputPathURL = URL.init(fileURLWithPath: destination).appendingPathComponent("testScreenshots").appendingPathComponent(screenshotNames[i])
-
-            XCResultToolCommand.Get(path: xcresultPath, id: screenshotRefIDs[i], outputPath: outputPathURL.path, format: .raw).run()
+        for attachment in attachments {
+            XCResultToolCommand.Export(path: xcresultPath, attachment: attachment, outputPath: "\(destination)/testScreenshots/").run()
         }
     }
     

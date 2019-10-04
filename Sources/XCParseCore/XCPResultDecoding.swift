@@ -257,9 +257,34 @@ enum XCResultTypeFamily: String, ClassFamily {
 }
 
 extension KeyedDecodingContainer {
+    func decodeXCResultType(forKey key: KeyedDecodingContainer<K>.Key) throws -> Bool {
+        return try decodeXCResultType(forKey: key, defaultValue: false)
+    }
+
+    func decodeXCResultType(forKey key: KeyedDecodingContainer<K>.Key) throws -> Double {
+        return try decodeXCResultType(forKey: key, defaultValue: Double(0))
+    }
+
+    func decodeXCResultType(forKey key: KeyedDecodingContainer<K>.Key) throws -> Int {
+        return try decodeXCResultType(forKey: key, defaultValue: 0)
+    }
+
+    func decodeXCResultType(forKey key: KeyedDecodingContainer<K>.Key) throws -> String {
+        return try decodeXCResultType(forKey: key, defaultValue: "")
+    }
+
     func decodeXCResultType<T: Codable>(forKey key: KeyedDecodingContainer<K>.Key) throws -> T {
         let resultValueType = try self.decode(XCResultValueType.self, forKey: key)
         return resultValueType.getValue() as! T
+    }
+
+    func decodeXCResultType<T: Codable>(forKey key: KeyedDecodingContainer<K>.Key, defaultValue: T) throws -> T {
+        let resultValueType = try self.decodeIfPresent(XCResultValueType.self, forKey: key)
+        if let retval = resultValueType?.getValue() as! T? {
+            return retval
+        } else {
+            return defaultValue
+        }
     }
     
     func decodeXCResultTypeIfPresent<T: Codable>(forKey key: KeyedDecodingContainer<K>.Key) throws -> T? {

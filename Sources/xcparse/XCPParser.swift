@@ -36,76 +36,73 @@ class XCPParser {
     }
     
     func extractScreenshots(xcresultPath : String, destination : String) throws {
-        let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \"\(xcresultPath)\" --format json")
+        let xcresultJSON = XCResultToolCommand.Get(path: xcresultPath, id: "", outputPath: "", format: .json).run()
         let xcresultJSONData = Data(xcresultJSON.utf8)
-        
-        var json : [String:AnyObject]
-        do {
-            json = try JSONSerialization.jsonObject(with: xcresultJSONData, options: []) as! [String:AnyObject]
-        } catch {
-            return
-        }
         
         let decoder = JSONDecoder()
         let actionRecord = try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
         
-        var testReferenceIDs: [String] = []
-        
-        for action in actionRecord.actions {
-            if let testRef =  action.actionResult.testsRef {
-                testReferenceIDs.append(testRef.id)
-            }
-        }
-        
-        
+        let testReferenceIDs = actionRecord.actions.compactMap { $0.actionResult.testsRef?.id }
+
         var summaryRefIDs: [String] = []
         for testRefID in testReferenceIDs {
-            let testJSONString : String = console.shellCommand("xcrun xcresulttool get --path \"\(xcresultPath)\" --format json --id \(testRefID)")
+            let testJSONString = XCResultToolCommand.Get(path: xcresultPath, id: testRefID, outputPath: "", format: .json).run()
             let testRefData = Data(testJSONString.utf8)
-            
-            let testJSON = try! JSONSerialization.jsonObject(with: testRefData, options: []) as? [String:AnyObject]
-            
+
             let testPlanRunSummaries = try decoder.decode(ActionTestPlanRunSummaries.self, from: testRefData)
-            
-            // TODO: Alex - We need to put this loop out of its misery
-            for summary in testPlanRunSummaries.summaries {
-                let testableSummaries = summary.testableSummaries
-                for testableSummary in testableSummaries {
-                    let tests = testableSummary.tests
-                    for test in tests {
-                        if let testSummaryGroup = test as? ActionTestSummaryGroup {
-                            let subtests1 = testSummaryGroup.subtests
-                            for subtest1 in subtests1 {
-                                if let testSummaryGroup2 = subtest1 as? ActionTestSummaryGroup {
-                                    let subtests2 = testSummaryGroup2.subtests
-                                    for subtest2 in subtests2 {
-                                        if let testSummaryGroup3 = subtest2 as? ActionTestSummaryGroup {
-                                            let subtests3 = testSummaryGroup3.subtests
-                                            for subtest3 in subtests3 {
-                                                if let testMetadata = subtest3 as? ActionTestMetadata {
-                                                    if let summaryRef = testMetadata.summaryRef {
-                                                        summaryRefIDs.append(summaryRef.id)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+
+            let testableSummaries = testPlanRunSummaries.summaries.flatMap { $0.testableSummaries }
+
+            var tests: [ActionTestSummaryIdentifiableObject] = testableSummaries.flatMap { $0.tests }
+
+            var testSummaryGroups: [ActionTestSummaryGroup] = []
+            var testSummaries: [ActionTestSummary] = []
+            var testMetadata: [ActionTestMetadata] = []
+
+            repeat {
+                let summaryGroups = tests.compactMap { (identifiableObj) -> ActionTestSummaryGroup? in
+                    if let testSummaryGroup = identifiableObj as? ActionTestSummaryGroup {
+                        return testSummaryGroup
+                    } else {
+                        return nil
                     }
                 }
-            }
-            
+                testSummaryGroups.append(contentsOf: summaryGroups)
+
+                let summaries = tests.compactMap { (identifiableObj) -> ActionTestSummary? in
+                    if let testSummary = identifiableObj as? ActionTestSummary {
+                        return testSummary
+                    } else {
+                        return nil
+                    }
+                }
+                testSummaries.append(contentsOf: summaries)
+
+                let metadata = tests.compactMap { (identifiableObj) -> ActionTestMetadata? in
+                    if let metadata = identifiableObj as? ActionTestMetadata {
+                        return metadata
+                    } else {
+                        return nil
+                    }
+                }
+                testMetadata.append(contentsOf: metadata)
+
+                if let testSummaryGroup = testSummaryGroups.popLast() {
+                    tests = testSummaryGroup.subtests
+                } else {
+                    tests = []
+                }
+            } while tests.count > 0
+
+            let testSummaryRefIDs = testMetadata.compactMap { $0.summaryRef?.id }
+            summaryRefIDs.append(contentsOf: testSummaryRefIDs)
         }
         
         var screenshotRefIDs: [String] = []
         var screenshotNames: [String] = []
         for summaryRefID in summaryRefIDs {
-            let testJSONString : String = console.shellCommand("xcrun xcresulttool get --path \"\(xcresultPath)\" --format json --id \(summaryRefID)")
+            let testJSONString = XCResultToolCommand.Get(path: xcresultPath, id: summaryRefID, outputPath: "", format: .json).run()
             let summaryRefData = Data(testJSONString.utf8)
-            
-//            let testJSON = try! JSONSerialization.jsonObject(with: summaryRefData, options: []) as? [String:AnyObject]
             
             let testSummary = try decoder.decode(ActionTestSummary.self, from: summaryRefData)
             
@@ -121,22 +118,19 @@ class XCPParser {
                 }
             }
         }
-        let dir = console.shellCommand("mkdir \"\(destination)\"/testScreenshots/")
+        
+        console.shellCommand("mkdir \"\(destination)\"/testScreenshots/")
         for i in 0...screenshotRefIDs.count-1 {
-            let save = console.shellCommand("xcrun xcresulttool get --path \"\(xcresultPath)\" --format raw --id \(screenshotRefIDs[i]) > \"\(destination)/testScreenshots/\(screenshotNames[i])\"")
+            let outputPathURL = URL.init(fileURLWithPath: destination).appendingPathComponent("testScreenshots").appendingPathComponent(screenshotNames[i])
+
+            XCResultToolCommand.Get(path: xcresultPath, id: screenshotRefIDs[i], outputPath: outputPathURL.path, format: .raw).run()
         }
     }
     
     func extractCoverage(xcresultPath : String, destination : String) throws {
-        let xcresultJSON : String = console.shellCommand("xcrun xcresulttool get --path \"\(xcresultPath)\" --format json")
+        let xcresultJSON = XCResultToolCommand.Get(path: xcresultPath, id: "", outputPath: "", format: .json).run()
+
         let xcresultJSONData = Data(xcresultJSON.utf8)
-        
-        var json : [String:AnyObject]
-        do {
-            json = try JSONSerialization.jsonObject(with: xcresultJSONData, options: []) as! [String:AnyObject]
-        } catch {
-            return
-        }
         
         let decoder = JSONDecoder()
         let actionRecord = try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
@@ -155,10 +149,10 @@ class XCPParser {
         for (reportId, archiveId) in zip(coverageReferenceIDs, coverageArchiveIDs) {
             XCResultToolCommand.Export(path: xcresultPath, id: reportId,
                                         outputPath: "\(destination)/action.xccovreport",
-                                        type: XCResultToolCommand.Export.ExportType.file).run()
+                                        type: .file).run()
             XCResultToolCommand.Export(path: xcresultPath, id: archiveId,
                                         outputPath: "\(destination)/action.xccovarchive",
-                                        type: XCResultToolCommand.Export.ExportType.directory).run()
+                                        type: .directory).run()
         }
     }
     
@@ -173,7 +167,7 @@ class XCPParser {
             startIndex = argument.index(argument.startIndex, offsetBy:  2)
         }
         let substr = String(argument[startIndex...])
-        let (option, value) = getOption(substr)
+        let (option, _) = getOption(substr)
         switch (option) {
         case .screenshot:
             if argCount != 4 {

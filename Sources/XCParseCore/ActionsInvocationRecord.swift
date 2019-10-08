@@ -29,8 +29,7 @@ public class ActionsInvocationRecord : Codable {
         metrics = try container.decodeXCResultObject(forKey: .metrics)
         issues = try container.decodeXCResultObject(forKey: .issues)
 
-        let actionValues = try container.decode(XCResultArrayValue<ActionRecord>.self, forKey: .actions)
-        actions = actionValues.values
+        actions = try container.decodeXCResultArray(forKey: .actions)
 
         archive = try container.decodeXCResultObjectIfPresent(forKey: .archive)
     }

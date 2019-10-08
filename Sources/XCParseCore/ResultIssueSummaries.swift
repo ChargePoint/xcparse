@@ -23,9 +23,9 @@ open class ResultIssueSummaries : Codable {
 
      required public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ResultIssueSummariesCodingKeys.self)
-        analyzerWarningSummaries = try container.decodeIfPresent(XCResultArrayValue<IssueSummary>.self, forKey: .analyzerWarningSummaries)?.values ?? []
-        errorSummaries = try container.decodeIfPresent(XCResultArrayValue<IssueSummary>.self, forKey: .errorSummaries)?.values ?? []
-        testFailureSummaries = try container.decodeIfPresent(XCResultArrayValue<TestFailureIssueSummary>.self, forKey: .testFailureSummaries)?.values ?? []
-        warningSummaries = try container.decodeIfPresent(XCResultArrayValue<IssueSummary>.self, forKey: .warningSummaries)?.values ?? []
+        analyzerWarningSummaries = try container.decodeXCResultArray(forKey: .analyzerWarningSummaries)
+        errorSummaries = try container.decodeXCResultArray(forKey: .errorSummaries)
+        testFailureSummaries = try container.decodeXCResultArray(forKey: .testFailureSummaries)
+        warningSummaries = try container.decodeXCResultArray(forKey: .warningSummaries)
     }
 }

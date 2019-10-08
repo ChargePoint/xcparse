@@ -35,10 +35,8 @@ open class ActivityLogSection : Codable {
         duration = try container.decodeXCResultType(forKey: .duration)
         result = try container.decodeXCResultTypeIfPresent(forKey: .result)
 
-        let subsectionValues = try container.decode(XCResultArrayValue<ActivityLogSection>.self, forKey: .subsections)
-        subsections = subsectionValues.values
+        subsections = try container.decodeXCResultArray(forKey: .subsections)
 
-        let messageValues = try container.decode(XCResultArrayValue<ActivityLogMessage>.self, forKey: .messages)
-        messages = messageValues.values
+        messages = try container.decodeXCResultArray(forKey: .messages)
     }
 }

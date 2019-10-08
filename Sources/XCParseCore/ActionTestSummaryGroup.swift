@@ -20,9 +20,7 @@ open class ActionTestSummaryGroup : ActionTestSummaryIdentifiableObject {
      required public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestSummaryGroupCodingKeys.self)
         duration = try container.decodeXCResultType(forKey: .duration)
-
-        let subtestsValues = try container.decode(XCResultArrayValue<ActionTestSummaryIdentifiableObject>.self, forKey: .subtests)
-        subtests = subtestsValues.values
+        subtests = try container.decodeXCResultArray(forKey: .subtests)
         try super.init(from: decoder)
     }
 }

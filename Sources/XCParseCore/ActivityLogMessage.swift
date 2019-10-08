@@ -33,7 +33,6 @@ open class ActivityLogMessage : Codable {
         category = try container.decodeXCResultTypeIfPresent(forKey: .category)
         location = try container.decodeXCResultObjectIfPresent(forKey: .location)
 
-        let annotationValues = try container.decode(XCResultArrayValue<ActivityLogMessageAnnotation>.self, forKey: .annotations)
-        annotations = annotationValues.values
+        annotations = try container.decodeXCResultArray(forKey: .annotations)
     }
 }

@@ -29,6 +29,10 @@ final class xcparseTests: XCTestCase {
         XCTAssertEqual(output, "Hello, world!\n")
     }
 
+    func testActionTestSummaryGroup() throws {
+        
+    }
+
     /// Returns path to the built products directory.
     var productsDirectory: URL {
       #if os(macOS)

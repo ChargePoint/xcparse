@@ -35,11 +35,11 @@ open class ActionTestableSummary : ActionAbstractTestSummary {
         targetName = try container.decodeXCResultTypeIfPresent(forKey: .targetName)
         testKind = try container.decodeXCResultTypeIfPresent(forKey: .testKind)
 
-        tests = try container.decodeIfPresent(XCResultArrayValue<ActionTestSummaryIdentifiableObject>.self, forKey: .tests)?.values ?? []
+        tests = try container.decodeXCResultArray(forKey: .tests)
 
         diagnosticsDirectoryName = try container.decodeXCResultTypeIfPresent(forKey: .diagnosticsDirectoryName)
 
-        failureSummaries = try container.decodeIfPresent(XCResultArrayValue<ActionTestFailureSummary>.self, forKey: .failureSummaries)?.values ?? []
+        failureSummaries = try container.decodeXCResultArray(forKey: .failureSummaries)
 
         testLanguage = try container.decodeXCResultTypeIfPresent(forKey: .testLanguage)
         testRegion = try container.decodeXCResultTypeIfPresent(forKey: .testRegion)

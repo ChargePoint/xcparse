@@ -18,8 +18,7 @@ open class ActionTestPlanRunSummary : ActionAbstractTestSummary {
      required public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestPlanRunSummaryCodingKeys.self)
 
-        let summaryValues = try container.decode(XCResultArrayValue<ActionTestableSummary>.self, forKey: .testableSummaries)
-        testableSummaries = summaryValues.values
+        testableSummaries = try container.decodeXCResultArray(forKey: .testableSummaries)
 
         try super.init(from: decoder)
     }

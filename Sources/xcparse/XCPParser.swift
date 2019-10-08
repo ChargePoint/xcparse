@@ -28,6 +28,7 @@ enum OptionType: String {
 }
 
 class XCPParser {
+    let xcparseVersion = "0.3.1"
     
     let console = Console()
 
@@ -214,7 +215,7 @@ class XCPParser {
     }
     
     func interactiveMode() throws {
-        console.writeMessage("Welcome to xcparse. This program can extract screenshots and coverage files from an *.xcresult file.")
+        console.writeMessage("Welcome to xcparse \(xcparseVersion). This program can extract screenshots and coverage files from an *.xcresult file.")
         var shouldQuit = false
         while !shouldQuit {
             console.writeMessage("Type 's' to extract screenshots, 'x' to extract code coverage files, 'h' for help, or 'q' to quit.")

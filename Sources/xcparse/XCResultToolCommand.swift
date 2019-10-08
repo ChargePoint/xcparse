@@ -52,7 +52,11 @@ class XCResultToolCommand {
                 let filename = attachment.filename ?? identifier
                 let attachmentOutputPath = URL.init(fileURLWithPath: outputPath).appendingPathComponent(filename)
 
-                self.outputPath = attachmentOutputPath.path
+                var proposedOutputPath = attachmentOutputPath.path
+                proposedOutputPath = proposedOutputPath.replacingOccurrences(of: "\"", with: "\\\"")
+                proposedOutputPath = proposedOutputPath.replacingOccurrences(of: "$", with: "\\$")
+                proposedOutputPath = proposedOutputPath.replacingOccurrences(of: "`", with: "\\`")
+                self.outputPath = proposedOutputPath
             }
         }
         

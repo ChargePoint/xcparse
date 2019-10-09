@@ -30,7 +30,7 @@ enum OptionType: String {
 }
 
 class XCPParser {
-    let xcparseVersion = "0.3.1"
+    let xcparseVersion = "0.3.2"
     
     var console = Console()
 

@@ -13,7 +13,15 @@ class XCResultToolCommand {
     
     let commandPrefix = "xcrun xcresulttool"
     
-    let console = Console()
+    let console: Console
+
+    init() {
+        self.console = Console()
+    }
+
+    init(withConsole console: Console) {
+        self.console = console
+    }
     
     @discardableResult func run() -> String {
         preconditionFailure("This method should be overriden")
@@ -35,14 +43,16 @@ class XCResultToolCommand {
         var outputPath: String = ""
         var type: ExportType = ExportType.file
         
-        init(path: String, id: String, outputPath: String, type: ExportType) {
+        init(path: String, id: String, outputPath: String, type: ExportType, console: Console = Console()) {
             self.path = path
             self.id = id
             self.outputPath = outputPath
             self.type = type
+
+            super.init(withConsole: console)
         }
 
-        init(path: String, attachment: ActionTestAttachment, outputPath: String) {
+        init(path: String, attachment: ActionTestAttachment, outputPath: String, console: Console = Console()) {
             self.path = path
 
             if let identifier = attachment.payloadRef?.id {
@@ -58,6 +68,8 @@ class XCResultToolCommand {
                 proposedOutputPath = proposedOutputPath.replacingOccurrences(of: "`", with: "\\`")
                 self.outputPath = proposedOutputPath
             }
+
+            super.init(withConsole: console)
         }
         
         @discardableResult override func run() -> String {
@@ -72,11 +84,13 @@ class XCResultToolCommand {
         var outputPath: String = ""
         var format = FormatType.raw
 
-        init(path: String, id: String, outputPath: String, format: FormatType) {
+        init(path: String, id: String, outputPath: String, format: FormatType, console: Console = Console()) {
             self.path = path
             self.id = id
             self.outputPath = outputPath
             self.format = format
+
+            super.init(withConsole: console)
         }
 
         @discardableResult override func run() -> String {
@@ -88,7 +102,10 @@ class XCResultToolCommand {
                 command += " > \"\(self.outputPath)\""
             }
 
-            return console.shellCommand(command)
+            let commandOutput = console.shellCommand(command)
+            self.console.logVerboseMessage(commandOutput)
+
+            return commandOutput
         }
     }
 
@@ -97,10 +114,12 @@ class XCResultToolCommand {
         var path: String = ""
         var version: Int?
 
-        init(id: String, path: String, version: Int?) {
+        init(id: String, path: String, version: Int?, console: Console = Console()) {
             self.id = id
             self.path = path
             self.version = version
+
+            super.init(withConsole: console)
         }
 
         @discardableResult override func run() -> String {
@@ -111,22 +130,29 @@ class XCResultToolCommand {
             if let version = self.version {
                 command += " --version \(version)"
             }
+            let commandOutput = console.shellCommand(command)
+            self.console.logVerboseMessage(commandOutput)
 
-            return console.shellCommand(command)
+            return commandOutput
         }
     }
 
     class MetadataGet: XCResultToolCommand {
         var path: String = ""
 
-        init(path: String) {
+        init(path: String, console: Console = Console()) {
             self.path = path
+
+            super.init(withConsole: console)
         }
 
         @discardableResult override func run() -> String {
             let command = "\(commandPrefix) metadata get --path \"\(self.path)\""
 
-            return console.shellCommand(command)
+            let commandOutput = console.shellCommand(command)
+            self.console.logVerboseMessage(commandOutput)
+
+            return commandOutput
         }
     }
 }

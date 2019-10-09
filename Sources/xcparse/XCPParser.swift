@@ -12,6 +12,7 @@ import XCParseCore
 enum OptionType: String {
     case screenshot = "s"
     case xcov = "x"
+    case verbose = "v"
     case help = "h"
     case quit = "q"
     case unknown
@@ -20,6 +21,7 @@ enum OptionType: String {
         switch value {
             case "s", "screenshots": self = .screenshot
             case "x", "xcov": self = .xcov
+            case "v", "verbose": self = .verbose
             case "h", "help": self = .help
             case "q", "quit": self = .quit
             default: self = .unknown
@@ -30,7 +32,7 @@ enum OptionType: String {
 class XCPParser {
     let xcparseVersion = "0.3.1"
     
-    let console = Console()
+    var console = Console()
 
     func getOption(_ option: String) -> (option:OptionType, value: String) {
       return (OptionType(value: option), option)
@@ -39,7 +41,7 @@ class XCPParser {
     func extractScreenshots(xcresultPath : String, destination : String) throws {
         var attachments: [ActionTestAttachment] = []
 
-        let xcresultJSON = XCResultToolCommand.Get(path: xcresultPath, id: "", outputPath: "", format: .json).run()
+        let xcresultJSON = XCResultToolCommand.Get(path: xcresultPath, id: "", outputPath: "", format: .json, console: self.console).run()
         let xcresultJSONData = Data(xcresultJSON.utf8)
         
         let decoder = JSONDecoder()
@@ -49,7 +51,8 @@ class XCPParser {
 
         var summaryRefIDs: [String] = []
         for testRefID in testReferenceIDs {
-            let testJSONString = XCResultToolCommand.Get(path: xcresultPath, id: testRefID, outputPath: "", format: .json).run()
+            let testJSONString = XCResultToolCommand.Get(path: xcresultPath, id: testRefID, outputPath: "", format: .json, console: self.console).run()
+
             let testRefData = Data(testJSONString.utf8)
 
             let testPlanRunSummaries = try decoder.decode(ActionTestPlanRunSummaries.self, from: testRefData)
@@ -58,7 +61,6 @@ class XCPParser {
 
             var tests: [ActionTestSummaryIdentifiableObject] = testableSummaries.flatMap { $0.tests }
 
-            var testSummaryGroups: [ActionTestSummaryGroup] = []
             var testSummaries: [ActionTestSummary] = []
             var testMetadata: [ActionTestMetadata] = []
 
@@ -71,7 +73,6 @@ class XCPParser {
                         return nil
                     }
                 }
-                testSummaryGroups.append(contentsOf: summaryGroups)
 
                 let summaries = tests.compactMap { (identifiableObj) -> ActionTestSummary? in
                     if let testSummary = identifiableObj as? ActionTestSummary {
@@ -91,11 +92,7 @@ class XCPParser {
                 }
                 testMetadata.append(contentsOf: metadata)
 
-                if let testSummaryGroup = testSummaryGroups.popLast() {
-                    tests = testSummaryGroup.subtests
-                } else {
-                    tests = []
-                }
+                tests = summaryGroups.flatMap { $0.subtests }
             } while tests.count > 0
 
             // Need to extract out the testSummary until get all ActionTestActivitySummary
@@ -120,7 +117,7 @@ class XCPParser {
         }
 
         for summaryRefID in summaryRefIDs {
-            let testJSONString = XCResultToolCommand.Get(path: xcresultPath, id: summaryRefID, outputPath: "", format: .json).run()
+            let testJSONString = XCResultToolCommand.Get(path: xcresultPath, id: summaryRefID, outputPath: "", format: .json, console: self.console).run()
             let summaryRefData = Data(testJSONString.utf8)
             
             let testSummary = try decoder.decode(ActionTestSummary.self, from: summaryRefData)
@@ -146,12 +143,12 @@ class XCPParser {
 
         console.shellCommand("mkdir \"\(screenshotsDirURL.path)\"")
         for attachment in attachments {
-            XCResultToolCommand.Export(path: xcresultPath, attachment: attachment, outputPath: screenshotsDirURL.path).run()
+            XCResultToolCommand.Export(path: xcresultPath, attachment: attachment, outputPath: screenshotsDirURL.path, console: self.console).run()
         }
     }
     
     func extractCoverage(xcresultPath : String, destination : String) throws {
-        let xcresultJSON = XCResultToolCommand.Get(path: xcresultPath, id: "", outputPath: "", format: .json).run()
+        let xcresultJSON = XCResultToolCommand.Get(path: xcresultPath, id: "", outputPath: "", format: .json, console: self.console).run()
 
         let xcresultJSONData = Data(xcresultJSON.utf8)
         
@@ -172,10 +169,10 @@ class XCPParser {
         for (reportId, archiveId) in zip(coverageReferenceIDs, coverageArchiveIDs) {
             XCResultToolCommand.Export(path: xcresultPath, id: reportId,
                                         outputPath: "\(destination)/action.xccovreport",
-                                        type: .file).run()
+                                        type: .file, console: self.console).run()
             XCResultToolCommand.Export(path: xcresultPath, id: archiveId,
                                         outputPath: "\(destination)/action.xccovarchive",
-                                        type: .directory).run()
+                                        type: .directory, console: self.console).run()
         }
     }
     
@@ -208,7 +205,9 @@ class XCPParser {
             else {
                 try extractCoverage(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
             }
-            break
+        case .verbose:
+            self.console.verbose = true
+            console.writeMessage("Verbose mode enabled")
         case .help:
             console.printUsage()
         case .unknown, .quit:
@@ -221,7 +220,7 @@ class XCPParser {
         console.writeMessage("Welcome to xcparse \(xcparseVersion). This program can extract screenshots and coverage files from an *.xcresult file.")
         var shouldQuit = false
         while !shouldQuit {
-            console.writeMessage("Type 's' to extract screenshots, 'x' to extract code coverage files, 'h' for help, or 'q' to quit.")
+            console.writeMessage("Type 's' to extract screenshots, 'x' for code coverage files, 'v' for verbose, 'h' for help, or 'q' to quit.")
             let (option, value) = getOption(console.getInput())
             switch option {
             case .screenshot:
@@ -236,7 +235,9 @@ class XCPParser {
                 console.writeMessage("Type the path to the destination folder for your coverage file:")
                 let destinationPath = console.getInput()
                 try extractCoverage(xcresultPath: path, destination: destinationPath)
-                break
+            case .verbose:
+                console.verbose = true
+                console.writeMessage("Verbose mode enabled")
             case .quit:
                 shouldQuit = true
             case .help:

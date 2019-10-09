@@ -140,10 +140,13 @@ class XCPParser {
                 attachments.append(contentsOf: summaryAttachments)
             }
         }
-        
-        console.shellCommand("mkdir \"\(destination)\"/testScreenshots/")
+
+        let destinationURL = URL.init(fileURLWithPath: destination)
+        let screenshotsDirURL = destinationURL.appendingPathComponent("testScreenshots")
+
+        console.shellCommand("mkdir \"\(screenshotsDirURL.path)\"")
         for attachment in attachments {
-            XCResultToolCommand.Export(path: xcresultPath, attachment: attachment, outputPath: "\(destination)/testScreenshots/").run()
+            XCResultToolCommand.Export(path: xcresultPath, attachment: attachment, outputPath: screenshotsDirURL.path).run()
         }
     }
     

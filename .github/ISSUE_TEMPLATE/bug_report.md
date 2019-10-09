@@ -12,7 +12,7 @@ A clear and concise description of what the bug is.
 
 **Desktop (please complete the following information):**
  - OS: [Run "sw_vers"]
- - xcparse Version [Run "brew info xcparse"]
+ - xcparse Version [Run "xcparse" to get interactive mode & report version number there]
  - Swift version [Run "swift --version"]
  - XCResult version [Run "xcrun xcresulttool metadata get --path /path/to/xcresult"]
 

@@ -14,6 +14,21 @@ enum OutputType {
 }
 
 class Console {
+    var verbose = false
+
+    init() {
+        self.verbose = false
+    }
+
+    init(verbose: Bool) {
+        self.verbose = verbose
+    }
+
+    func logVerboseMessage(_ message: String) {
+        if self.verbose == true {
+            self.writeMessage(message)
+        }
+    }
     
     func writeMessage(_ message: String, to: OutputType = .standard) {
       switch to {
@@ -30,6 +45,7 @@ class Console {
         writeMessage("usage (interactive mode): xcparse\n")
         writeMessage(" -s, --screenshots : Extracts screenshots from xcresult file at xcresultPath and saves it in destination folder.")
         writeMessage(" -x, --xcov : Extracts coverage from xcresult file at xcresultPath and saves it in destination folder.")
+        writeMessage(" -v, --verbose : Run in verbose mode.")
         writeMessage(" -h, --help : Prints usage message.")
         writeMessage(" -q, --quit : Exits interactive mode. Cannot be used in static mode.")
     }
@@ -38,6 +54,8 @@ class Console {
     // MARK: Shell
     // user3064009's answer on https://stackoverflow.com/questions/26971240/how-do-i-run-an-terminal-command-in-a-swift-script-e-g-xcodebuild
     @discardableResult func shellCommand(_ command: String) -> String {
+        self.logVerboseMessage("Command: \(command)\n")
+
         let task = Process()
         task.launchPath = "/bin/bash"
         task.arguments = ["-c", command]

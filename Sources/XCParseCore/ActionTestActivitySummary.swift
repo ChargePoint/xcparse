@@ -35,7 +35,7 @@ open class ActionTestActivitySummary : Codable {
         start = try container.decodeXCResultTypeIfPresent(forKey: .start)
         finish = try container.decodeXCResultTypeIfPresent(forKey: .finish)
 
-        attachments = try container.decodeIfPresent(XCResultArrayValue<ActionTestAttachment>.self, forKey: .attachments)?.values ?? []
-        subactivities = try container.decodeIfPresent(XCResultArrayValue<ActionTestActivitySummary>.self, forKey: .subactivities)?.values ?? []
+        attachments = try container.decodeXCResultArray(forKey: .attachments)
+        subactivities = try container.decodeXCResultArray(forKey: .subactivities)
     }
 }

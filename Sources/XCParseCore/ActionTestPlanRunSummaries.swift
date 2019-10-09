@@ -17,8 +17,6 @@ open class ActionTestPlanRunSummaries : Codable {
 
      required public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestPlanRunSummariesCodingKeys.self)
-
-        let summaryValues = try container.decode(XCResultArrayValue<ActionTestPlanRunSummary>.self, forKey: .summaries)
-        summaries = summaryValues.values
+        summaries = try container.decodeXCResultArray(forKey: .summaries)
     }
 }

@@ -28,9 +28,9 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
         duration = try container.decodeXCResultType(forKey: .duration)
         testStatus = try container.decodeXCResultType(forKey: .testStatus)
 
-        performanceMetrics = try container.decodeIfPresent(XCResultArrayValue<ActionTestPerformanceMetricSummary>.self, forKey: .performanceMetrics)?.values ?? []
-        failureSummaries = try container.decodeIfPresent(XCResultArrayValue<ActionTestFailureSummary>.self, forKey: .failureSummaries)?.values ?? []
-        activitySummaries = try container.decodeIfPresent(XCResultArrayValue<ActionTestActivitySummary>.self, forKey: .activitySummaries)?.values ?? []
+        performanceMetrics = try container.decodeXCResultArray(forKey: .performanceMetrics)
+        failureSummaries = try container.decodeXCResultArray(forKey: .failureSummaries)
+        activitySummaries = try container.decodeXCResultArray(forKey: .activitySummaries)
 
         try super.init(from: decoder)
     }

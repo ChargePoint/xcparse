@@ -291,6 +291,15 @@ extension KeyedDecodingContainer {
         let resultValueType = try self.decodeIfPresent(XCResultValueType.self, forKey: key)
         return resultValueType?.getValue() as! T?
     }
+
+    func decodeXCResultArray<T: Codable>(forKey key: KeyedDecodingContainer<K>.Key) throws -> [T] {
+        let arrayValues = try self.decodeIfPresent(XCResultArrayValue<T>.self, forKey: key)
+        if let retval = arrayValues?.values {
+            return retval
+        } else {
+            return []
+        }
+    }
     
     func decodeXCResultObject<T: Codable>(forKey key: K) throws -> T {
         let resultObject = try self.decode(XCResultObject.self, forKey: key)

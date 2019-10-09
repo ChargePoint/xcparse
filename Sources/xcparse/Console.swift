@@ -54,9 +54,7 @@ class Console {
     // MARK: Shell
     // user3064009's answer on https://stackoverflow.com/questions/26971240/how-do-i-run-an-terminal-command-in-a-swift-script-e-g-xcodebuild
     @discardableResult func shellCommand(_ command: String) -> String {
-        if self.verbose == true {
-            print("Command: \(command)\n")
-        }
+        self.logVerboseMessage("Command: \(command)\n")
 
         let task = Process()
         task.launchPath = "/bin/bash"

@@ -45,6 +45,7 @@ class Console {
         writeMessage("usage (interactive mode): xcparse\n")
         writeMessage(" -s, --screenshots : Extracts screenshots from xcresult file at xcresultPath and saves it in destination folder.")
         writeMessage(" -x, --xcov : Extracts coverage from xcresult file at xcresultPath and saves it in destination folder.")
+        writeMessage(" -l, --logs : Extracts logs from xcresult file at xcresultPath and saves them to destination folder.")
         writeMessage(" -v, --verbose : Run in verbose mode.")
         writeMessage(" -h, --help : Prints usage message.")
         writeMessage(" -q, --quit : Exits interactive mode. Cannot be used in static mode.")

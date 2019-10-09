@@ -11,6 +11,7 @@ import XCParseCore
 
 enum OptionType: String {
     case screenshot = "s"
+    case log = "l"
     case xcov = "x"
     case verbose = "v"
     case help = "h"
@@ -20,6 +21,7 @@ enum OptionType: String {
     init(value: String) {
         switch value {
             case "s", "screenshots": self = .screenshot
+            case "l", "logs": self = .log
             case "x", "xcov": self = .xcov
             case "v", "verbose": self = .verbose
             case "h", "help": self = .help
@@ -30,7 +32,7 @@ enum OptionType: String {
 }
 
 class XCPParser {
-    let xcparseVersion = "0.3.2"
+    let xcparseVersion = "0.4"
     
     var console = Console()
 
@@ -175,6 +177,38 @@ class XCPParser {
                                         type: .directory, console: self.console).run()
         }
     }
+
+    func extractLogs(xcresultPath : String, destination : String) throws {
+        let xcresultJSON = XCResultToolCommand.Get(path: xcresultPath, id: "", outputPath: "", format: .json).run()
+
+        let xcresultJSONData = Data(xcresultJSON.utf8)
+
+        let decoder = JSONDecoder()
+        let actionRecord = try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
+
+        for (index, actionRecord) in actionRecord.actions.enumerated() {
+            // TODO: Alex - note that these aren't actually log files but ActivityLogSection objects. User from StackOverflow was just exporting those
+            // out as text files as for the most party they can be human readable, but it won't match what Xcode exports if you open the XCResult
+            // and attempt to export out the log. That seems like it may involve having to create our own pretty printer similar to Xcode's to export
+            // the ActivityLogSection into a nicely human readable text file.
+            //
+            // Also note either we missed in formatDescription objects like ActivityLogCommandInvocationSection or Apple added them in later betas. We'll
+            // need to add parsing, using the same style we do for ActionTestSummaryIdentifiableObject subclasses
+            if let buildResultLogRef = actionRecord.buildResult.logRef {
+//                let activityLogSectionJSON = XCResultToolCommand.Get(path: xcresultPath, id: buildResultLogRef.id, outputPath: "", format: .json).run()
+//                let activityLogSection = try decoder.decode(ActivityLogSection.self, from: Data(activityLogSectionJSON.utf8))
+
+                XCResultToolCommand.Export(path: xcresultPath, id: buildResultLogRef.id, outputPath: "\(destination)/\(index + 1)_build.txt", type: .file, console: self.console).run()
+            }
+
+            if let actionResultLogRef = actionRecord.actionResult.logRef {
+//                let activityLogSectionJSON = XCResultToolCommand.Get(path: xcresultPath, id: actionResultLogRef.id, outputPath: "", format: .json).run()
+//                let activityLogSection = try decoder.decode(ActivityLogSection.self, from: Data(activityLogSectionJSON.utf8))
+
+                XCResultToolCommand.Export(path: xcresultPath, id: actionResultLogRef.id, outputPath: "\(destination)/\(index + 1)_action.txt", type: .file, console: self.console).run()
+            }
+        }
+    }
     
     func staticMode() throws {
         let argCount = CommandLine.argc
@@ -196,6 +230,14 @@ class XCPParser {
             }
             else {
                 try extractScreenshots(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
+            }
+        case .log:
+            if argCount != 4 {
+                console.writeMessage("Missing Arguments", to: .error)
+                console.printUsage()
+            }
+            else {
+                try extractLogs(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
             }
         case .xcov:
             if argCount != 4 {
@@ -220,7 +262,7 @@ class XCPParser {
         console.writeMessage("Welcome to xcparse \(xcparseVersion). This program can extract screenshots and coverage files from an *.xcresult file.")
         var shouldQuit = false
         while !shouldQuit {
-            console.writeMessage("Type 's' to extract screenshots, 'x' for code coverage files, 'v' for verbose, 'h' for help, or 'q' to quit.")
+            console.writeMessage("Type 's' to extract screenshots, 'l' for logs, 'x' for code coverage files, 'v' for verbose, 'h' for help, or 'q' to quit.")
             let (option, value) = getOption(console.getInput())
             switch option {
             case .screenshot:
@@ -229,6 +271,12 @@ class XCPParser {
                 console.writeMessage("Type the path to the destination folder for your screenshots:")
                 let destinationPath = console.getInput()
                 try extractScreenshots(xcresultPath: path, destination: destinationPath)
+            case .log:
+                console.writeMessage("Type the path to your *.xcresult file:")
+                let path = console.getInput()
+                console.writeMessage("Type the path to the destination folder for your logs:")
+                let destinationPath = console.getInput()
+                try extractLogs(xcresultPath: path, destination: destinationPath)
             case .xcov:
                 console.writeMessage("Type the path to your *.xcresult file:")
                 let path = console.getInput()

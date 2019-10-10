@@ -71,7 +71,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "screenshots /tmp/xcparse/Test-Xcode11.xcresult /tmp/xcparse/My\ Folder\ With\ Spaces -v"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-s /tmp/xcparse/Test-Xcode11\ With\ Spaces.xcresult /tmp/xcparse/My\ Folder\ With\ Spaces"

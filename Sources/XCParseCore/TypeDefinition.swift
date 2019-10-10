@@ -22,4 +22,14 @@ open class TypeDefinition : Codable {
         name = try container.decodeXCResultType(forKey: .name)
         supertype = try container.decodeXCResultObjectIfPresent(forKey: .supertype)
     }
+
+    func getType() -> AnyObject.Type {
+        if let type = XCResultTypeFamily(rawValue: self.name) {
+            return type.getType()
+        } else if let parentType = self.supertype {
+            return parentType.getType()
+        } else {
+            return XCResultObjectType.self
+        }
+    }
 }

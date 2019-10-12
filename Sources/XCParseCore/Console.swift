@@ -18,11 +18,7 @@ public enum OutputType {
 open class Console {
     public var verbose = false
 
-    public init() {
-        self.verbose = false
-    }
-
-    public init(verbose: Bool) {
+    public init(verbose: Bool = false) {
         self.verbose = verbose
     }
     

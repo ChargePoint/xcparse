@@ -6,6 +6,7 @@
 //  Copyright © 2019 ChargePoint, Inc. All rights reserved.
 //
 
+import Basic
 import Foundation
 import SPMUtility
 import XCParseCore
@@ -168,9 +169,17 @@ class XCPParser {
         let screenshotsDirURL = destinationURL.appendingPathComponent("testScreenshots")
 
         console.shellCommand(["mkdir", screenshotsDirURL.path])
-        for attachment in attachments {
+
+        let progressBar = PercentProgressAnimation(stream: stdoutStream, header: "Exporting Screenshots")
+        progressBar.update(step: 0, total: attachments.count, text: "")
+        
+        for (index, attachment) in attachments.enumerated() {
+            progressBar.update(step: index, total: attachments.count, text: "Extracting \"\(attachment.filename ?? "Unknown Filename")\"")
             XCResultToolCommand.Export(path: xcresultPath, attachment: attachment, outputPath: screenshotsDirURL.path, console: self.console).run()
         }
+        
+        progressBar.update(step: attachments.count, total: attachments.count, text: "🎊 Export complete! 🎊")
+        progressBar.complete(success: true)
     }
     
     func extractCoverage(xcresultPath : String, destination : String) throws {

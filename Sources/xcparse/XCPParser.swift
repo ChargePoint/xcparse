@@ -13,7 +13,7 @@ import XCParseCore
 
 let xcparseCurrentVersion = Version(0, 4, 0)
 
-enum OptionType: String {
+enum InteractiveModeOptionType: String {
     case screenshot = "s"
     case log = "l"
     case xcov = "x"
@@ -35,15 +35,22 @@ enum OptionType: String {
     }
 }
 
+struct AttachmentExportOptions {
+    enum ExportFolderStructure: String {
+        case none, legacy
+    }
+
+    var folderStructure: ExportFolderStructure = .none
+}
+
 class XCPParser {
     var xcparseLatestVersion = xcparseCurrentVersion
     
     var console = Console()
     let decoder = JSONDecoder()
 
-    func getOption(_ option: String) -> (option:OptionType, value: String) {
-      return (OptionType(value: option), option)
-    }
+    // MARK: -
+    // MARK: Parsing Actions
 
     func getXCResult(path: String) throws -> ActionsInvocationRecord? {
         guard let xcresultGetResult = XCResultToolCommand.Get(path: path, id: "", outputPath: "", format: .json, console: self.console).run() else {
@@ -58,7 +65,7 @@ class XCPParser {
         return try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
     }
     
-    func extractScreenshots(xcresultPath : String, destination : String) throws {
+    func extractScreenshots(xcresultPath : String, destination : String, options: AttachmentExportOptions = AttachmentExportOptions()) throws {
         var attachments: [ActionTestAttachment] = []
 
         guard let actionRecord = try getXCResult(path: xcresultPath) else {
@@ -168,9 +175,11 @@ class XCPParser {
         }
 
         let destinationURL = URL.init(fileURLWithPath: destination)
-        let screenshotsDirURL = destinationURL.appendingPathComponent("testScreenshots")
-
-        console.shellCommand(["mkdir", screenshotsDirURL.path])
+        var screenshotsDirURL = destinationURL
+        if options.folderStructure == .legacy {
+            screenshotsDirURL = destinationURL.appendingPathComponent("testScreenshots")
+            console.shellCommand(["mkdir", screenshotsDirURL.path])
+        }
 
         let progressBar = PercentProgressAnimation(stream: stdoutStream, header: "Exporting Screenshots")
         progressBar.update(step: 0, total: attachments.count, text: "")
@@ -274,6 +283,9 @@ class XCPParser {
             self.console.writeMessage("New xcparse Version \(self.xcparseLatestVersion) is available! Update using \"brew upgrade xcparse\".")
         }
     }
+
+    // MARK: -
+    // MARK: Modes
     
     func staticMode() throws {
         checkVersion()
@@ -288,6 +300,10 @@ class XCPParser {
 
         self.printLatestVersionInfoIfNeeded()
     }
+
+    func getInteractiveModeOption(_ option: String) -> (option: InteractiveModeOptionType, value: String) {
+      return (InteractiveModeOptionType(value: option), option)
+    }
     
     func interactiveMode() throws {
         checkVersion()
@@ -296,8 +312,11 @@ class XCPParser {
         var shouldQuit = false
         while !shouldQuit {
             self.printLatestVersionInfoIfNeeded()
+
             console.writeMessage("Type 's' to extract screenshots, 'l' for logs, 'x' for code coverage files, 'v' for verbose, 'h' for help, or 'q' to quit.")
-            let (option, value) = getOption(console.getInput())
+
+            let (option, value) = getInteractiveModeOption(console.getInput())
+
             switch option {
             case .screenshot:
                 console.writeMessage("Type the path to your *.xcresult file:")

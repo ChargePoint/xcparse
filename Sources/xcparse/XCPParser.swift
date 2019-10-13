@@ -11,7 +11,7 @@ import Foundation
 import SPMUtility
 import XCParseCore
 
-let xcparseCurrentVersion = Version(0, 4, 0)
+let xcparseCurrentVersion = Version(1, 0, 0)
 
 enum OptionType: String {
     case screenshot = "s"
@@ -177,6 +177,7 @@ class XCPParser {
         
         for (index, attachment) in attachments.enumerated() {
             progressBar.update(step: index, total: attachments.count, text: "Extracting \"\(attachment.filename ?? "Unknown Filename")\"")
+
             XCResultToolCommand.Export(path: xcresultPath, attachment: attachment, outputPath: screenshotsDirURL.path, console: self.console).run()
         }
         
@@ -239,6 +240,10 @@ class XCPParser {
         }
     }
 
+    func printVersion() {
+        self.console.writeMessage("\(xcparseCurrentVersion)")
+    }
+
     func checkVersion() {
         let latestReleaseURL = URL(string: "https://api.github.com/repos/ChargePoint/xcparse/releases/latest")!
 
@@ -273,51 +278,14 @@ class XCPParser {
     func staticMode() throws {
         checkVersion()
 
-        let argCount = CommandLine.argc
-        let argument = CommandLine.arguments[1]
-        var startIndex : String.Index
-        if argument.count == 2 {
-            startIndex = argument.index(argument.startIndex, offsetBy:  1)
-        }
-        else {
-            startIndex = argument.index(argument.startIndex, offsetBy:  2)
-        }
-        let substr = String(argument[startIndex...])
-        let (option, _) = getOption(substr)
-        switch (option) {
-        case .screenshot:
-            if argCount != 4 {
-                console.writeMessage("Missing Arguments", to: .error)
-                console.printUsage()
-            }
-            else {
-                try extractScreenshots(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
-            }
-        case .log:
-            if argCount != 4 {
-                console.writeMessage("Missing Arguments", to: .error)
-                console.printUsage()
-            }
-            else {
-                try extractLogs(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
-            }
-        case .xcov:
-            if argCount != 4 {
-                console.writeMessage("Missing Arguments", to: .error)
-                console.printUsage()
-            }
-            else {
-                try extractCoverage(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
-            }
-        case .verbose:
-            self.console.verbose = true
-            console.writeMessage("Verbose mode enabled")
-        case .help:
-            console.printUsage()
-        case .unknown, .quit:
-            console.writeMessage("\nUnknown option \(argument)\n")
-            console.printUsage()
-        }
+        var registry = CommandRegistry(usage: "<command> <options>",
+                                       overview: "This program can extract screenshots and coverage files from an *.xcresult file.")
+        registry.register(command: ScreenshotsCommand.self)
+        registry.register(command: CodeCoverageCommand.self)
+        registry.register(command: LogsCommand.self)
+        registry.register(command: VersionCommand.self)
+        registry.run()
+
         self.printLatestVersionInfoIfNeeded()
     }
     
@@ -355,10 +323,10 @@ class XCPParser {
             case .quit:
                 shouldQuit = true
             case .help:
-                console.printUsage()
+                console.printInteractiveUsage()
             default:
                 console.writeMessage("Unknown option \(value)", to: .error)
-                console.printUsage()
+                console.printInteractiveUsage()
             }
         }
     }

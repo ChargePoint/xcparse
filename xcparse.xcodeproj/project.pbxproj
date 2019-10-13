@@ -22,6 +22,12 @@
 
 /* Begin PBXBuildFile section */
 		62A843102352AA9800DEA7FF /* GitHubLatestReleaseResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A8430F2352AA9800DEA7FF /* GitHubLatestReleaseResponse.swift */; };
+		62A843152352EC7800DEA7FF /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A843142352EC7800DEA7FF /* Command.swift */; };
+		62A843172352ECC500DEA7FF /* ScreenshotsCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A843162352ECC500DEA7FF /* ScreenshotsCommand.swift */; };
+		62A843192352EF7000DEA7FF /* CommandRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A843182352EF7000DEA7FF /* CommandRegistry.swift */; };
+		62A8431B2352F57F00DEA7FF /* CodeCoverageCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A8431A2352F57F00DEA7FF /* CodeCoverageCommand.swift */; };
+		62A8431D2352F63100DEA7FF /* LogsCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A8431C2352F63100DEA7FF /* LogsCommand.swift */; };
+		62A8431F2352FEE800DEA7FF /* VersionCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A8431E2352FEE800DEA7FF /* VersionCommand.swift */; };
 		OBJ_166 /* Await.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_60 /* Await.swift */; };
 		OBJ_167 /* ByteString.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_61 /* ByteString.swift */; };
 		OBJ_168 /* CStringArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_62 /* CStringArray.swift */; };
@@ -314,6 +320,12 @@
 
 /* Begin PBXFileReference section */
 		62A8430F2352AA9800DEA7FF /* GitHubLatestReleaseResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubLatestReleaseResponse.swift; sourceTree = "<group>"; };
+		62A843142352EC7800DEA7FF /* Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
+		62A843162352ECC500DEA7FF /* ScreenshotsCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotsCommand.swift; sourceTree = "<group>"; };
+		62A843182352EF7000DEA7FF /* CommandRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRegistry.swift; sourceTree = "<group>"; };
+		62A8431A2352F57F00DEA7FF /* CodeCoverageCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeCoverageCommand.swift; sourceTree = "<group>"; };
+		62A8431C2352F63100DEA7FF /* LogsCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsCommand.swift; sourceTree = "<group>"; };
+		62A8431E2352FEE800DEA7FF /* VersionCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionCommand.swift; sourceTree = "<group>"; };
 		OBJ_10 /* ActionDeviceRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionDeviceRecord.swift; sourceTree = "<group>"; };
 		OBJ_108 /* libc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = libc.swift; sourceTree = "<group>"; };
 		OBJ_11 /* ActionPlatformRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionPlatformRecord.swift; sourceTree = "<group>"; };
@@ -744,6 +756,12 @@
 			children = (
 				62A8430F2352AA9800DEA7FF /* GitHubLatestReleaseResponse.swift */,
 				OBJ_51 /* XCPParser.swift */,
+				62A843142352EC7800DEA7FF /* Command.swift */,
+				62A843162352ECC500DEA7FF /* ScreenshotsCommand.swift */,
+				62A8431A2352F57F00DEA7FF /* CodeCoverageCommand.swift */,
+				62A8431C2352F63100DEA7FF /* LogsCommand.swift */,
+				62A8431E2352FEE800DEA7FF /* VersionCommand.swift */,
+				62A843182352EF7000DEA7FF /* CommandRegistry.swift */,
 				OBJ_52 /* main.swift */,
 			);
 			name = xcparse;
@@ -1263,9 +1281,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				62A8431D2352F63100DEA7FF /* LogsCommand.swift in Sources */,
+				62A843192352EF7000DEA7FF /* CommandRegistry.swift in Sources */,
+				62A8431B2352F57F00DEA7FF /* CodeCoverageCommand.swift in Sources */,
+				62A8431F2352FEE800DEA7FF /* VersionCommand.swift in Sources */,
 				62A843102352AA9800DEA7FF /* GitHubLatestReleaseResponse.swift in Sources */,
+				62A843172352ECC500DEA7FF /* ScreenshotsCommand.swift in Sources */,
 				OBJ_327 /* XCPParser.swift in Sources */,
 				OBJ_328 /* main.swift in Sources */,
+				62A843152352EC7800DEA7FF /* Command.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

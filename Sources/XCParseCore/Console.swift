@@ -37,10 +37,9 @@ open class Console {
       }
     }
     
-    public func printUsage() {
-        writeMessage("usage (static mode): xcparse [-hq] [-s xcresultPath destination] [-x xcresultPath destination]\n")
-        writeMessage("xcparse only accepts a single option at a time.\n")
+    public func printInteractiveUsage() {
         writeMessage("usage (interactive mode): xcparse\n")
+        writeMessage("Interactive Mode only accepts a single option at a time.\n")
         writeMessage(" -s, --screenshots : Extracts screenshots from xcresult file at xcresultPath and saves it in destination folder.")
         writeMessage(" -x, --xcov : Extracts coverage from xcresult file at xcresultPath and saves it in destination folder.")
         writeMessage(" -l, --logs : Extracts logs from xcresult file at xcresultPath and saves them to destination folder.")

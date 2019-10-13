@@ -11,6 +11,8 @@ import Foundation
 import SPMUtility
 import XCParseCore
 
+let xcparseCurrentVersion = Version(0, 4, 0)
+
 enum OptionType: String {
     case screenshot = "s"
     case log = "l"
@@ -34,7 +36,7 @@ enum OptionType: String {
 }
 
 class XCPParser {
-    let xcparseVersion = Version(0, 4, 0)
+    var xcparseLatestVersion = xcparseCurrentVersion
     
     var console = Console()
     let decoder = JSONDecoder()
@@ -236,8 +238,41 @@ class XCPParser {
             }
         }
     }
+
+    func checkVersion() {
+        let latestReleaseURL = URL(string: "https://api.github.com/repos/ChargePoint/xcparse/releases/latest")!
+
+        var releaseRequest = URLRequest(url: latestReleaseURL)
+        releaseRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let task = URLSession.shared.dataTask(with: releaseRequest) { (data, response, error) in
+            if error != nil || data == nil {
+                return
+            }
+
+            do {
+                let releaseResponse = try JSONDecoder().decode(GitHubLatestReleaseResponse.self, from: data!)
+                if let latestVersion = Version(string: releaseResponse.name) {
+                    DispatchQueue.main.async {
+                        self.xcparseLatestVersion = latestVersion
+                    }
+                }
+            } catch {
+                // Do nothing for now
+            }
+        }
+        task.resume()
+    }
+
+    func printLatestVersionInfoIfNeeded() {
+        if self.xcparseLatestVersion > xcparseCurrentVersion {
+            self.console.writeMessage("New xcparse Version \(self.xcparseLatestVersion) is available! Update using \"brew upgrade xcparse\".")
+        }
+    }
     
     func staticMode() throws {
+        checkVersion()
+
         let argCount = CommandLine.argc
         let argument = CommandLine.arguments[1]
         var startIndex : String.Index
@@ -283,12 +318,16 @@ class XCPParser {
             console.writeMessage("\nUnknown option \(argument)\n")
             console.printUsage()
         }
+        self.printLatestVersionInfoIfNeeded()
     }
     
     func interactiveMode() throws {
-        console.writeMessage("Welcome to xcparse \(xcparseVersion). This program can extract screenshots and coverage files from an *.xcresult file.")
+        checkVersion()
+        console.writeMessage("Welcome to xcparse \(xcparseCurrentVersion). This program can extract screenshots and coverage files from an *.xcresult file.")
+
         var shouldQuit = false
         while !shouldQuit {
+            self.printLatestVersionInfoIfNeeded()
             console.writeMessage("Type 's' to extract screenshots, 'l' for logs, 'x' for code coverage files, 'v' for verbose, 'h' for help, or 'q' to quit.")
             let (option, value) = getOption(console.getInput())
             switch option {

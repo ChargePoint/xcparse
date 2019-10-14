@@ -10,9 +10,9 @@ import Foundation
 import XCParseCore
 
 class XCResultToolCommand {
-    
+
     let commandPrefix = "xcrun xcresulttool"
-    
+
     let console: Console
 
     init() {
@@ -22,7 +22,7 @@ class XCResultToolCommand {
     init(withConsole console: Console) {
         self.console = console
     }
-    
+
     @discardableResult func run() -> String {
         preconditionFailure("This method should be overriden")
     }
@@ -31,18 +31,18 @@ class XCResultToolCommand {
         case raw = "raw"
         case json = "json"
     }
-    
+
     class Export: XCResultToolCommand {
         enum ExportType: String {
             case file = "file"
             case directory = "directory"
         }
-        
+
         var path: String = ""
         var id: String = ""
         var outputPath: String = ""
         var type: ExportType = ExportType.file
-        
+
         init(path: String, id: String, outputPath: String, type: ExportType, console: Console = Console()) {
             self.path = path
             self.id = id
@@ -71,7 +71,7 @@ class XCResultToolCommand {
 
             super.init(withConsole: console)
         }
-        
+
         @discardableResult override func run() -> String {
             let command = "\(commandPrefix) export --path \"\(self.path)\" --id \(self.id) --output-path \"\(self.outputPath)\" --type \(self.type.rawValue)"
             return console.shellCommand(command)

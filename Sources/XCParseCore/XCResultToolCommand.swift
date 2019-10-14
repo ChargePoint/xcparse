@@ -6,53 +6,78 @@
 //  Copyright © 2019 ChargePoint, Inc. All rights reserved.
 //
 
+import Basic
 import Foundation
-import XCParseCore
+import SPMUtility
 
-class XCResultToolCommand {
+let xcresultToolArguments = ["xcrun", "xcresulttool"]
 
-    let commandPrefix = "xcrun xcresulttool"
+open class XCResultToolCommand {
+    let process: Basic.Process
 
     let console: Console
 
-    init() {
-        self.console = Console()
-    }
-
-    init(withConsole console: Console) {
+    public init(withConsole console: Console = Console(), process: Basic.Process = Basic.Process(arguments: ["xcrun", "xcresulttool", "-h"])) {
         self.console = console
+        self.process = process
+    }
+    
+    @discardableResult public func run() -> Basic.ProcessResult? {
+        do {
+            self.console.writeMessage("Command: \(process.arguments.joined(separator: " "))\n", to: .verbose)
+
+            try process.launch()
+            let result = try process.waitUntilExit()
+
+            let stderr = try result.utf8stderrOutput()
+            if stderr != "" {
+                self.console.writeMessage(stderr, to: .error)
+            }
+
+            let stdout = try result.utf8Output()
+            self.console.writeMessage(stdout, to: .verbose)
+
+            return result
+        } catch {
+            print("Error when performing command")
+            return nil
+        }
     }
 
-    @discardableResult func run() -> String {
-        preconditionFailure("This method should be overriden")
-    }
-
-    enum FormatType: String {
+    public enum FormatType: String {
         case raw = "raw"
         case json = "json"
     }
-
-    class Export: XCResultToolCommand {
-        enum ExportType: String {
+    
+    open class Export: XCResultToolCommand {
+        public enum ExportType: String {
             case file = "file"
             case directory = "directory"
         }
-
+        
         var path: String = ""
         var id: String = ""
         var outputPath: String = ""
         var type: ExportType = ExportType.file
-
-        init(path: String, id: String, outputPath: String, type: ExportType, console: Console = Console()) {
+        
+        public init(path: String, id: String, outputPath: String, type: ExportType, console: Console = Console()) {
             self.path = path
             self.id = id
             self.outputPath = outputPath
             self.type = type
 
-            super.init(withConsole: console)
+            var processArgs = xcresultToolArguments
+            processArgs.append(contentsOf: ["export",
+                                            "--type", self.type.rawValue,
+                                            "--path", self.path,
+                                            "--id", self.id,
+                                            "--output-path", self.outputPath])
+
+            let process = Basic.Process(arguments: processArgs)
+            super.init(withConsole: console, process: process)
         }
 
-        init(path: String, attachment: ActionTestAttachment, outputPath: String, console: Console = Console()) {
+        public init(path: String, attachment: ActionTestAttachment, outputPath: String, console: Console = Console()) {
             self.path = path
 
             if let identifier = attachment.payloadRef?.id {
@@ -61,98 +86,86 @@ class XCResultToolCommand {
                 // Now let's figure out the filename & path
                 let filename = attachment.filename ?? identifier
                 let attachmentOutputPath = URL.init(fileURLWithPath: outputPath).appendingPathComponent(filename)
-
-                var proposedOutputPath = attachmentOutputPath.path
-                proposedOutputPath = proposedOutputPath.replacingOccurrences(of: "\"", with: "\\\"")
-                proposedOutputPath = proposedOutputPath.replacingOccurrences(of: "$", with: "\\$")
-                proposedOutputPath = proposedOutputPath.replacingOccurrences(of: "`", with: "\\`")
-                self.outputPath = proposedOutputPath
+                self.outputPath = attachmentOutputPath.path
             }
 
-            super.init(withConsole: console)
-        }
+            var processArgs = xcresultToolArguments
+            processArgs.append(contentsOf: ["export",
+                                            "--type", self.type.rawValue,
+                                            "--path", self.path,
+                                            "--id", self.id,
+                                            "--output-path", self.outputPath])
 
-        @discardableResult override func run() -> String {
-            let command = "\(commandPrefix) export --path \"\(self.path)\" --id \(self.id) --output-path \"\(self.outputPath)\" --type \(self.type.rawValue)"
-            return console.shellCommand(command)
+            let process = Basic.Process(arguments: processArgs)
+            super.init(withConsole: console, process: process)
         }
     }
 
-    class Get: XCResultToolCommand {
+    open class Get: XCResultToolCommand {
         var path: String = ""
         var id: String = ""
         var outputPath: String = ""
         var format = FormatType.raw
 
-        init(path: String, id: String, outputPath: String, format: FormatType, console: Console = Console()) {
+        public init(path: String, id: String, outputPath: String, format: FormatType, console: Console = Console()) {
             self.path = path
             self.id = id
             self.outputPath = outputPath
             self.format = format
 
-            super.init(withConsole: console)
-        }
-
-        @discardableResult override func run() -> String {
-            var command = "\(commandPrefix) get --path \"\(self.path)\" --format \(self.format)"
+            var processArgs = xcresultToolArguments
+            processArgs.append(contentsOf: ["get",
+                                            "--path", self.path,
+                                            "--format", self.format.rawValue])
             if self.id != "" {
-                command += " --id \"\(self.id)\""
+                processArgs.append(contentsOf: ["--id", self.id])
             }
             if self.outputPath != "" {
-                command += " > \"\(self.outputPath)\""
+                processArgs.append(contentsOf: ["--output-path", self.outputPath])
             }
 
-            let commandOutput = console.shellCommand(command)
-            self.console.logVerboseMessage(commandOutput)
-
-            return commandOutput
+            let process = Basic.Process(arguments: processArgs)
+            super.init(withConsole: console, process: process)
         }
     }
 
-    class Graph: XCResultToolCommand {
+    open class Graph: XCResultToolCommand {
         var id: String = ""
         var path: String = ""
         var version: Int?
 
-        init(id: String, path: String, version: Int?, console: Console = Console()) {
+        public init(id: String, path: String, version: Int?, console: Console = Console()) {
             self.id = id
             self.path = path
             self.version = version
 
-            super.init(withConsole: console)
-        }
-
-        @discardableResult override func run() -> String {
-            var command = "\(commandPrefix) graph --path \"\(self.path)\""
+            var processArgs = xcresultToolArguments
+            processArgs.append(contentsOf: ["graph",
+                                            "--path", self.path])
             if self.id != "" {
-                command += " --id \"\(self.id)\""
+                processArgs.append(contentsOf: ["--id", self.id])
             }
             if let version = self.version {
-                command += " --version \(version)"
+                processArgs.append(contentsOf: ["--version", "\(version)"])
             }
-            let commandOutput = console.shellCommand(command)
-            self.console.logVerboseMessage(commandOutput)
 
-            return commandOutput
+            let process = Basic.Process(arguments: processArgs)
+            super.init(withConsole: console, process: process)
         }
     }
 
-    class MetadataGet: XCResultToolCommand {
+    open class MetadataGet: XCResultToolCommand {
         var path: String = ""
 
-        init(path: String, console: Console = Console()) {
+        public init(path: String, console: Console = Console()) {
             self.path = path
 
-            super.init(withConsole: console)
-        }
+            var processArgs = xcresultToolArguments
+            processArgs.append(contentsOf: ["metadata", "get",
+                                            "--path", self.path])
 
-        @discardableResult override func run() -> String {
-            let command = "\(commandPrefix) metadata get --path \"\(self.path)\""
-
-            let commandOutput = console.shellCommand(command)
-            self.console.logVerboseMessage(commandOutput)
-
-            return commandOutput
+            let process = Basic.Process(arguments: processArgs)
+            super.init(withConsole: console, process: process)
         }
     }
 }

@@ -6,40 +6,42 @@
 //  Copyright © 2019 ChargePoint, Inc. All rights reserved.
 //
 
+import Basic
 import Foundation
 
-enum OutputType {
+public enum OutputType {
   case error
   case standard
+  case verbose
 }
 
-class Console {
-    var verbose = false
+open class Console {
+    public var verbose = false
 
-    init() {
+    public init() {
         self.verbose = false
     }
 
-    init(verbose: Bool) {
+    public init(verbose: Bool) {
         self.verbose = verbose
     }
-
-    func logVerboseMessage(_ message: String) {
-        if self.verbose == true {
-            self.writeMessage(message)
-        }
-    }
     
-    func writeMessage(_ message: String, to: OutputType = .standard) {
+    public func writeMessage(_ message: String, to: OutputType = .standard) {
       switch to {
       case .standard:
-        print("\(message)")
+        if message != "" {
+            print("\(message)")
+        }
+      case .verbose:
+        if self.verbose == true && message != "" {
+            print("\(message)")
+        }
       case .error:
         fputs("Error: \(message)\n", stderr)
       }
     }
     
-    func printUsage() {
+    public func printUsage() {
         writeMessage("usage (static mode): xcparse [-hq] [-s xcresultPath destination] [-x xcresultPath destination]\n")
         writeMessage("xcparse only accepts a single option at a time.\n")
         writeMessage("usage (interactive mode): xcparse\n")
@@ -53,25 +55,24 @@ class Console {
     
     // MARK: -
     // MARK: Shell
-    // user3064009's answer on https://stackoverflow.com/questions/26971240/how-do-i-run-an-terminal-command-in-a-swift-script-e-g-xcodebuild
-    @discardableResult func shellCommand(_ command: String) -> String {
-        self.logVerboseMessage("Command: \(command)\n")
+    @discardableResult public func shellCommand(_ command: [String]) -> String {
+        self.writeMessage("Command: \(command.joined(separator: " "))\n", to: .verbose)
 
-        let task = Process()
-        task.launchPath = "/bin/bash"
-        task.arguments = ["-c", command]
-        
-        let pipe = Pipe()
-        task.standardOutput = pipe
-        task.launch()
-        
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output: String = NSString(data: data, encoding: String.Encoding.utf8.rawValue)! as String
-        
-        return output
+        let process = Basic.Process(arguments: command)
+        do {
+            try process.launch()
+            let result = try process.waitUntilExit()
+
+            let retval = try result.utf8Output()
+            self.writeMessage(retval, to: .verbose)
+            return retval
+        } catch {
+            print("Error when performing command")
+            return ""
+        }
     }
     
-    func getInput() -> String {
+    public func getInput() -> String {
       let keyboard = FileHandle.standardInput
       let inputData = keyboard.availableData
       let strData = String(data: inputData, encoding: String.Encoding.utf8)!

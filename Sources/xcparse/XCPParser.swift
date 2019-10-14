@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SPMUtility
 import XCParseCore
 
 enum OptionType: String {
@@ -32,31 +33,48 @@ enum OptionType: String {
 }
 
 class XCPParser {
-    let xcparseVersion = "0.4"
+    let xcparseVersion = Version(0, 4, 0)
     
     var console = Console()
+    let decoder = JSONDecoder()
 
     func getOption(_ option: String) -> (option:OptionType, value: String) {
       return (OptionType(value: option), option)
+    }
+
+    func getXCResult(path: String) throws -> ActionsInvocationRecord? {
+        guard let xcresultGetResult = XCResultToolCommand.Get(path: path, id: "", outputPath: "", format: .json, console: self.console).run() else {
+            return nil
+        }
+        let xcresultJSON = try xcresultGetResult.utf8Output()
+        if xcresultGetResult.exitStatus != .terminated(code: 0) || xcresultJSON == "" {
+            return nil
+        }
+
+        let xcresultJSONData = Data(xcresultJSON.utf8)
+        return try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
     }
     
     func extractScreenshots(xcresultPath : String, destination : String) throws {
         var attachments: [ActionTestAttachment] = []
 
-        let xcresultJSON = XCResultToolCommand.Get(path: xcresultPath, id: "", outputPath: "", format: .json, console: self.console).run()
-        let xcresultJSONData = Data(xcresultJSON.utf8)
-        
-        let decoder = JSONDecoder()
-        let actionRecord = try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
+        guard let actionRecord = try getXCResult(path: xcresultPath) else {
+            return
+        }
         
         let testReferenceIDs = actionRecord.actions.compactMap { $0.actionResult.testsRef?.id }
 
         var summaryRefIDs: [String] = []
         for testRefID in testReferenceIDs {
-            let testJSONString = XCResultToolCommand.Get(path: xcresultPath, id: testRefID, outputPath: "", format: .json, console: self.console).run()
+            guard let testGetResult = XCResultToolCommand.Get(path: xcresultPath, id: testRefID, outputPath: "", format: .json, console: self.console).run() else {
+                return
+            }
+            let testJSONString = try testGetResult.utf8Output()
+            if  testGetResult.exitStatus != .terminated(code: 0) || testJSONString == "" {
+                continue
+            }
 
             let testRefData = Data(testJSONString.utf8)
-
             let testPlanRunSummaries = try decoder.decode(ActionTestPlanRunSummaries.self, from: testRefData)
 
             let testableSummaries = testPlanRunSummaries.summaries.flatMap { $0.testableSummaries }
@@ -119,9 +137,15 @@ class XCPParser {
         }
 
         for summaryRefID in summaryRefIDs {
-            let testJSONString = XCResultToolCommand.Get(path: xcresultPath, id: summaryRefID, outputPath: "", format: .json, console: self.console).run()
+            guard let summaryGetResult = XCResultToolCommand.Get(path: xcresultPath, id: summaryRefID, outputPath: "", format: .json, console: self.console).run() else {
+                return
+            }
+            let testJSONString = try summaryGetResult.utf8Output()
+            if summaryGetResult.exitStatus != .terminated(code: 0) || testJSONString == "" {
+                continue
+            }
+
             let summaryRefData = Data(testJSONString.utf8)
-            
             let testSummary = try decoder.decode(ActionTestSummary.self, from: summaryRefData)
 
             var activitySummaries = testSummary.activitySummaries
@@ -143,19 +167,16 @@ class XCPParser {
         let destinationURL = URL.init(fileURLWithPath: destination)
         let screenshotsDirURL = destinationURL.appendingPathComponent("testScreenshots")
 
-        console.shellCommand("mkdir \"\(screenshotsDirURL.path)\"")
+        console.shellCommand(["mkdir", screenshotsDirURL.path])
         for attachment in attachments {
             XCResultToolCommand.Export(path: xcresultPath, attachment: attachment, outputPath: screenshotsDirURL.path, console: self.console).run()
         }
     }
     
     func extractCoverage(xcresultPath : String, destination : String) throws {
-        let xcresultJSON = XCResultToolCommand.Get(path: xcresultPath, id: "", outputPath: "", format: .json, console: self.console).run()
-
-        let xcresultJSONData = Data(xcresultJSON.utf8)
-        
-        let decoder = JSONDecoder()
-        let actionRecord = try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
+        guard let actionRecord = try getXCResult(path: xcresultPath) else {
+            return
+        }
         
         var coverageReferenceIDs: [String] = []
         var coverageArchiveIDs: [String] = []
@@ -179,12 +200,9 @@ class XCPParser {
     }
 
     func extractLogs(xcresultPath : String, destination : String) throws {
-        let xcresultJSON = XCResultToolCommand.Get(path: xcresultPath, id: "", outputPath: "", format: .json).run()
-
-        let xcresultJSONData = Data(xcresultJSON.utf8)
-
-        let decoder = JSONDecoder()
-        let actionRecord = try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
+        guard let actionRecord = try getXCResult(path: xcresultPath) else {
+            return
+        }
 
         for (index, actionRecord) in actionRecord.actions.enumerated() {
             // TODO: Alex - note that these aren't actually log files but ActivityLogSection objects. User from StackOverflow was just exporting those

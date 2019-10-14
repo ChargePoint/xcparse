@@ -1,43 +1,59 @@
 # xcparse
 
-A command line tool to extract code coverage & screenshots from Xcode 11+ XCResult files.
+A command line tool to extract code coverage & screenshots from Xcode 11 XCResult files.
 
 To learn more about Xcode 11's xcresult format, read [Rishab Sukumar's post on the ChargePoint Engineering blog](https://www.chargepoint.com/engineering/xcparse/)
 
 ## Installation 
 
-Enter the following command  in terminal.
+xcparse is installed via [Homebrew](https://brew.sh). Enter the following command in Terminal:
 
 ```
 brew install chargepoint/xcparse/xcparse
 ```
-This will tap into our xcparse homebrew tap and install the tool on your local machine.
+This will tap into our xcparse Homebrew tap and install the tool on your local machine.
 
 ## Usage
 
 ```
-xcparse [-hq] [-s xcresultPath destination] [-x xcresultPath destination]
+xcparse <command> <options>
 ```
 
-**xcparse only accepts a single option at a time.** 
+Below are a few examples of common commands. For further assistance, use the --help option on any command
 
-### Modes
+### Screenshots
 
+```
+xcparse screenshots /path/to/Test.xcresult /path/to/exportScreenshots
+```
 
-#### Interactive Mode
-When the user runs xcparse with no arguments, xcparse runs in interactive mode. In this mode the user is prompted to enter options and arguments as required.
+### Code Coverage
 
-#### Static Mode
-This is the default mode in which xcparse runs if the user specifies an option.
+```
+xcparse codecov /path/to/Test.xcresult /path/to/exportCodeCoverageFiles
+```
 
-### Options
+### Logs
 
-1. -s or --screenshots: Extracts screenshots from specified *.xcresult file and saves them in specified destination folder.
-2. -x or --xcov: Extracts coverage from specified *.xcresult file and saves it in specified destination folder.
-3. -q or --quit: Exits interactive mode.
-4. -h or --help: Prints usage information
+```
+xcparse logs /path/to/Test.xcresult /path/to/exportLogFiles
+```
 
-**Arguments must be specified when xcparse is run with the --xcov or --screenshots options.**
+### Help
+
+```
+xcparse --help
+
+xcparse screenshots --help
+```
+
+## Modes
+
+### Static Mode
+This is the default mode in which xcparse runs if the user specifies a command & arguments.
+
+### Interactive Mode
+When the user runs xcparse with no arguments, xcparse runs in interactive mode. In this mode the user is prompted to enter commands and arguments as required.
 
 ## Useful Commands
 

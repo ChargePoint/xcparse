@@ -62,11 +62,15 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-s /tmp/xcparse/Test-Xcode10.xcresult /tmp/xcparse/My\ Folder\ With\ Spaces"
+            argument = "-s /tmp/xcparse/Test-Xcode11.xcresult /tmp/xcparse/My\ Folder\ With\ Spaces"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-x /tmp/xcparse/Test-Xcode10.xcresult /tmp/xcparse/My\ Folder\ With\ Spaces"
+            argument = "-x /tmp/xcparse/Test-Xcode11.xcresult /tmp/xcparse/My\ Folder\ With\ Spaces"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "screenshots /tmp/xcparse/Test-Xcode11.xcresult /tmp/xcparse/My\ Folder\ With\ Spaces -v"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument

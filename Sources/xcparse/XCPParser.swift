@@ -6,11 +6,16 @@
 //  Copyright © 2019 ChargePoint, Inc. All rights reserved.
 //
 
+import Basic
 import Foundation
+import SPMUtility
 import XCParseCore
 
-enum OptionType: String {
+let xcparseCurrentVersion = Version(0, 4, 0)
+
+enum InteractiveModeOptionType: String {
     case screenshot = "s"
+    case log = "l"
     case xcov = "x"
     case verbose = "v"
     case help = "h"
@@ -20,6 +25,7 @@ enum OptionType: String {
     init(value: String) {
         switch value {
             case "s", "screenshots": self = .screenshot
+            case "l", "logs": self = .log
             case "x", "xcov": self = .xcov
             case "v", "verbose": self = .verbose
             case "h", "help": self = .help
@@ -29,32 +35,56 @@ enum OptionType: String {
     }
 }
 
+struct AttachmentExportOptions {
+    enum ExportFolderStructure: String {
+        case none, legacy
+    }
+
+    var folderStructure: ExportFolderStructure = .none
+}
+
 class XCPParser {
-    let xcparseVersion = "0.3.2"
+    var xcparseLatestVersion = xcparseCurrentVersion
     
     var console = Console()
+    let decoder = JSONDecoder()
 
-    func getOption(_ option: String) -> (option:OptionType, value: String) {
-      return (OptionType(value: option), option)
+    // MARK: -
+    // MARK: Parsing Actions
+
+    func getXCResult(path: String) throws -> ActionsInvocationRecord? {
+        guard let xcresultGetResult = XCResultToolCommand.Get(path: path, id: "", outputPath: "", format: .json, console: self.console).run() else {
+            return nil
+        }
+        let xcresultJSON = try xcresultGetResult.utf8Output()
+        if xcresultGetResult.exitStatus != .terminated(code: 0) || xcresultJSON == "" {
+            return nil
+        }
+
+        let xcresultJSONData = Data(xcresultJSON.utf8)
+        return try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
     }
     
-    func extractScreenshots(xcresultPath : String, destination : String) throws {
+    func extractScreenshots(xcresultPath : String, destination : String, options: AttachmentExportOptions = AttachmentExportOptions()) throws {
         var attachments: [ActionTestAttachment] = []
 
-        let xcresultJSON = XCResultToolCommand.Get(path: xcresultPath, id: "", outputPath: "", format: .json, console: self.console).run()
-        let xcresultJSONData = Data(xcresultJSON.utf8)
-        
-        let decoder = JSONDecoder()
-        let actionRecord = try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
+        guard let actionRecord = try getXCResult(path: xcresultPath) else {
+            return
+        }
         
         let testReferenceIDs = actionRecord.actions.compactMap { $0.actionResult.testsRef?.id }
 
         var summaryRefIDs: [String] = []
         for testRefID in testReferenceIDs {
-            let testJSONString = XCResultToolCommand.Get(path: xcresultPath, id: testRefID, outputPath: "", format: .json, console: self.console).run()
+            guard let testGetResult = XCResultToolCommand.Get(path: xcresultPath, id: testRefID, outputPath: "", format: .json, console: self.console).run() else {
+                return
+            }
+            let testJSONString = try testGetResult.utf8Output()
+            if  testGetResult.exitStatus != .terminated(code: 0) || testJSONString == "" {
+                continue
+            }
 
             let testRefData = Data(testJSONString.utf8)
-
             let testPlanRunSummaries = try decoder.decode(ActionTestPlanRunSummaries.self, from: testRefData)
 
             let testableSummaries = testPlanRunSummaries.summaries.flatMap { $0.testableSummaries }
@@ -117,9 +147,15 @@ class XCPParser {
         }
 
         for summaryRefID in summaryRefIDs {
-            let testJSONString = XCResultToolCommand.Get(path: xcresultPath, id: summaryRefID, outputPath: "", format: .json, console: self.console).run()
+            guard let summaryGetResult = XCResultToolCommand.Get(path: xcresultPath, id: summaryRefID, outputPath: "", format: .json, console: self.console).run() else {
+                return
+            }
+            let testJSONString = try summaryGetResult.utf8Output()
+            if summaryGetResult.exitStatus != .terminated(code: 0) || testJSONString == "" {
+                continue
+            }
+
             let summaryRefData = Data(testJSONString.utf8)
-            
             let testSummary = try decoder.decode(ActionTestSummary.self, from: summaryRefData)
 
             var activitySummaries = testSummary.activitySummaries
@@ -139,21 +175,29 @@ class XCPParser {
         }
 
         let destinationURL = URL.init(fileURLWithPath: destination)
-        let screenshotsDirURL = destinationURL.appendingPathComponent("testScreenshots")
+        var screenshotsDirURL = destinationURL
+        if options.folderStructure == .legacy {
+            screenshotsDirURL = destinationURL.appendingPathComponent("testScreenshots")
+            console.shellCommand(["mkdir", screenshotsDirURL.path])
+        }
 
-        console.shellCommand("mkdir \"\(screenshotsDirURL.path)\"")
-        for attachment in attachments {
+        let progressBar = PercentProgressAnimation(stream: stdoutStream, header: "Exporting Screenshots")
+        progressBar.update(step: 0, total: attachments.count, text: "")
+        
+        for (index, attachment) in attachments.enumerated() {
+            progressBar.update(step: index, total: attachments.count, text: "Extracting \"\(attachment.filename ?? "Unknown Filename")\"")
+
             XCResultToolCommand.Export(path: xcresultPath, attachment: attachment, outputPath: screenshotsDirURL.path, console: self.console).run()
         }
+        
+        progressBar.update(step: attachments.count, total: attachments.count, text: "🎊 Export complete! 🎊")
+        progressBar.complete(success: true)
     }
     
     func extractCoverage(xcresultPath : String, destination : String) throws {
-        let xcresultJSON = XCResultToolCommand.Get(path: xcresultPath, id: "", outputPath: "", format: .json, console: self.console).run()
-
-        let xcresultJSONData = Data(xcresultJSON.utf8)
-        
-        let decoder = JSONDecoder()
-        let actionRecord = try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
+        guard let actionRecord = try getXCResult(path: xcresultPath) else {
+            return
+        }
         
         var coverageReferenceIDs: [String] = []
         var coverageArchiveIDs: [String] = []
@@ -175,53 +219,104 @@ class XCPParser {
                                         type: .directory, console: self.console).run()
         }
     }
+
+    func extractLogs(xcresultPath : String, destination : String) throws {
+        guard let actionRecord = try getXCResult(path: xcresultPath) else {
+            return
+        }
+
+        for (index, actionRecord) in actionRecord.actions.enumerated() {
+            // TODO: Alex - note that these aren't actually log files but ActivityLogSection objects. User from StackOverflow was just exporting those
+            // out as text files as for the most party they can be human readable, but it won't match what Xcode exports if you open the XCResult
+            // and attempt to export out the log. That seems like it may involve having to create our own pretty printer similar to Xcode's to export
+            // the ActivityLogSection into a nicely human readable text file.
+            //
+            // Also note either we missed in formatDescription objects like ActivityLogCommandInvocationSection or Apple added them in later betas. We'll
+            // need to add parsing, using the same style we do for ActionTestSummaryIdentifiableObject subclasses
+            if let buildResultLogRef = actionRecord.buildResult.logRef {
+//                let activityLogSectionJSON = XCResultToolCommand.Get(path: xcresultPath, id: buildResultLogRef.id, outputPath: "", format: .json).run()
+//                let activityLogSection = try decoder.decode(ActivityLogSection.self, from: Data(activityLogSectionJSON.utf8))
+
+                XCResultToolCommand.Export(path: xcresultPath, id: buildResultLogRef.id, outputPath: "\(destination)/\(index + 1)_build.txt", type: .file, console: self.console).run()
+            }
+
+            if let actionResultLogRef = actionRecord.actionResult.logRef {
+//                let activityLogSectionJSON = XCResultToolCommand.Get(path: xcresultPath, id: actionResultLogRef.id, outputPath: "", format: .json).run()
+//                let activityLogSection = try decoder.decode(ActivityLogSection.self, from: Data(activityLogSectionJSON.utf8))
+
+                XCResultToolCommand.Export(path: xcresultPath, id: actionResultLogRef.id, outputPath: "\(destination)/\(index + 1)_action.txt", type: .file, console: self.console).run()
+            }
+        }
+    }
+
+    func printVersion() {
+        self.console.writeMessage("\(xcparseCurrentVersion)")
+    }
+
+    func checkVersion() {
+        let latestReleaseURL = URL(string: "https://api.github.com/repos/ChargePoint/xcparse/releases/latest")!
+
+        var releaseRequest = URLRequest(url: latestReleaseURL)
+        releaseRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let task = URLSession.shared.dataTask(with: releaseRequest) { (data, response, error) in
+            if error != nil || data == nil {
+                return
+            }
+
+            do {
+                let releaseResponse = try JSONDecoder().decode(GitHubLatestReleaseResponse.self, from: data!)
+                if let latestVersion = Version(string: releaseResponse.name) {
+                    DispatchQueue.main.async {
+                        self.xcparseLatestVersion = latestVersion
+                    }
+                }
+            } catch {
+                // Do nothing for now
+            }
+        }
+        task.resume()
+    }
+
+    func printLatestVersionInfoIfNeeded() {
+        if self.xcparseLatestVersion > xcparseCurrentVersion {
+            self.console.writeMessage("New xcparse Version \(self.xcparseLatestVersion) is available! Update using \"brew upgrade xcparse\".")
+        }
+    }
+
+    // MARK: -
+    // MARK: Modes
     
     func staticMode() throws {
-        let argCount = CommandLine.argc
-        let argument = CommandLine.arguments[1]
-        var startIndex : String.Index
-        if argument.count == 2 {
-            startIndex = argument.index(argument.startIndex, offsetBy:  1)
-        }
-        else {
-            startIndex = argument.index(argument.startIndex, offsetBy:  2)
-        }
-        let substr = String(argument[startIndex...])
-        let (option, _) = getOption(substr)
-        switch (option) {
-        case .screenshot:
-            if argCount != 4 {
-                console.writeMessage("Missing Arguments", to: .error)
-                console.printUsage()
-            }
-            else {
-                try extractScreenshots(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
-            }
-        case .xcov:
-            if argCount != 4 {
-                console.writeMessage("Missing Arguments", to: .error)
-                console.printUsage()
-            }
-            else {
-                try extractCoverage(xcresultPath: CommandLine.arguments[2], destination: CommandLine.arguments[3])
-            }
-        case .verbose:
-            self.console.verbose = true
-            console.writeMessage("Verbose mode enabled")
-        case .help:
-            console.printUsage()
-        case .unknown, .quit:
-            console.writeMessage("\nUnknown option \(argument)\n")
-            console.printUsage()
-        }
+        checkVersion()
+
+        var registry = CommandRegistry(usage: "<command> <options>",
+                                       overview: "This program can extract screenshots and coverage files from an *.xcresult file.")
+        registry.register(command: ScreenshotsCommand.self)
+        registry.register(command: CodeCoverageCommand.self)
+        registry.register(command: LogsCommand.self)
+        registry.register(command: VersionCommand.self)
+        registry.run()
+
+        self.printLatestVersionInfoIfNeeded()
+    }
+
+    func getInteractiveModeOption(_ option: String) -> (option: InteractiveModeOptionType, value: String) {
+      return (InteractiveModeOptionType(value: option), option)
     }
     
     func interactiveMode() throws {
-        console.writeMessage("Welcome to xcparse \(xcparseVersion). This program can extract screenshots and coverage files from an *.xcresult file.")
+        checkVersion()
+        console.writeMessage("Welcome to xcparse \(xcparseCurrentVersion). This program can extract screenshots and coverage files from an *.xcresult file.")
+
         var shouldQuit = false
         while !shouldQuit {
-            console.writeMessage("Type 's' to extract screenshots, 'x' for code coverage files, 'v' for verbose, 'h' for help, or 'q' to quit.")
-            let (option, value) = getOption(console.getInput())
+            self.printLatestVersionInfoIfNeeded()
+
+            console.writeMessage("Type 's' to extract screenshots, 'l' for logs, 'x' for code coverage files, 'v' for verbose, 'h' for help, or 'q' to quit.")
+
+            let (option, value) = getInteractiveModeOption(console.getInput())
+
             switch option {
             case .screenshot:
                 console.writeMessage("Type the path to your *.xcresult file:")
@@ -229,6 +324,12 @@ class XCPParser {
                 console.writeMessage("Type the path to the destination folder for your screenshots:")
                 let destinationPath = console.getInput()
                 try extractScreenshots(xcresultPath: path, destination: destinationPath)
+            case .log:
+                console.writeMessage("Type the path to your *.xcresult file:")
+                let path = console.getInput()
+                console.writeMessage("Type the path to the destination folder for your logs:")
+                let destinationPath = console.getInput()
+                try extractLogs(xcresultPath: path, destination: destinationPath)
             case .xcov:
                 console.writeMessage("Type the path to your *.xcresult file:")
                 let path = console.getInput()
@@ -241,10 +342,10 @@ class XCPParser {
             case .quit:
                 shouldQuit = true
             case .help:
-                console.printUsage()
+                console.printInteractiveUsage()
             default:
                 console.writeMessage("Unknown option \(value)", to: .error)
-                console.printUsage()
+                console.printInteractiveUsage()
             }
         }
     }

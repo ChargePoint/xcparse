@@ -23,9 +23,9 @@ struct CommandRegistry {
         parser = ArgumentParser(usage: usage, overview: overview)
 
         legacyScreenshots = parser.add(option: "--screenshots", shortName: "-s", kind: [PathArgument].self,
-                                       strategy: .upToNextOption, usage: "Legacy screenshots", completion: .filename)
+                                       strategy: .upToNextOption, usage: "Legacy screenshots command. Use \"screenshots\" subcommand instead.", completion: .filename)
         legacyXcov = parser.add(option: "--xcov", shortName: "-x", kind: [PathArgument].self,
-                                strategy: .upToNextOption, usage: "Legacy code covarge", completion: .filename)
+                                strategy: .upToNextOption, usage: "Legacy code coverage command. Use \"codecov\" subcommand instead.", completion: .filename)
     }
 
     mutating func register(command: Command.Type) {
@@ -54,6 +54,7 @@ struct CommandRegistry {
             return false
         }
         if legacyScreenshotPaths.count < 2 || legacyScreenshotPaths.count > 2 {
+            print("Error: Legacy screenshots expects two paths - xcresult & outputFolder\n")
             return false
         }
 
@@ -74,6 +75,7 @@ struct CommandRegistry {
             return false
         }
         if legacyCodeCovPaths.count < 2 || legacyCodeCovPaths.count > 2 {
+            print("Error: Legacy code coverage expects two paths - xcresult & outputFolder\n")
             return false
         }
 

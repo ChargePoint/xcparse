@@ -13,7 +13,7 @@ import SPMUtility
 struct CodeCoverageCommand: Command {
     let command = "codecov"
     let overview = "Extracts code coverate from xcresult and saves it in output folder."
-    let usage = "[OPTIONS] xcresultPath [outputDirectory]"
+    let usage = "[OPTIONS] xcresult [outputDirectory]"
 
     var path: PositionalArgument<PathArgument>
     var outputPath: PositionalArgument<PathArgument>
@@ -21,7 +21,7 @@ struct CodeCoverageCommand: Command {
 
     init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, usage: usage, overview: overview)
-        path = subparser.add(positional: "xcresultPath", kind: PathArgument.self,
+        path = subparser.add(positional: "xcresult", kind: PathArgument.self,
                              optional: false, usage: "Path to the xcresult file", completion: .filename)
         outputPath = subparser.add(positional: "outputDirectory", kind: PathArgument.self,
                                    optional: true, usage: "Folder to export results to", completion: .filename)

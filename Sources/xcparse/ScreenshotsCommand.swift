@@ -13,7 +13,7 @@ import SPMUtility
 struct ScreenshotsCommand: Command {
     let command = "screenshots"
     let overview = "Extracts screenshots from xcresult and saves it in output folder."
-    let usage = "[OPTIONS] xcresultPath [outputDirectory]"
+    let usage = "[OPTIONS] xcresult [outputDirectory]"
 
     var path: PositionalArgument<PathArgument>
     var outputPath: PositionalArgument<PathArgument>

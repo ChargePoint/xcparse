@@ -71,6 +71,30 @@ struct AttachmentExportOptions {
     var addTestScreenshotsDirectory: Bool = false
     var divideByTargetModel: Bool = false
     var divideByTargetOS: Bool = false
+    var divideByTestRun: Bool = false
+
+    func displayName(withDeviceRecord deviceRecord: ActionDeviceRecord, testPlanRun: ActionTestPlanRunSummary) -> String {
+        var retval: String = ""
+
+        if self.divideByTargetModel == true && self.divideByTargetOS == true {
+            retval += deviceRecord.modelName + " (\(deviceRecord.operatingSystemVersion))"
+        } else if self.divideByTargetModel == true {
+            retval += deviceRecord.modelName
+        } else if self.divideByTargetOS == true {
+            retval += deviceRecord.operatingSystemVersion
+        }
+
+        if self.divideByTestRun == true {
+            if let testPlanRunName = testPlanRun.name {
+                if retval.count > 0 {
+                    retval += " - "
+                }
+                retval += testPlanRunName
+            }
+        }
+
+        return retval
+    }
 
     func baseScreenshotDirectoryURL(path: String) -> Foundation.URL {
         let destinationURL = URL.init(fileURLWithPath: path)
@@ -94,6 +118,18 @@ struct AttachmentExportOptions {
 
         if let folderName = targetDeviceFolderName {
             return baseURL.appendingPathComponent(folderName)
+        } else {
+            return baseURL
+        }
+    }
+
+    func screenshotDirectoryURL(_ testPlanRun: ActionTestPlanRunSummary, forBaseURL baseURL: Foundation.URL) -> Foundation.URL {
+        guard let testPlanRunName = testPlanRun.name else {
+            return baseURL
+        }
+
+        if self.divideByTestRun {
+            return baseURL.appendingPathComponent(testPlanRunName)
         } else {
             return baseURL
         }
@@ -142,18 +178,35 @@ class XCPParser {
                 xcresult.console.writeMessage("Error: Unhandled test reference type \(String(describing: testRef.targetType?.getType()))", to: .error)
                 continue
             }
-            let testableSummaries = testPlanRunSummaries.summaries.flatMap { $0.testableSummaries }
-            let testableSummariesAttachments = testableSummaries.flatMap { $0.attachments(withXCResult: xcresult) }
 
-            // Now that we know what we want to export, figure out if it should go to base directory or not
-            let exportToBaseScreenshotDirectory = (actionScreenshotDirectoryURL == screenshotBaseDirectoryURL)
-            if exportToBaseScreenshotDirectory {
-                // Wait to export these all in one nice progress bar at end
-                attachmentsToExportToBaseDirectory.append(contentsOf: testableSummariesAttachments)
-            } else {
-                // Let's get ready to export!
+            var attachmentsToExportToActionDirectory: [ActionTestAttachment] = []
+            for testPlanRun in testPlanRunSummaries.summaries {
+                let testPlanRunScreenshotURL = options.screenshotDirectoryURL(testPlanRun, forBaseURL: actionScreenshotDirectoryURL)
+                if testPlanRunScreenshotURL.createDirectoryIfNecessary() != true {
+                    continue
+                }
+
+                let testableSummaries = testPlanRun.testableSummaries
+                let testableSummariesAttachments = testableSummaries.flatMap { $0.attachments(withXCResult: xcresult) }
+
+                // Now that we know what we want to export, figure out if it should go to base directory or not
+                if (testPlanRunScreenshotURL == screenshotBaseDirectoryURL) {
+                    // Wait to export these all in one nice progress bar at end
+                    attachmentsToExportToBaseDirectory.append(contentsOf: testableSummariesAttachments)
+                } else if (testPlanRunScreenshotURL == actionScreenshotDirectoryURL) {
+                    // Wait to export these all in one nice progress bar for the entire action
+                    attachmentsToExportToActionDirectory.append(contentsOf: testableSummariesAttachments)
+                } else {
+                    // Let's get ready to export!
+                    let displayName = options.displayName(withDeviceRecord: targetDeviceRecord, testPlanRun: testPlanRun)
+                    self.exportScreenshots(withXCResult: xcresult, toDirectory: testPlanRunScreenshotURL, attachments: testableSummariesAttachments, displayName: displayName)
+                }
+            }
+
+            // Check if we deferred any screenshot export to the action's directory
+            if attachmentsToExportToActionDirectory.count > 0 {
                 let displayName = actionScreenshotDirectoryURL.lastPathComponent
-                self.exportScreenshots(withXCResult: xcresult, toDirectory: actionScreenshotDirectoryURL, attachments: testableSummariesAttachments, displayName: displayName)
+                self.exportScreenshots(withXCResult: xcresult, toDirectory: actionScreenshotDirectoryURL, attachments: attachmentsToExportToActionDirectory, displayName: displayName)
             }
         }
 

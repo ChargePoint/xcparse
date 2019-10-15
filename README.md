@@ -24,8 +24,14 @@ Below are a few examples of common commands. For further assistance, use the --h
 ### Screenshots
 
 ```
-xcparse screenshots /path/to/Test.xcresult /path/to/exportScreenshots
+xcparse screenshots --os --model --test-run /path/to/Test.xcresult /path/to/exportScreenshots
 ```
+
+This will cause screenshots to be exported like so:
+
+![Screenshots exported into folders](Docs/Images/screenshots_options_recommended.png?raw=true)
+
+Options can be added & remove to change the folder structure used for export.  Using no options will lead to all attachments being exported into the output directory.
 
 ### Code Coverage
 

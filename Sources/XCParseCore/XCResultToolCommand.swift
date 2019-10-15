@@ -15,10 +15,15 @@ let xcresultToolArguments = ["xcrun", "xcresulttool"]
 open class XCResultToolCommand {
     let process: Basic.Process
 
-    let console: Console
+    let xcresult: XCResult
+    var console: Console {
+        get {
+            return self.xcresult.console
+        }
+    }
 
-    public init(withConsole console: Console = Console(), process: Basic.Process = Basic.Process(arguments: ["xcrun", "xcresulttool", "-h"])) {
-        self.console = console
+    public init(withXCResult xcresult: XCResult, process: Basic.Process = Basic.Process(arguments: ["xcrun", "xcresulttool", "-h"])) {
+        self.xcresult = xcresult
         self.process = process
     }
     
@@ -54,14 +59,12 @@ open class XCResultToolCommand {
             case file = "file"
             case directory = "directory"
         }
-        
-        var path: String = ""
+
         var id: String = ""
         var outputPath: String = ""
         var type: ExportType = ExportType.file
         
-        public init(path: String, id: String, outputPath: String, type: ExportType, console: Console = Console()) {
-            self.path = path
+        public init(withXCResult xcresult: XCResult, id: String, outputPath: String, type: ExportType) {
             self.id = id
             self.outputPath = outputPath
             self.type = type
@@ -69,17 +72,15 @@ open class XCResultToolCommand {
             var processArgs = xcresultToolArguments
             processArgs.append(contentsOf: ["export",
                                             "--type", self.type.rawValue,
-                                            "--path", self.path,
+                                            "--path", xcresult.path,
                                             "--id", self.id,
                                             "--output-path", self.outputPath])
 
             let process = Basic.Process(arguments: processArgs)
-            super.init(withConsole: console, process: process)
+            super.init(withXCResult: xcresult, process: process)
         }
 
-        public init(path: String, attachment: ActionTestAttachment, outputPath: String, console: Console = Console()) {
-            self.path = path
-
+        public init(withXCResult xcresult: XCResult, attachment: ActionTestAttachment, outputPath: String) {
             if let identifier = attachment.payloadRef?.id {
                 self.id = identifier;
 
@@ -92,30 +93,33 @@ open class XCResultToolCommand {
             var processArgs = xcresultToolArguments
             processArgs.append(contentsOf: ["export",
                                             "--type", self.type.rawValue,
-                                            "--path", self.path,
+                                            "--path", xcresult.path,
                                             "--id", self.id,
                                             "--output-path", self.outputPath])
 
             let process = Basic.Process(arguments: processArgs)
-            super.init(withConsole: console, process: process)
+            super.init(withXCResult: xcresult, process: process)
         }
     }
 
     open class Get: XCResultToolCommand {
-        var path: String = ""
         var id: String = ""
         var outputPath: String = ""
         var format = FormatType.raw
 
-        public init(path: String, id: String, outputPath: String, format: FormatType, console: Console = Console()) {
-            self.path = path
+        convenience public init(path: String, id: String, outputPath: String, format: FormatType, console: Console = Console()) {
+            let xcresult = XCResult(path: path, console: console)
+            self.init(withXCResult: xcresult, id: id, outputPath: outputPath, format: format)
+        }
+
+        public init(withXCResult xcresult: XCResult, id: String, outputPath: String, format: FormatType) {
             self.id = id
             self.outputPath = outputPath
             self.format = format
 
             var processArgs = xcresultToolArguments
             processArgs.append(contentsOf: ["get",
-                                            "--path", self.path,
+                                            "--path", xcresult.path,
                                             "--format", self.format.rawValue])
             if self.id != "" {
                 processArgs.append(contentsOf: ["--id", self.id])
@@ -125,23 +129,21 @@ open class XCResultToolCommand {
             }
 
             let process = Basic.Process(arguments: processArgs)
-            super.init(withConsole: console, process: process)
+            super.init(withXCResult: xcresult, process: process)
         }
     }
 
     open class Graph: XCResultToolCommand {
         var id: String = ""
-        var path: String = ""
         var version: Int?
 
-        public init(id: String, path: String, version: Int?, console: Console = Console()) {
+        public init(withXCResult xcresult: XCResult, id: String, version: Int?) {
             self.id = id
-            self.path = path
             self.version = version
 
             var processArgs = xcresultToolArguments
             processArgs.append(contentsOf: ["graph",
-                                            "--path", self.path])
+                                            "--path", xcresult.path])
             if self.id != "" {
                 processArgs.append(contentsOf: ["--id", self.id])
             }
@@ -150,22 +152,19 @@ open class XCResultToolCommand {
             }
 
             let process = Basic.Process(arguments: processArgs)
-            super.init(withConsole: console, process: process)
+            super.init(withXCResult: xcresult, process: process)
         }
     }
 
     open class MetadataGet: XCResultToolCommand {
-        var path: String = ""
 
-        public init(path: String, console: Console = Console()) {
-            self.path = path
-
+        public init(withXCResult xcresult: XCResult) {
             var processArgs = xcresultToolArguments
             processArgs.append(contentsOf: ["metadata", "get",
-                                            "--path", self.path])
+                                            "--path", xcresult.path])
 
             let process = Basic.Process(arguments: processArgs)
-            super.init(withConsole: console, process: process)
+            super.init(withXCResult: xcresult, process: process)
         }
     }
 }

@@ -11,7 +11,7 @@ import Foundation
 import SPMUtility
 import XCParseCore
 
-let xcparseCurrentVersion = Version(0, 4, 0)
+let xcparseCurrentVersion = Version(0, 5, 0)
 
 enum InteractiveModeOptionType: String {
     case screenshot = "s"
@@ -35,12 +35,69 @@ enum InteractiveModeOptionType: String {
     }
 }
 
-struct AttachmentExportOptions {
-    enum ExportFolderStructure: String {
-        case none, legacy
+extension Foundation.URL {
+    func fileExistsAsDirectory() -> Bool {
+        var isDirectory: ObjCBool = false
+        if FileManager.default.fileExists(atPath: self.path, isDirectory: &isDirectory) {
+            if isDirectory.boolValue {
+                return true // Exists as a directory
+            } else {
+                return false // Exists as a file
+            }
+        } else {
+            return false // Does not exist
+        }
     }
 
-    var folderStructure: ExportFolderStructure = .none
+    func createDirectoryIfNecessary(console: Console = Console()) -> Bool {
+        var isDirectory: ObjCBool = false
+        if FileManager.default.fileExists(atPath: self.path, isDirectory: &isDirectory) {
+            if isDirectory.boolValue {
+                // Directory already exists, do nothing
+                return true
+            } else {
+                console.writeMessage("\(self) is not a directory", to: .error)
+                return false
+            }
+        } else {
+            console.shellCommand(["mkdir", self.path])
+        }
+
+        return self.fileExistsAsDirectory()
+    }
+}
+
+struct AttachmentExportOptions {
+    var addTestScreenshotsDirectory: Bool = false
+    var divideByTargetModel: Bool = false
+    var divideByTargetOS: Bool = false
+
+    func baseScreenshotDirectoryURL(path: String) -> Foundation.URL {
+        let destinationURL = URL.init(fileURLWithPath: path)
+        if self.addTestScreenshotsDirectory {
+            return destinationURL.appendingPathComponent("testScreenshots")
+        } else {
+            return destinationURL
+        }
+    }
+
+    func screenshotDirectoryURL(_ deviceRecord: ActionDeviceRecord, forBaseURL baseURL: Foundation.URL) -> Foundation.URL {
+        var targetDeviceFolderName: String? = nil
+
+        if self.divideByTargetModel && self.divideByTargetOS {
+            targetDeviceFolderName = deviceRecord.modelName + " (\(deviceRecord.operatingSystemVersion))"
+        } else if self.divideByTargetModel {
+            targetDeviceFolderName = deviceRecord.modelName
+        } else if self.divideByTargetOS {
+            targetDeviceFolderName = deviceRecord.operatingSystemVersion
+        }
+
+        if let folderName = targetDeviceFolderName {
+            return baseURL.appendingPathComponent(folderName)
+        } else {
+            return baseURL
+        }
+    }
 }
 
 class XCPParser {
@@ -51,158 +108,90 @@ class XCPParser {
 
     // MARK: -
     // MARK: Parsing Actions
-
-    func getXCResult(path: String) throws -> ActionsInvocationRecord? {
-        guard let xcresultGetResult = XCResultToolCommand.Get(path: path, id: "", outputPath: "", format: .json, console: self.console).run() else {
-            return nil
-        }
-        let xcresultJSON = try xcresultGetResult.utf8Output()
-        if xcresultGetResult.exitStatus != .terminated(code: 0) || xcresultJSON == "" {
-            return nil
-        }
-
-        let xcresultJSONData = Data(xcresultJSON.utf8)
-        return try decoder.decode(ActionsInvocationRecord.self, from: xcresultJSONData)
-    }
     
-    func extractScreenshots(xcresultPath : String, destination : String, options: AttachmentExportOptions = AttachmentExportOptions()) throws {
-        var attachments: [ActionTestAttachment] = []
-
-        guard let actionRecord = try getXCResult(path: xcresultPath) else {
+    func extractScreenshots(xcresultPath: String, destination: String, options: AttachmentExportOptions = AttachmentExportOptions()) throws {
+        var xcresult = XCResult(path: xcresultPath, console: self.console)
+        guard let invocationRecord = xcresult.invocationRecord else {
             return
         }
-        
-        let testReferenceIDs = actionRecord.actions.compactMap { $0.actionResult.testsRef?.id }
 
-        var summaryRefIDs: [String] = []
-        for testRefID in testReferenceIDs {
-            guard let testGetResult = XCResultToolCommand.Get(path: xcresultPath, id: testRefID, outputPath: "", format: .json, console: self.console).run() else {
-                return
-            }
-            let testJSONString = try testGetResult.utf8Output()
-            if  testGetResult.exitStatus != .terminated(code: 0) || testJSONString == "" {
+        // Let's figure out where these attachments are going
+        let screenshotBaseDirectoryURL = options.baseScreenshotDirectoryURL(path: destination)
+        if screenshotBaseDirectoryURL.createDirectoryIfNecessary() != true {
+            return
+        }
+
+        let actions = invocationRecord.actions.filter { $0.actionResult.testsRef != nil }
+
+        var attachmentsToExportToBaseDirectory: [ActionTestAttachment] = []
+        for action in actions {
+            guard let testRef = action.actionResult.testsRef else {
                 continue
             }
 
-            let testRefData = Data(testJSONString.utf8)
-            let testPlanRunSummaries = try decoder.decode(ActionTestPlanRunSummaries.self, from: testRefData)
+            let targetDeviceRecord = action.runDestination.targetDeviceRecord
 
+            // Determine name for the directory & make the directory if necessary
+            let actionScreenshotDirectoryURL = options.screenshotDirectoryURL(targetDeviceRecord, forBaseURL: screenshotBaseDirectoryURL)
+            if actionScreenshotDirectoryURL.createDirectoryIfNecessary() != true {
+                continue
+            }
+
+            // Let's figure out the attachments to export
+            guard let testPlanRunSummaries: ActionTestPlanRunSummaries = testRef.modelFromReference(withXCResult: xcresult) else {
+                xcresult.console.writeMessage("Error: Unhandled test reference type \(String(describing: testRef.targetType?.getType()))", to: .error)
+                continue
+            }
             let testableSummaries = testPlanRunSummaries.summaries.flatMap { $0.testableSummaries }
+            let testableSummariesAttachments = testableSummaries.flatMap { $0.attachments(withXCResult: xcresult) }
 
-            var tests: [ActionTestSummaryIdentifiableObject] = testableSummaries.flatMap { $0.tests }
-
-            var testSummaries: [ActionTestSummary] = []
-            var testMetadata: [ActionTestMetadata] = []
-
-            // Iterate through the testSummaryGroups until we get out all the test summaries & metadata
-            repeat {
-                let summaryGroups = tests.compactMap { (identifiableObj) -> ActionTestSummaryGroup? in
-                    if let testSummaryGroup = identifiableObj as? ActionTestSummaryGroup {
-                        return testSummaryGroup
-                    } else {
-                        return nil
-                    }
-                }
-
-                let summaries = tests.compactMap { (identifiableObj) -> ActionTestSummary? in
-                    if let testSummary = identifiableObj as? ActionTestSummary {
-                        return testSummary
-                    } else {
-                        return nil
-                    }
-                }
-                testSummaries.append(contentsOf: summaries)
-
-                let metadata = tests.compactMap { (identifiableObj) -> ActionTestMetadata? in
-                    if let metadata = identifiableObj as? ActionTestMetadata {
-                        return metadata
-                    } else {
-                        return nil
-                    }
-                }
-                testMetadata.append(contentsOf: metadata)
-
-                tests = summaryGroups.flatMap { $0.subtests }
-            } while tests.count > 0
-
-            // Need to extract out the testSummary until get all ActionTestActivitySummary
-            var activitySummaries = testSummaries.flatMap { $0.activitySummaries }
-
-            // Get all subactivities
-            var summariesToCheck = activitySummaries
-            repeat {
-                summariesToCheck = summariesToCheck.flatMap { $0.subactivities }
-
-                // Add the subactivities we found
-                activitySummaries.append(contentsOf: summariesToCheck)
-            } while summariesToCheck.count > 0
-
-            for activitySummary in activitySummaries {
-                let summaryAttachments = activitySummary.attachments
-                attachments.append(contentsOf: summaryAttachments)
-            }
-
-            let testSummaryRefIDs = testMetadata.compactMap { $0.summaryRef?.id }
-            summaryRefIDs.append(contentsOf: testSummaryRefIDs)
-        }
-
-        for summaryRefID in summaryRefIDs {
-            guard let summaryGetResult = XCResultToolCommand.Get(path: xcresultPath, id: summaryRefID, outputPath: "", format: .json, console: self.console).run() else {
-                return
-            }
-            let testJSONString = try summaryGetResult.utf8Output()
-            if summaryGetResult.exitStatus != .terminated(code: 0) || testJSONString == "" {
-                continue
-            }
-
-            let summaryRefData = Data(testJSONString.utf8)
-            let testSummary = try decoder.decode(ActionTestSummary.self, from: summaryRefData)
-
-            var activitySummaries = testSummary.activitySummaries
-
-            var summariesToCheck = activitySummaries
-            repeat {
-                summariesToCheck = summariesToCheck.flatMap { $0.subactivities }
-
-                // Add the subactivities we found
-                activitySummaries.append(contentsOf: summariesToCheck)
-            } while summariesToCheck.count > 0
-
-            for activitySummary in activitySummaries {
-                let summaryAttachments = activitySummary.attachments
-                attachments.append(contentsOf: summaryAttachments)
+            // Now that we know what we want to export, figure out if it should go to base directory or not
+            let exportToBaseScreenshotDirectory = (actionScreenshotDirectoryURL == screenshotBaseDirectoryURL)
+            if exportToBaseScreenshotDirectory {
+                // Wait to export these all in one nice progress bar at end
+                attachmentsToExportToBaseDirectory.append(contentsOf: testableSummariesAttachments)
+            } else {
+                // Let's get ready to export!
+                let displayName = actionScreenshotDirectoryURL.lastPathComponent
+                self.exportScreenshots(withXCResult: xcresult, toDirectory: actionScreenshotDirectoryURL, attachments: testableSummariesAttachments, displayName: displayName)
             }
         }
 
-        let destinationURL = URL.init(fileURLWithPath: destination)
-        var screenshotsDirURL = destinationURL
-        if options.folderStructure == .legacy {
-            screenshotsDirURL = destinationURL.appendingPathComponent("testScreenshots")
-            console.shellCommand(["mkdir", screenshotsDirURL.path])
+        // Now let's export everything that wanted to just be in the base directory
+        if attachmentsToExportToBaseDirectory.count > 0 {
+            self.exportScreenshots(withXCResult: xcresult, toDirectory: screenshotBaseDirectoryURL, attachments: attachmentsToExportToBaseDirectory)
+        }
+    }
+
+    func exportScreenshots(withXCResult xcresult: XCResult, toDirectory screenshotDirectoryURL: Foundation.URL, attachments: [ActionTestAttachment], displayName: String = "") {
+        if attachments.count <= 0 {
+            return
         }
 
-        let progressBar = PercentProgressAnimation(stream: stdoutStream, header: "Exporting Screenshots")
+        let header = (displayName != "") ? "Exporting \"\(displayName)\" Screenshots" : "Exporting Screenshots"
+        let progressBar = PercentProgressAnimation(stream: stdoutStream, header: header)
         progressBar.update(step: 0, total: attachments.count, text: "")
-        
+
         for (index, attachment) in attachments.enumerated() {
             progressBar.update(step: index, total: attachments.count, text: "Extracting \"\(attachment.filename ?? "Unknown Filename")\"")
 
-            XCResultToolCommand.Export(path: xcresultPath, attachment: attachment, outputPath: screenshotsDirURL.path, console: self.console).run()
+            XCResultToolCommand.Export(withXCResult: xcresult, attachment: attachment, outputPath: screenshotDirectoryURL.path).run()
         }
-        
+
         progressBar.update(step: attachments.count, total: attachments.count, text: "🎊 Export complete! 🎊")
         progressBar.complete(success: true)
     }
     
     func extractCoverage(xcresultPath : String, destination : String) throws {
-        guard let actionRecord = try getXCResult(path: xcresultPath) else {
+        var xcresult = XCResult(path: xcresultPath, console: self.console)
+        guard let invocationRecord = xcresult.invocationRecord else {
             return
         }
         
         var coverageReferenceIDs: [String] = []
         var coverageArchiveIDs: [String] = []
         
-        for action in actionRecord.actions {
+        for action in invocationRecord.actions {
             if let reportRef = action.actionResult.coverage.reportRef {
                 coverageReferenceIDs.append(reportRef.id)
             }
@@ -211,21 +200,22 @@ class XCPParser {
             }
         }
         for (reportId, archiveId) in zip(coverageReferenceIDs, coverageArchiveIDs) {
-            XCResultToolCommand.Export(path: xcresultPath, id: reportId,
+            XCResultToolCommand.Export(withXCResult: xcresult, id: reportId,
                                         outputPath: "\(destination)/action.xccovreport",
-                                        type: .file, console: self.console).run()
-            XCResultToolCommand.Export(path: xcresultPath, id: archiveId,
+                                        type: .file).run()
+            XCResultToolCommand.Export(withXCResult: xcresult, id: archiveId,
                                         outputPath: "\(destination)/action.xccovarchive",
-                                        type: .directory, console: self.console).run()
+                                        type: .directory).run()
         }
     }
 
     func extractLogs(xcresultPath : String, destination : String) throws {
-        guard let actionRecord = try getXCResult(path: xcresultPath) else {
+        var xcresult = XCResult(path: xcresultPath, console: self.console)
+        guard let invocationRecord = xcresult.invocationRecord else {
             return
         }
 
-        for (index, actionRecord) in actionRecord.actions.enumerated() {
+        for (index, actionRecord) in invocationRecord.actions.enumerated() {
             // TODO: Alex - note that these aren't actually log files but ActivityLogSection objects. User from StackOverflow was just exporting those
             // out as text files as for the most party they can be human readable, but it won't match what Xcode exports if you open the XCResult
             // and attempt to export out the log. That seems like it may involve having to create our own pretty printer similar to Xcode's to export
@@ -234,17 +224,17 @@ class XCPParser {
             // Also note either we missed in formatDescription objects like ActivityLogCommandInvocationSection or Apple added them in later betas. We'll
             // need to add parsing, using the same style we do for ActionTestSummaryIdentifiableObject subclasses
             if let buildResultLogRef = actionRecord.buildResult.logRef {
-//                let activityLogSectionJSON = XCResultToolCommand.Get(path: xcresultPath, id: buildResultLogRef.id, outputPath: "", format: .json).run()
+//                let activityLogSectionJSON = XCResultToolCommand.Get(withXCResult: xcresult, id: buildResultLogRef.id, outputPath: "", format: .json).run()
 //                let activityLogSection = try decoder.decode(ActivityLogSection.self, from: Data(activityLogSectionJSON.utf8))
 
-                XCResultToolCommand.Export(path: xcresultPath, id: buildResultLogRef.id, outputPath: "\(destination)/\(index + 1)_build.txt", type: .file, console: self.console).run()
+                XCResultToolCommand.Export(withXCResult: xcresult, id: buildResultLogRef.id, outputPath: "\(destination)/\(index + 1)_build.txt", type: .file).run()
             }
 
             if let actionResultLogRef = actionRecord.actionResult.logRef {
-//                let activityLogSectionJSON = XCResultToolCommand.Get(path: xcresultPath, id: actionResultLogRef.id, outputPath: "", format: .json).run()
+//                let activityLogSectionJSON = XCResultToolCommand.Get(withXCResult: xcresult, id: actionResultLogRef.id, outputPath: "", format: .json).run()
 //                let activityLogSection = try decoder.decode(ActivityLogSection.self, from: Data(activityLogSectionJSON.utf8))
 
-                XCResultToolCommand.Export(path: xcresultPath, id: actionResultLogRef.id, outputPath: "\(destination)/\(index + 1)_action.txt", type: .file, console: self.console).run()
+                XCResultToolCommand.Export(withXCResult: xcresult, id: actionResultLogRef.id, outputPath: "\(destination)/\(index + 1)_action.txt", type: .file).run()
             }
         }
     }

@@ -46,4 +46,72 @@ open class ActionTestableSummary : ActionAbstractTestSummary {
 
         try super.init(from: decoder)
     }
+
+    public func attachments(withXCResult xcresult: XCResult) -> [ActionTestAttachment] {
+        var attachments: [ActionTestAttachment] = []
+
+        var tests: [ActionTestSummaryIdentifiableObject] = self.tests
+
+        var testSummaries: [ActionTestSummary] = []
+        var testMetadata: [ActionTestMetadata] = []
+
+        // Iterate through the testSummaryGroups until we get out all the test summaries & metadata
+        repeat {
+            let summaryGroups = tests.compactMap { (identifiableObj) -> ActionTestSummaryGroup? in
+                if let testSummaryGroup = identifiableObj as? ActionTestSummaryGroup {
+                    return testSummaryGroup
+                } else {
+                    return nil
+                }
+            }
+
+            let summaries = tests.compactMap { (identifiableObj) -> ActionTestSummary? in
+                if let testSummary = identifiableObj as? ActionTestSummary {
+                    return testSummary
+                } else {
+                    return nil
+                }
+            }
+            testSummaries.append(contentsOf: summaries)
+
+            let metadata = tests.compactMap { (identifiableObj) -> ActionTestMetadata? in
+                if let metadata = identifiableObj as? ActionTestMetadata {
+                    return metadata
+                } else {
+                    return nil
+                }
+            }
+            testMetadata.append(contentsOf: metadata)
+
+            tests = summaryGroups.flatMap { $0.subtests }
+        } while tests.count > 0
+
+        // Need to extract out the testSummary until get all ActionTestActivitySummary
+        var activitySummaries = testSummaries.flatMap { $0.activitySummaries }
+
+        // Get all subactivities
+        var summariesToCheck = activitySummaries
+        repeat {
+            summariesToCheck = summariesToCheck.flatMap { $0.subactivities }
+
+            // Add the subactivities we found
+            activitySummaries.append(contentsOf: summariesToCheck)
+        } while summariesToCheck.count > 0
+
+        for activitySummary in activitySummaries {
+            let summaryAttachments = activitySummary.attachments
+            attachments.append(contentsOf: summaryAttachments)
+        }
+
+        let testSummaryReferences = testMetadata.compactMap { $0.summaryRef }
+        for summaryReference in testSummaryReferences {
+            guard let summary: ActionTestSummary = summaryReference.modelFromReference(withXCResult: xcresult) else {
+                xcresult.console.writeMessage("Error: Unhandled test summary type \(String(describing: summaryReference.targetType?.getType()))", to: .error)
+                continue
+            }
+            attachments.append(contentsOf: summary.attachments())
+        }
+
+        return attachments
+    }
 }

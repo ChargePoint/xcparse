@@ -11,7 +11,7 @@ import Foundation
 import SPMUtility
 import XCParseCore
 
-let xcparseCurrentVersion = Version(0, 5, 1)
+let xcparseCurrentVersion = Version(0, 6, 0)
 
 enum InteractiveModeOptionType: String {
     case screenshot = "s"
@@ -73,6 +73,10 @@ struct AttachmentExportOptions {
     var divideByTargetOS: Bool = false
     var divideByTestRun: Bool = false
 
+    var attachmentFilter: (ActionTestAttachment) -> Bool = { _ in
+        return true
+    }
+
     func baseScreenshotDirectoryURL(path: String) -> Foundation.URL {
         let destinationURL = URL.init(fileURLWithPath: path)
         if self.addTestScreenshotsDirectory {
@@ -121,8 +125,8 @@ class XCPParser {
 
     // MARK: -
     // MARK: Parsing Actions
-    
-    func extractScreenshots(xcresultPath: String, destination: String, options: AttachmentExportOptions = AttachmentExportOptions()) throws {
+
+    func extractAttachments(xcresultPath: String, destination: String, options: AttachmentExportOptions = AttachmentExportOptions()) throws {
         var xcresult = XCResult(path: xcresultPath, console: self.console)
         guard let invocationRecord = xcresult.invocationRecord else {
             return
@@ -164,7 +168,7 @@ class XCPParser {
                 }
 
                 let testableSummaries = testPlanRun.testableSummaries
-                let testableSummariesAttachments = testableSummaries.flatMap { $0.attachments(withXCResult: xcresult) }
+                let testableSummariesAttachments = testableSummaries.flatMap { $0.attachments(withXCResult: xcresult) }.filter(options.attachmentFilter)
 
                 // Now that we know what we want to export, save it to the dictionary so we can have all the exports
                 // done at once with one progress bar per URL
@@ -184,16 +188,16 @@ class XCPParser {
             let exportRelativePath = exportURL.path.replacingOccurrences(of: screenshotBaseDirectoryURL.path, with: "").trimmingCharacters(in: CharacterSet(charactersIn: "/"))
             let displayName = exportRelativePath.replacingOccurrences(of: "/", with: " - ")
 
-            self.exportScreenshots(withXCResult: xcresult, toDirectory: exportURL, attachments: attachmentsToExport, displayName: displayName)
+            self.exportAttachments(withXCResult: xcresult, toDirectory: exportURL, attachments: attachmentsToExport, displayName: displayName)
         }
     }
 
-    func exportScreenshots(withXCResult xcresult: XCResult, toDirectory screenshotDirectoryURL: Foundation.URL, attachments: [ActionTestAttachment], displayName: String = "") {
+    func exportAttachments(withXCResult xcresult: XCResult, toDirectory screenshotDirectoryURL: Foundation.URL, attachments: [ActionTestAttachment], displayName: String = "") {
         if attachments.count <= 0 {
             return
         }
 
-        let header = (displayName != "") ? "Exporting \"\(displayName)\" Screenshots" : "Exporting Screenshots"
+        let header = (displayName != "") ? "Exporting \"\(displayName)\" Attachments" : "Exporting Attachments"
         let progressBar = PercentProgressAnimation(stream: stdoutStream, header: header)
         progressBar.update(step: 0, total: attachments.count, text: "")
 
@@ -310,6 +314,7 @@ class XCPParser {
         registry.register(command: ScreenshotsCommand.self)
         registry.register(command: CodeCoverageCommand.self)
         registry.register(command: LogsCommand.self)
+        registry.register(command: AttachmentsCommand.self)
         registry.register(command: VersionCommand.self)
         registry.run()
 
@@ -338,7 +343,7 @@ class XCPParser {
                 let path = console.getInput()
                 console.writeMessage("Type the path to the destination folder for your screenshots:")
                 let destinationPath = console.getInput()
-                try extractScreenshots(xcresultPath: path, destination: destinationPath)
+                try extractAttachments(xcresultPath: path, destination: destinationPath)
             case .log:
                 console.writeMessage("Type the path to your *.xcresult file:")
                 let path = console.getInput()

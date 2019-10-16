@@ -1,8 +1,8 @@
 //
-//  ScreenshotsCommand.swift
+//  AttachmentsCommand.swift
 //  xcparse
 //
-//  Created by Alexander Botkin on 10/12/19.
+//  Created by Alex Botkin on 10/16/19.
 //  Copyright © 2019 ChargePoint, Inc. All rights reserved.
 //
 
@@ -10,19 +10,20 @@ import Basic
 import Foundation
 import SPMUtility
 
-struct ScreenshotsCommand: Command {
-    let command = "screenshots"
-    let overview = "Extracts screenshots from xcresult and saves it in output folder."
+struct AttachmentsCommand: Command {
+    let command = "attachments"
+    let overview = "Extracts attachments from xcresult and saves it in output folder."
     let usage = "[OPTIONS] xcresult [outputDirectory]"
 
     var path: PositionalArgument<PathArgument>
     var outputPath: PositionalArgument<PathArgument>
     var verbose: OptionArgument<Bool>
 
-    var addTestScreenshotDirectory: OptionArgument<Bool>
     var divideByModel: OptionArgument<Bool>
     var divideByOS: OptionArgument<Bool>
     var divideByTestPlanRun: OptionArgument<Bool>
+
+    var utiWhitelist: OptionArgument<[String]>
 
     init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, usage: usage, overview: overview)
@@ -32,10 +33,12 @@ struct ScreenshotsCommand: Command {
                                    optional: true, usage: "Folder to export results to", completion: .filename)
         verbose = subparser.add(option: "--verbose", shortName: "-v", kind: Bool.self, usage: "Enable verbose logging")
 
-        addTestScreenshotDirectory = subparser.add(option: "--legacy", shortName: nil, kind: Bool.self, usage: "Create \"testScreenshots\" directory in outputDirectory & put screenshots in there")
-        divideByModel = subparser.add(option: "--model", shortName: nil, kind: Bool.self, usage: "Divide screenshots by model")
-        divideByOS = subparser.add(option: "--os", shortName: nil, kind: Bool.self, usage: "Divide screenshots by OS")
-        divideByTestPlanRun = subparser.add(option: "--test-run", shortName: nil, kind: Bool.self, usage: "Divide screenshots by test plan configuration")
+        divideByModel = subparser.add(option: "--model", shortName: nil, kind: Bool.self, usage: "Divide attachments by model")
+        divideByOS = subparser.add(option: "--os", shortName: nil, kind: Bool.self, usage: "Divide attachments by OS")
+        divideByTestPlanRun = subparser.add(option: "--test-run", shortName: nil, kind: Bool.self, usage: "Divide attachments by test plan configuration")
+
+        utiWhitelist = subparser.add(option: "--uti", shortName: nil, kind: [String].self, strategy: .upToNextOption,
+                                     usage: "Takes list of uniform type identifiers (UTI) and export only attachments that conform to at least one")
     }
 
     func run(with arguments: ArgumentParser.Result) throws {
@@ -60,13 +63,22 @@ struct ScreenshotsCommand: Command {
         let xcpParser = XCPParser()
         xcpParser.console.verbose = verbose
 
-        let options = AttachmentExportOptions(addTestScreenshotsDirectory: arguments.get(self.addTestScreenshotDirectory) ?? false,
+        var options = AttachmentExportOptions(addTestScreenshotsDirectory: false,
                                               divideByTargetModel: arguments.get(self.divideByModel) ?? false,
                                               divideByTargetOS: arguments.get(self.divideByOS) ?? false,
-                                              divideByTestRun: arguments.get(self.divideByTestPlanRun) ?? false,
-                                              attachmentFilter: {
-                                                return UTTypeConformsTo($0.uniformTypeIdentifier as CFString, "public.image" as CFString)
-        })
+                                              divideByTestRun: arguments.get(self.divideByTestPlanRun) ?? false)
+        if let allowedUTIsToExport = arguments.get(self.utiWhitelist) {
+            options.attachmentFilter = {
+                let attachmentUTI = $0.uniformTypeIdentifier as CFString
+                for allowedUTI in allowedUTIsToExport {
+                    if UTTypeConformsTo(attachmentUTI, allowedUTI as CFString) {
+                        return true
+                    }
+                }
+                return false
+            }
+        }
+
         try xcpParser.extractAttachments(xcresultPath: xcresultPath.pathString,
                                          destination: outputPath.pathString,
                                          options: options)

@@ -9,13 +9,7 @@
 import Foundation
 
 open class ActionTestAttachment : Codable {
-    enum UniformTypeIdentifier: String {
-        case jpeg = "public.jpeg"
-        case png = "public.png"
-        case txt = "public.plain-text"
-    }
-
-    public let uniformTypeIdentifier: String
+    public let uniformTypeIdentifier: String // Note: You'll want to use CoreServices' UTType functions with this
     public let name: String?
     public let timestamp: Date?
 //    public let userInfo: SortedKeyValueArray?

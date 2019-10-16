@@ -62,8 +62,12 @@ struct CommandRegistry {
             let xcpParser = XCPParser()
             let options = AttachmentExportOptions(addTestScreenshotsDirectory: true,
                                                   divideByTargetModel: false,
-                                                  divideByTargetOS: false)
-            try xcpParser.extractScreenshots(xcresultPath: legacyScreenshotPaths[0].path.pathString,
+                                                  divideByTargetOS: false,
+                                                  divideByTestRun: false,
+                                                  attachmentFilter: {
+                                                    return UTTypeConformsTo($0.uniformTypeIdentifier as CFString, "public.image" as CFString)
+            })
+            try xcpParser.extractAttachments(xcresultPath: legacyScreenshotPaths[0].path.pathString,
                                              destination: legacyScreenshotPaths[1].path.pathString,
                                              options: options)
 

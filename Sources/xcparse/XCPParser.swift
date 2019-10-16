@@ -11,7 +11,7 @@ import Foundation
 import SPMUtility
 import XCParseCore
 
-let xcparseCurrentVersion = Version(0, 5, 0)
+let xcparseCurrentVersion = Version(0, 5, 1)
 
 enum InteractiveModeOptionType: String {
     case screenshot = "s"
@@ -72,29 +72,6 @@ struct AttachmentExportOptions {
     var divideByTargetModel: Bool = false
     var divideByTargetOS: Bool = false
     var divideByTestRun: Bool = false
-
-    func displayName(withDeviceRecord deviceRecord: ActionDeviceRecord, testPlanRun: ActionTestPlanRunSummary) -> String {
-        var retval: String = ""
-
-        if self.divideByTargetModel == true && self.divideByTargetOS == true {
-            retval += deviceRecord.modelName + " (\(deviceRecord.operatingSystemVersion))"
-        } else if self.divideByTargetModel == true {
-            retval += deviceRecord.modelName
-        } else if self.divideByTargetOS == true {
-            retval += deviceRecord.operatingSystemVersion
-        }
-
-        if self.divideByTestRun == true {
-            if let testPlanRunName = testPlanRun.name {
-                if retval.count > 0 {
-                    retval += " - "
-                }
-                retval += testPlanRunName
-            }
-        }
-
-        return retval
-    }
 
     func baseScreenshotDirectoryURL(path: String) -> Foundation.URL {
         let destinationURL = URL.init(fileURLWithPath: path)
@@ -157,9 +134,10 @@ class XCPParser {
             return
         }
 
-        let actions = invocationRecord.actions.filter { $0.actionResult.testsRef != nil }
+        // This is going to be the mapping of the places we're going to export the screenshots to
+        var exportURLsToAttachments: [String : [ActionTestAttachment]] = [:]
 
-        var attachmentsToExportToBaseDirectory: [ActionTestAttachment] = []
+        let actions = invocationRecord.actions.filter { $0.actionResult.testsRef != nil }
         for action in actions {
             guard let testRef = action.actionResult.testsRef else {
                 continue
@@ -179,7 +157,6 @@ class XCPParser {
                 continue
             }
 
-            var attachmentsToExportToActionDirectory: [ActionTestAttachment] = []
             for testPlanRun in testPlanRunSummaries.summaries {
                 let testPlanRunScreenshotURL = options.screenshotDirectoryURL(testPlanRun, forBaseURL: actionScreenshotDirectoryURL)
                 if testPlanRunScreenshotURL.createDirectoryIfNecessary() != true {
@@ -189,30 +166,25 @@ class XCPParser {
                 let testableSummaries = testPlanRun.testableSummaries
                 let testableSummariesAttachments = testableSummaries.flatMap { $0.attachments(withXCResult: xcresult) }
 
-                // Now that we know what we want to export, figure out if it should go to base directory or not
-                if (testPlanRunScreenshotURL == screenshotBaseDirectoryURL) {
-                    // Wait to export these all in one nice progress bar at end
-                    attachmentsToExportToBaseDirectory.append(contentsOf: testableSummariesAttachments)
-                } else if (testPlanRunScreenshotURL == actionScreenshotDirectoryURL) {
-                    // Wait to export these all in one nice progress bar for the entire action
-                    attachmentsToExportToActionDirectory.append(contentsOf: testableSummariesAttachments)
-                } else {
-                    // Let's get ready to export!
-                    let displayName = options.displayName(withDeviceRecord: targetDeviceRecord, testPlanRun: testPlanRun)
-                    self.exportScreenshots(withXCResult: xcresult, toDirectory: testPlanRunScreenshotURL, attachments: testableSummariesAttachments, displayName: displayName)
-                }
-            }
-
-            // Check if we deferred any screenshot export to the action's directory
-            if attachmentsToExportToActionDirectory.count > 0 {
-                let displayName = actionScreenshotDirectoryURL.lastPathComponent
-                self.exportScreenshots(withXCResult: xcresult, toDirectory: actionScreenshotDirectoryURL, attachments: attachmentsToExportToActionDirectory, displayName: displayName)
+                // Now that we know what we want to export, save it to the dictionary so we can have all the exports
+                // done at once with one progress bar per URL
+                var existingAttachmentsForBaseURL = exportURLsToAttachments[testPlanRunScreenshotURL.path] ?? []
+                existingAttachmentsForBaseURL.append(contentsOf: testableSummariesAttachments)
+                exportURLsToAttachments[testPlanRunScreenshotURL.path] = existingAttachmentsForBaseURL
             }
         }
 
-        // Now let's export everything that wanted to just be in the base directory
-        if attachmentsToExportToBaseDirectory.count > 0 {
-            self.exportScreenshots(withXCResult: xcresult, toDirectory: screenshotBaseDirectoryURL, attachments: attachmentsToExportToBaseDirectory)
+        // Let's get ready to export!
+        for (exportURLString, attachmentsToExport) in exportURLsToAttachments.sorted(by: { $0.key < $1.key }) {
+            let exportURL = Foundation.URL(fileURLWithPath: exportURLString)
+            if attachmentsToExport.count <= 0 {
+                continue
+            }
+
+            let exportRelativePath = exportURL.path.replacingOccurrences(of: screenshotBaseDirectoryURL.path, with: "").trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+            let displayName = exportRelativePath.replacingOccurrences(of: "/", with: " - ")
+
+            self.exportScreenshots(withXCResult: xcresult, toDirectory: exportURL, attachments: attachmentsToExport, displayName: displayName)
         }
     }
 

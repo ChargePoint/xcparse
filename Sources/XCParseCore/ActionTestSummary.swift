@@ -34,4 +34,18 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
 
         try super.init(from: decoder)
     }
+
+    public func attachments() -> [ActionTestAttachment] {
+        var activitySummaries = self.activitySummaries
+
+        var summariesToCheck = activitySummaries
+        repeat {
+            summariesToCheck = summariesToCheck.flatMap { $0.subactivities }
+
+            // Add the subactivities we found
+            activitySummaries.append(contentsOf: summariesToCheck)
+        } while summariesToCheck.count > 0
+
+        return activitySummaries.flatMap { $0.attachments }
+    }
 }

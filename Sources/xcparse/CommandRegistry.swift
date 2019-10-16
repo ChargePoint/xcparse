@@ -60,9 +60,12 @@ struct CommandRegistry {
 
         do {
             let xcpParser = XCPParser()
+            let options = AttachmentExportOptions(addTestScreenshotsDirectory: true,
+                                                  divideByTargetModel: false,
+                                                  divideByTargetOS: false)
             try xcpParser.extractScreenshots(xcresultPath: legacyScreenshotPaths[0].path.pathString,
                                              destination: legacyScreenshotPaths[1].path.pathString,
-                                             options: AttachmentExportOptions(folderStructure: .legacy))
+                                             options: options)
 
             return true
         } catch {

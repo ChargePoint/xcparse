@@ -9,6 +9,7 @@
 import Foundation
 
 open class ActionTestPlanRunSummary : ActionAbstractTestSummary {
+    // Note: name is inherited from ActionAbstractTestSummary & will contain the test run configuration name
     public let testableSummaries: [ActionTestableSummary]
 
     enum ActionTestPlanRunSummaryCodingKeys: String, CodingKey {

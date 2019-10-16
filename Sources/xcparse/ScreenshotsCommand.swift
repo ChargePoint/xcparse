@@ -19,6 +19,11 @@ struct ScreenshotsCommand: Command {
     var outputPath: PositionalArgument<PathArgument>
     var verbose: OptionArgument<Bool>
 
+    var addTestScreenshotDirectory: OptionArgument<Bool>
+    var divideByModel: OptionArgument<Bool>
+    var divideByOS: OptionArgument<Bool>
+    var divideByTestPlanRun: OptionArgument<Bool>
+
     init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, usage: usage, overview: overview)
         path = subparser.add(positional: "xcresult", kind: PathArgument.self,
@@ -26,6 +31,11 @@ struct ScreenshotsCommand: Command {
         outputPath = subparser.add(positional: "outputDirectory", kind: PathArgument.self,
                                    optional: true, usage: "Folder to export results to", completion: .filename)
         verbose = subparser.add(option: "--verbose", shortName: "-v", kind: Bool.self, usage: "Enable verbose logging")
+
+        addTestScreenshotDirectory = subparser.add(option: "--legacy", shortName: nil, kind: Bool.self, usage: "Create \"testScreenshots\" directory in outputDirectory & put screenshots in there")
+        divideByModel = subparser.add(option: "--model", shortName: nil, kind: Bool.self, usage: "Divide screenshots by model")
+        divideByOS = subparser.add(option: "--os", shortName: nil, kind: Bool.self, usage: "Divide screenshots by OS")
+        divideByTestPlanRun = subparser.add(option: "--test-run", shortName: nil, kind: Bool.self, usage: "Divide screenshots by test plan configuration")
     }
 
     func run(with arguments: ArgumentParser.Result) throws {
@@ -49,7 +59,13 @@ struct ScreenshotsCommand: Command {
 
         let xcpParser = XCPParser()
         xcpParser.console.verbose = verbose
+
+        let options = AttachmentExportOptions(addTestScreenshotsDirectory: arguments.get(self.addTestScreenshotDirectory) ?? false,
+                                              divideByTargetModel: arguments.get(self.divideByModel) ?? false,
+                                              divideByTargetOS: arguments.get(self.divideByOS) ?? false,
+                                              divideByTestRun: arguments.get(self.divideByTestPlanRun) ?? false)
         try xcpParser.extractScreenshots(xcresultPath: xcresultPath.pathString,
-                                         destination: outputPath.pathString)
+                                         destination: outputPath.pathString,
+                                         options: options)
     }
 }

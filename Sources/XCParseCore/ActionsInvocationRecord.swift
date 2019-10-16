@@ -33,4 +33,22 @@ public class ActionsInvocationRecord : Codable {
 
         archive = try container.decodeXCResultObjectIfPresent(forKey: .archive)
     }
+
+    class public func recordFromXCResult(_ xcresult: XCResult) -> ActionsInvocationRecord? {
+        guard let xcresultGetResult = XCResultToolCommand.Get(withXCResult: xcresult, id: "", outputPath: "", format: .json).run() else {
+            return nil
+        }
+
+        do {
+            let xcresultJSON = try xcresultGetResult.utf8Output()
+            if xcresultGetResult.exitStatus != .terminated(code: 0) || xcresultJSON == "" {
+                return nil
+            }
+
+            let xcresultJSONData = Data(xcresultJSON.utf8)
+            return try JSONDecoder().decode(ActionsInvocationRecord.self, from: xcresultJSONData)
+        } catch {
+            return nil
+        }
+    }
 }

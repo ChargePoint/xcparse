@@ -129,6 +129,12 @@ enum XCResultTypeFamily: String, ClassFamily {
     case ActionTestableSummary
     case ActionsInvocationMetadata
     case ActionsInvocationRecord
+    case ActivityLogAnalyzerControlFlowStep
+    case ActivityLogAnalyzerControlFlowStepEdge
+    case ActivityLogAnalyzerEventStep
+    case ActivityLogAnalyzerResultMessage
+    case ActivityLogAnalyzerStep
+    case ActivityLogAnalyzerWarningMessage
     case ActivityLogCommandInvocationSection
     case ActivityLogMajorSection
     case ActivityLogMessage
@@ -200,6 +206,18 @@ enum XCResultTypeFamily: String, ClassFamily {
             return XCParseCore.ActionsInvocationMetadata.self
         case .ActionsInvocationRecord:
             return XCParseCore.ActionsInvocationRecord.self
+        case .ActivityLogAnalyzerControlFlowStep:
+            return XCParseCore.ActivityLogAnalyzerControlFlowStep.self
+        case .ActivityLogAnalyzerControlFlowStepEdge:
+            return XCParseCore.ActivityLogAnalyzerControlFlowStepEdge.self
+        case .ActivityLogAnalyzerEventStep:
+            return XCParseCore.ActivityLogAnalyzerEventStep.self
+        case .ActivityLogAnalyzerResultMessage:
+            return XCParseCore.ActivityLogAnalyzerResultMessage.self
+        case .ActivityLogAnalyzerStep:
+            return XCParseCore.ActivityLogAnalyzerStep.self
+        case .ActivityLogAnalyzerWarningMessage:
+            return XCParseCore.ActivityLogAnalyzerWarningMessage.self
         case .ActivityLogCommandInvocationSection:
             return XCParseCore.ActivityLogCommandInvocationSection.self
         case .ActivityLogMajorSection:

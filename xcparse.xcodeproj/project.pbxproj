@@ -22,6 +22,7 @@
 
 /* Begin PBXBuildFile section */
 		62CC363E23553EA0003C7B68 /* XCResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CC363D23553EA0003C7B68 /* XCResult.swift */; };
+		62CC36592357C110003C7B68 /* AttachmentsCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CC36582357C110003C7B68 /* AttachmentsCommand.swift */; };
 		OBJ_179 /* Await.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_73 /* Await.swift */; };
 		OBJ_180 /* ByteString.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_74 /* ByteString.swift */; };
 		OBJ_181 /* CStringArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_75 /* CStringArray.swift */; };
@@ -316,10 +317,18 @@
 			remoteGlobalIDString = "SwiftPM::clibc";
 			remoteInfo = clibc;
 		};
+		62CC365723569927003C7B68 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = "xcparse::xcparseTests";
+			remoteInfo = xcparseTests;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		62CC363D23553EA0003C7B68 /* XCResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCResult.swift; sourceTree = "<group>"; };
+		62CC36582357C110003C7B68 /* AttachmentsCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentsCommand.swift; sourceTree = "<group>"; };
 		OBJ_10 /* ActionDeviceRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionDeviceRecord.swift; sourceTree = "<group>"; };
 		OBJ_100 /* ProcessEnv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessEnv.swift; sourceTree = "<group>"; };
 		OBJ_101 /* ProcessSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessSet.swift; sourceTree = "<group>"; };
@@ -742,7 +751,7 @@
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -755,7 +764,6 @@
 				OBJ_172 /* Makefile */,
 				OBJ_173 /* README.md */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_56 /* xcparse */ = {
@@ -766,6 +774,7 @@
 				OBJ_59 /* CommandRegistry.swift */,
 				OBJ_60 /* GitHubLatestReleaseResponse.swift */,
 				OBJ_61 /* LogsCommand.swift */,
+				62CC36582357C110003C7B68 /* AttachmentsCommand.swift */,
 				OBJ_62 /* ScreenshotsCommand.swift */,
 				OBJ_63 /* VersionCommand.swift */,
 				OBJ_64 /* XCPParser.swift */,
@@ -1123,7 +1132,7 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_162 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1306,6 +1315,7 @@
 				OBJ_347 /* Command.swift in Sources */,
 				OBJ_348 /* CommandRegistry.swift in Sources */,
 				OBJ_349 /* GitHubLatestReleaseResponse.swift in Sources */,
+				62CC36592357C110003C7B68 /* AttachmentsCommand.swift in Sources */,
 				OBJ_350 /* LogsCommand.swift in Sources */,
 				OBJ_351 /* ScreenshotsCommand.swift in Sources */,
 				OBJ_352 /* VersionCommand.swift in Sources */,
@@ -1412,7 +1422,7 @@
 		OBJ_376 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "xcparse::xcparseTests" /* xcparseTests */;
-			targetProxy = "xcparse::xcparseTests" /* xcparseTests */;
+			targetProxy = 62CC365723569927003C7B68 /* PBXContainerItemProxy */;
 		};
 		OBJ_390 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

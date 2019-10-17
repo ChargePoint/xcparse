@@ -41,7 +41,7 @@ xcparse attachments /path/to/Test.xcresult /path/to/outputDirectory --uti public
 
 Export all attachments in the xcresult that conform to either the ```public.plan-text``` or the ```public.image``` uniform type identifiers (UTI). The screenshots command, for example, is actually just the attachments command operating a whitelist for ```public.image``` UTI attachments.  Other common types in xcresults are ```public.plain-text``` for debug descriptions of test failures.
 
-Read [this Apple documentation]((https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html#//apple_ref/doc/uid/TP40009259-SW1)) for a list of publicly documented UTIs.
+Read [this Apple documentation](https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html#//apple_ref/doc/uid/TP40009259-SW1) for a list of publicly documented UTIs.
 
 ### Code Coverage
 

@@ -35,7 +35,7 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
         try super.init(from: decoder)
     }
 
-    public func attachments() -> [ActionTestAttachment] {
+    public func attachments(filterActivitySummaries: (ActionTestActivitySummary) -> Bool = { _ in return true }) -> [ActionTestAttachment] {
         var activitySummaries = self.activitySummaries
 
         var summariesToCheck = activitySummaries
@@ -46,6 +46,7 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
             activitySummaries.append(contentsOf: summariesToCheck)
         } while summariesToCheck.count > 0
 
-        return activitySummaries.flatMap { $0.attachments }
+        let filteredActivitySummaries = activitySummaries.filter(filterActivitySummaries)
+        return filteredActivitySummaries.flatMap { $0.attachments }
     }
 }

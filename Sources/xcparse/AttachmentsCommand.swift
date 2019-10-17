@@ -24,6 +24,7 @@ struct AttachmentsCommand: Command {
     var divideByTestPlanRun: OptionArgument<Bool>
 
     var utiWhitelist: OptionArgument<[String]>
+    var activityType: OptionArgument<[String]>
 
     init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, usage: usage, overview: overview)
@@ -39,6 +40,8 @@ struct AttachmentsCommand: Command {
 
         utiWhitelist = subparser.add(option: "--uti", shortName: nil, kind: [String].self, strategy: .upToNextOption,
                                      usage: "Takes list of uniform type identifiers (UTI) and export only attachments that conform to at least one")
+        activityType = subparser.add(option: "--activity-type", shortName: nil, kind: [String].self, strategy: .upToNextOption,
+                                     usage: "")
     }
 
     func run(with arguments: ArgumentParser.Result) throws {
@@ -63,6 +66,7 @@ struct AttachmentsCommand: Command {
         let xcpParser = XCPParser()
         xcpParser.console.verbose = verbose
 
+        // Let's set up our export options
         var options = AttachmentExportOptions(addTestScreenshotsDirectory: false,
                                               divideByTargetModel: arguments.get(self.divideByModel) ?? false,
                                               divideByTargetOS: arguments.get(self.divideByOS) ?? false,
@@ -78,7 +82,18 @@ struct AttachmentsCommand: Command {
                 return false
             }
         }
+        if let allowedActivityTypesToExport = arguments.get(self.activityType) {
+            options.activitySummaryFilter = {
+                for activityType in allowedActivityTypesToExport {
+                    if $0.activityType == activityType {
+                        return true
+                    }
+                }
+                return false
+            }
+        }
 
+        // Now let's get extracting
         try xcpParser.extractAttachments(xcresultPath: xcresultPath.pathString,
                                          destination: outputPath.pathString,
                                          options: options)

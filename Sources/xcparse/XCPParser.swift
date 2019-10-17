@@ -76,6 +76,9 @@ struct AttachmentExportOptions {
     var attachmentFilter: (ActionTestAttachment) -> Bool = { _ in
         return true
     }
+    var activitySummaryFilter: (ActionTestActivitySummary) -> Bool = { _ in
+        return true
+    }
 
     func baseScreenshotDirectoryURL(path: String) -> Foundation.URL {
         let destinationURL = URL.init(fileURLWithPath: path)
@@ -168,12 +171,14 @@ class XCPParser {
                 }
 
                 let testableSummaries = testPlanRun.testableSummaries
-                let testableSummariesAttachments = testableSummaries.flatMap { $0.attachments(withXCResult: xcresult) }.filter(options.attachmentFilter)
+                let testableSummariesAttachments = testableSummaries.flatMap { $0.attachments(withXCResult: xcresult,
+                                                                                              filterActivitySummaries: options.activitySummaryFilter) }
+                let filteredTestableSummariesAttachments = testableSummariesAttachments.filter(options.attachmentFilter)
 
                 // Now that we know what we want to export, save it to the dictionary so we can have all the exports
                 // done at once with one progress bar per URL
                 var existingAttachmentsForBaseURL = exportURLsToAttachments[testPlanRunScreenshotURL.path] ?? []
-                existingAttachmentsForBaseURL.append(contentsOf: testableSummariesAttachments)
+                existingAttachmentsForBaseURL.append(contentsOf: filteredTestableSummariesAttachments)
                 exportURLsToAttachments[testPlanRunScreenshotURL.path] = existingAttachmentsForBaseURL
             }
         }

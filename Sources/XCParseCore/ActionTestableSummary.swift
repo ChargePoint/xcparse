@@ -47,7 +47,7 @@ open class ActionTestableSummary : ActionAbstractTestSummary {
         try super.init(from: decoder)
     }
 
-    public func attachments(withXCResult xcresult: XCResult) -> [ActionTestAttachment] {
+    public func attachments(withXCResult xcresult: XCResult, filterActivitySummaries: (ActionTestActivitySummary) -> Bool = { _ in return true }) -> [ActionTestAttachment] {
         var attachments: [ActionTestAttachment] = []
 
         var tests: [ActionTestSummaryIdentifiableObject] = self.tests
@@ -98,6 +98,9 @@ open class ActionTestableSummary : ActionAbstractTestSummary {
             activitySummaries.append(contentsOf: summariesToCheck)
         } while summariesToCheck.count > 0
 
+        // Filter the ActionTestActivitySummary array for the ones we want
+        activitySummaries = activitySummaries.filter(filterActivitySummaries)
+
         for activitySummary in activitySummaries {
             let summaryAttachments = activitySummary.attachments
             attachments.append(contentsOf: summaryAttachments)
@@ -109,7 +112,7 @@ open class ActionTestableSummary : ActionAbstractTestSummary {
                 xcresult.console.writeMessage("Error: Unhandled test summary type \(String(describing: summaryReference.targetType?.getType()))", to: .error)
                 continue
             }
-            attachments.append(contentsOf: summary.attachments())
+            attachments.append(contentsOf: summary.attachments(filterActivitySummaries: filterActivitySummaries))
         }
 
         return attachments

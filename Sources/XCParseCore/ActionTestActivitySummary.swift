@@ -8,6 +8,14 @@
 
 import Foundation
 
+public enum ActionTestActivityType : String {
+    case attachmentContainer = "com.apple.dt.xctest.activity-type.attachmentContainer"
+    case deletedAttachment = "com.apple.dt.xctest.activity-type.deletedAttachment"
+    case `internal` = "com.apple.dt.xctest.activity-type.internal"
+    case testAssertionFailure = "com.apple.dt.xctest.activity-type.testAssertionFailure"
+    case userCreated = "com.apple.dt.xctest.activity-type.userCreated"
+}
+
 open class ActionTestActivitySummary : Codable {
     public let title: String
     public let activityType: String

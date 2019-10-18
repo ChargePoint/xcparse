@@ -11,7 +11,7 @@ import Foundation
 import SPMUtility
 import XCParseCore
 
-let xcparseCurrentVersion = Version(0, 6, 0)
+let xcparseCurrentVersion = Version(0, 7, 0)
 
 enum InteractiveModeOptionType: String {
     case screenshot = "s"
@@ -49,7 +49,7 @@ extension Foundation.URL {
         }
     }
 
-    func createDirectoryIfNecessary(console: Console = Console()) -> Bool {
+    func createDirectoryIfNecessary(createIntermediates: Bool = false, console: Console = Console()) -> Bool {
         var isDirectory: ObjCBool = false
         if FileManager.default.fileExists(atPath: self.path, isDirectory: &isDirectory) {
             if isDirectory.boolValue {
@@ -60,7 +60,11 @@ extension Foundation.URL {
                 return false
             }
         } else {
-            console.shellCommand(["mkdir", self.path])
+            if createIntermediates == true {
+                console.shellCommand(["mkdir", "-p", self.path])
+            } else {
+                console.shellCommand(["mkdir", self.path])
+            }
         }
 
         return self.fileExistsAsDirectory()
@@ -72,6 +76,7 @@ struct AttachmentExportOptions {
     var divideByTargetModel: Bool = false
     var divideByTargetOS: Bool = false
     var divideByTestRun: Bool = false
+    var divideByTest: Bool = false
 
     var attachmentFilter: (ActionTestAttachment) -> Bool = { _ in
         return true
@@ -171,15 +176,25 @@ class XCPParser {
                 }
 
                 let testableSummaries = testPlanRun.testableSummaries
-                let testableSummariesAttachments = testableSummaries.flatMap { $0.attachments(withXCResult: xcresult,
-                                                                                              filterActivitySummaries: options.activitySummaryFilter) }
-                let filteredTestableSummariesAttachments = testableSummariesAttachments.filter(options.attachmentFilter)
+                let testableSummariesToTestActivity = testableSummaries.flatMap { $0.flattenedTestSummaryMap(withXCResult: xcresult) }
+                for (testableSummary, childActivitySummaries) in testableSummariesToTestActivity {
+                    let filteredChildActivities = childActivitySummaries.filter(options.activitySummaryFilter)
+                    let filteredAttachments = filteredChildActivities.flatMap { $0.attachments.filter(options.attachmentFilter) }
 
-                // Now that we know what we want to export, save it to the dictionary so we can have all the exports
-                // done at once with one progress bar per URL
-                var existingAttachmentsForBaseURL = exportURLsToAttachments[testPlanRunScreenshotURL.path] ?? []
-                existingAttachmentsForBaseURL.append(contentsOf: filteredTestableSummariesAttachments)
-                exportURLsToAttachments[testPlanRunScreenshotURL.path] = existingAttachmentsForBaseURL
+                    var testableSummaryScreenshotURL = testPlanRunScreenshotURL
+                    if options.divideByTest == true, let summaryIdentifier = testableSummary.identifier {
+                        testableSummaryScreenshotURL = testableSummaryScreenshotURL.appendingPathComponent(summaryIdentifier, isDirectory: true)
+                        if testableSummaryScreenshotURL.createDirectoryIfNecessary(createIntermediates: true) != true {
+                            continue
+                        }
+                    }
+
+                    // Now that we know what we want to export, save it to the dictionary so we can have all the exports
+                    // done at once with one progress bar per URL
+                    var existingAttachmentsForURL = exportURLsToAttachments[testableSummaryScreenshotURL.path] ?? []
+                    existingAttachmentsForURL.append(contentsOf: filteredAttachments)
+                    exportURLsToAttachments[testableSummaryScreenshotURL.path] = existingAttachmentsForURL
+                }
             }
         }
 

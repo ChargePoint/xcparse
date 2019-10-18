@@ -22,6 +22,7 @@ struct AttachmentsCommand: Command {
     var divideByModel: OptionArgument<Bool>
     var divideByOS: OptionArgument<Bool>
     var divideByTestPlanRun: OptionArgument<Bool>
+    var divideByTest: OptionArgument<Bool>
 
     var utiWhitelist: OptionArgument<[String]>
     var activityType: OptionArgument<[String]>
@@ -37,6 +38,7 @@ struct AttachmentsCommand: Command {
         divideByModel = subparser.add(option: "--model", shortName: nil, kind: Bool.self, usage: "Divide attachments by model")
         divideByOS = subparser.add(option: "--os", shortName: nil, kind: Bool.self, usage: "Divide attachments by OS")
         divideByTestPlanRun = subparser.add(option: "--test-run", shortName: nil, kind: Bool.self, usage: "Divide attachments by test plan configuration")
+        divideByTest = subparser.add(option: "--test", shortName: nil, kind: Bool.self, usage: "Divide attachments by test")
 
         utiWhitelist = subparser.add(option: "--uti", shortName: nil, kind: [String].self, strategy: .upToNextOption,
                                      usage: "Takes list of uniform type identifiers (UTI) and export only attachments that conform to at least one")
@@ -70,7 +72,8 @@ struct AttachmentsCommand: Command {
         var options = AttachmentExportOptions(addTestScreenshotsDirectory: false,
                                               divideByTargetModel: arguments.get(self.divideByModel) ?? false,
                                               divideByTargetOS: arguments.get(self.divideByOS) ?? false,
-                                              divideByTestRun: arguments.get(self.divideByTestPlanRun) ?? false)
+                                              divideByTestRun: arguments.get(self.divideByTestPlanRun) ?? false,
+                                              divideByTest: arguments.get(self.divideByTest) ?? false)
         if let allowedUTIsToExport = arguments.get(self.utiWhitelist) {
             options.attachmentFilter = {
                 let attachmentUTI = $0.uniformTypeIdentifier as CFString

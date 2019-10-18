@@ -23,6 +23,7 @@ struct ScreenshotsCommand: Command {
     var divideByModel: OptionArgument<Bool>
     var divideByOS: OptionArgument<Bool>
     var divideByTestPlanRun: OptionArgument<Bool>
+    var divideByTest: OptionArgument<Bool>
 
     init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, usage: usage, overview: overview)
@@ -36,6 +37,7 @@ struct ScreenshotsCommand: Command {
         divideByModel = subparser.add(option: "--model", shortName: nil, kind: Bool.self, usage: "Divide screenshots by model")
         divideByOS = subparser.add(option: "--os", shortName: nil, kind: Bool.self, usage: "Divide screenshots by OS")
         divideByTestPlanRun = subparser.add(option: "--test-run", shortName: nil, kind: Bool.self, usage: "Divide screenshots by test plan configuration")
+        divideByTest = subparser.add(option: "--test", shortName: nil, kind: Bool.self, usage: "Divide attachments by test")
     }
 
     func run(with arguments: ArgumentParser.Result) throws {
@@ -64,6 +66,7 @@ struct ScreenshotsCommand: Command {
                                               divideByTargetModel: arguments.get(self.divideByModel) ?? false,
                                               divideByTargetOS: arguments.get(self.divideByOS) ?? false,
                                               divideByTestRun: arguments.get(self.divideByTestPlanRun) ?? false,
+                                              divideByTest: arguments.get(self.divideByTest) ?? false,
                                               attachmentFilter: {
                                                 return UTTypeConformsTo($0.uniformTypeIdentifier as CFString, "public.image" as CFString)
         })

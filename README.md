@@ -117,16 +117,3 @@ xcparse screenshots --help
 ```
 
 Learn about all the options we didn't mention with ```--help```!
-
-## Modes
-
-### Static Mode
-This is the default mode in which xcparse runs if the user specifies a command & arguments.
-
-### Interactive Mode
-When the user runs xcparse with no arguments, xcparse runs in interactive mode. In this mode the user is prompted to enter commands and arguments as required.
-
-## Useful Commands
-
-1. brew untap - Untaps from specified homebrew tap
-2. brew uninstall - Uninstall homebrew tool

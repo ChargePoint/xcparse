@@ -11,29 +11,7 @@ import Foundation
 import SPMUtility
 import XCParseCore
 
-let xcparseCurrentVersion = Version(0, 7, 0)
-
-enum InteractiveModeOptionType: String {
-    case screenshot = "s"
-    case log = "l"
-    case xcov = "x"
-    case verbose = "v"
-    case help = "h"
-    case quit = "q"
-    case unknown
-  
-    init(value: String) {
-        switch value {
-            case "s", "screenshots": self = .screenshot
-            case "l", "logs": self = .log
-            case "x", "xcov": self = .xcov
-            case "v", "verbose": self = .verbose
-            case "h", "help": self = .help
-            case "q", "quit": self = .quit
-            default: self = .unknown
-        }
-    }
-}
+let xcparseCurrentVersion = Version(1, 0, 0)
 
 extension Foundation.URL {
     func fileExistsAsDirectory() -> Bool {
@@ -356,55 +334,4 @@ class XCPParser {
 
         self.printLatestVersionInfoIfNeeded()
     }
-
-    func getInteractiveModeOption(_ option: String) -> (option: InteractiveModeOptionType, value: String) {
-      return (InteractiveModeOptionType(value: option), option)
-    }
-    
-    func interactiveMode() throws {
-        checkVersion()
-        console.writeMessage("Welcome to xcparse \(xcparseCurrentVersion). This program can extract screenshots and coverage files from an *.xcresult file.")
-
-        var shouldQuit = false
-        while !shouldQuit {
-            self.printLatestVersionInfoIfNeeded()
-
-            console.writeMessage("Type 's' to extract screenshots, 'l' for logs, 'x' for code coverage files, 'v' for verbose, 'h' for help, or 'q' to quit.")
-
-            let (option, value) = getInteractiveModeOption(console.getInput())
-
-            switch option {
-            case .screenshot:
-                console.writeMessage("Type the path to your *.xcresult file:")
-                let path = console.getInput()
-                console.writeMessage("Type the path to the destination folder for your screenshots:")
-                let destinationPath = console.getInput()
-                try extractAttachments(xcresultPath: path, destination: destinationPath)
-            case .log:
-                console.writeMessage("Type the path to your *.xcresult file:")
-                let path = console.getInput()
-                console.writeMessage("Type the path to the destination folder for your logs:")
-                let destinationPath = console.getInput()
-                try extractLogs(xcresultPath: path, destination: destinationPath)
-            case .xcov:
-                console.writeMessage("Type the path to your *.xcresult file:")
-                let path = console.getInput()
-                console.writeMessage("Type the path to the destination folder for your coverage file:")
-                let destinationPath = console.getInput()
-                try extractCoverage(xcresultPath: path, destination: destinationPath)
-            case .verbose:
-                console.verbose = true
-                console.writeMessage("Verbose mode enabled")
-            case .quit:
-                shouldQuit = true
-            case .help:
-                console.printInteractiveUsage()
-            default:
-                console.writeMessage("Unknown option \(value)", to: .error)
-                console.printInteractiveUsage()
-            }
-        }
-    }
-    
-    
 }

@@ -8,6 +8,11 @@
 
 import Foundation
 
+public enum ActionTestAttachmentLifetime : String {
+    case keepAlways
+    case deleteOnSuccess
+}
+
 open class ActionTestAttachment : Codable {
     public let uniformTypeIdentifier: String // Note: You'll want to use CoreServices' UTType functions with this
     public let name: String?

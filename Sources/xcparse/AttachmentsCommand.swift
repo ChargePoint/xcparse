@@ -22,8 +22,10 @@ struct AttachmentsCommand: Command {
     var divideByModel: OptionArgument<Bool>
     var divideByOS: OptionArgument<Bool>
     var divideByTestPlanRun: OptionArgument<Bool>
+    var divideByTest: OptionArgument<Bool>
 
     var utiWhitelist: OptionArgument<[String]>
+    var activityTypeWhitelist: OptionArgument<[String]>
 
     init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, usage: usage, overview: overview)
@@ -36,9 +38,12 @@ struct AttachmentsCommand: Command {
         divideByModel = subparser.add(option: "--model", shortName: nil, kind: Bool.self, usage: "Divide attachments by model")
         divideByOS = subparser.add(option: "--os", shortName: nil, kind: Bool.self, usage: "Divide attachments by OS")
         divideByTestPlanRun = subparser.add(option: "--test-run", shortName: nil, kind: Bool.self, usage: "Divide attachments by test plan configuration")
+        divideByTest = subparser.add(option: "--test", shortName: nil, kind: Bool.self, usage: "Divide attachments by test")
 
         utiWhitelist = subparser.add(option: "--uti", shortName: nil, kind: [String].self, strategy: .upToNextOption,
-                                     usage: "Takes list of uniform type identifiers (UTI) and export only attachments that conform to at least one")
+                                     usage: "Whitelist of uniform type identifiers (UTI) attachments must conform to [optional, example: \"--uti public.image public.plain-text\"]")
+        activityTypeWhitelist = subparser.add(option: "--activity-type", shortName: nil, kind: [String].self, strategy: .upToNextOption,
+                                              usage: "Whitelist of acceptable activity types for screenshots. If value does not specify domain, \"com.apple.dt.xctest.activity-type.\" is assumed and prefixed to the value [optional, example: \"--activity-type userCreated attachmentContainer com.apple.dt.xctest.activity-type.testAssertionFailure\"]")
     }
 
     func run(with arguments: ArgumentParser.Result) throws {
@@ -63,10 +68,12 @@ struct AttachmentsCommand: Command {
         let xcpParser = XCPParser()
         xcpParser.console.verbose = verbose
 
+        // Let's set up our export options
         var options = AttachmentExportOptions(addTestScreenshotsDirectory: false,
                                               divideByTargetModel: arguments.get(self.divideByModel) ?? false,
                                               divideByTargetOS: arguments.get(self.divideByOS) ?? false,
-                                              divideByTestRun: arguments.get(self.divideByTestPlanRun) ?? false)
+                                              divideByTestRun: arguments.get(self.divideByTestPlanRun) ?? false,
+                                              divideByTest: arguments.get(self.divideByTest) ?? false)
         if let allowedUTIsToExport = arguments.get(self.utiWhitelist) {
             options.attachmentFilter = {
                 let attachmentUTI = $0.uniformTypeIdentifier as CFString
@@ -78,7 +85,19 @@ struct AttachmentsCommand: Command {
                 return false
             }
         }
+        if let allowedActivityTypes = arguments.get(self.activityTypeWhitelist) {
+            // Writing the full domain can be exhausting, so if there is no domain specified, assume it was the normal activity type domain
+            var additionalActivityTypes: [String] = allowedActivityTypes
+            
+            let activityTypesWithoutDomain = allowedActivityTypes.filter { $0.contains(Character(".")) == false }
+            for activityType in activityTypesWithoutDomain {
+                additionalActivityTypes.append("com.apple.dt.xctest.activity-type." + activityType)
+            }
 
+            options.activitySummaryFilter = { additionalActivityTypes.contains($0.activityType) }
+        }
+
+        // Now let's get extracting
         try xcpParser.extractAttachments(xcresultPath: xcresultPath.pathString,
                                          destination: outputPath.pathString,
                                          options: options)

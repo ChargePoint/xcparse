@@ -8,6 +8,11 @@
 
 import Foundation
 
+public enum TestStatus : String {
+    case Success
+    case Failure
+}
+
 open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
     public let testStatus: String
     public let duration: Double
@@ -35,7 +40,7 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
         try super.init(from: decoder)
     }
 
-    public func attachments() -> [ActionTestAttachment] {
+    public func allChildActivitySummaries() -> [ActionTestActivitySummary] {
         var activitySummaries = self.activitySummaries
 
         var summariesToCheck = activitySummaries
@@ -46,6 +51,6 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
             activitySummaries.append(contentsOf: summariesToCheck)
         } while summariesToCheck.count > 0
 
-        return activitySummaries.flatMap { $0.attachments }
+        return activitySummaries
     }
 }

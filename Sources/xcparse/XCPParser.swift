@@ -11,7 +11,7 @@ import Foundation
 import SPMUtility
 import XCParseCore
 
-let xcparseCurrentVersion = Version(0, 6, 0)
+let xcparseCurrentVersion = Version(0, 7, 0)
 
 enum InteractiveModeOptionType: String {
     case screenshot = "s"
@@ -49,7 +49,7 @@ extension Foundation.URL {
         }
     }
 
-    func createDirectoryIfNecessary(console: Console = Console()) -> Bool {
+    func createDirectoryIfNecessary(createIntermediates: Bool = false, console: Console = Console()) -> Bool {
         var isDirectory: ObjCBool = false
         if FileManager.default.fileExists(atPath: self.path, isDirectory: &isDirectory) {
             if isDirectory.boolValue {
@@ -60,7 +60,11 @@ extension Foundation.URL {
                 return false
             }
         } else {
-            console.shellCommand(["mkdir", self.path])
+            if createIntermediates == true {
+                console.shellCommand(["mkdir", "-p", self.path])
+            } else {
+                console.shellCommand(["mkdir", self.path])
+            }
         }
 
         return self.fileExistsAsDirectory()
@@ -72,7 +76,14 @@ struct AttachmentExportOptions {
     var divideByTargetModel: Bool = false
     var divideByTargetOS: Bool = false
     var divideByTestRun: Bool = false
+    var divideByTest: Bool = false
 
+    var testSummaryFilter: (ActionTestSummary) -> Bool = { _ in
+        return true
+    }
+    var activitySummaryFilter: (ActionTestActivitySummary) -> Bool = { _ in
+        return true
+    }
     var attachmentFilter: (ActionTestAttachment) -> Bool = { _ in
         return true
     }
@@ -89,7 +100,7 @@ struct AttachmentExportOptions {
     func screenshotDirectoryURL(_ deviceRecord: ActionDeviceRecord, forBaseURL baseURL: Foundation.URL) -> Foundation.URL {
         var targetDeviceFolderName: String? = nil
 
-        if self.divideByTargetModel && self.divideByTargetOS {
+        if self.divideByTargetModel == true, self.divideByTargetOS == true {
             targetDeviceFolderName = deviceRecord.modelName + " (\(deviceRecord.operatingSystemVersion))"
         } else if self.divideByTargetModel {
             targetDeviceFolderName = deviceRecord.modelName
@@ -98,7 +109,7 @@ struct AttachmentExportOptions {
         }
 
         if let folderName = targetDeviceFolderName {
-            return baseURL.appendingPathComponent(folderName)
+            return baseURL.appendingPathComponent(folderName, isDirectory: true)
         } else {
             return baseURL
         }
@@ -110,7 +121,19 @@ struct AttachmentExportOptions {
         }
 
         if self.divideByTestRun {
-            return baseURL.appendingPathComponent(testPlanRunName)
+            return baseURL.appendingPathComponent(testPlanRunName, isDirectory: true)
+        } else {
+            return baseURL
+        }
+    }
+
+    func screenshotDirectoryURL(_ testSummary: ActionTestSummary, forBaseURL baseURL: Foundation.URL) -> Foundation.URL {
+        guard let summaryIdentifier = testSummary.identifier else {
+            return baseURL
+        }
+
+        if self.divideByTest == true {
+            return baseURL.appendingPathComponent(summaryIdentifier, isDirectory: true)
         } else {
             return baseURL
         }
@@ -168,13 +191,26 @@ class XCPParser {
                 }
 
                 let testableSummaries = testPlanRun.testableSummaries
-                let testableSummariesAttachments = testableSummaries.flatMap { $0.attachments(withXCResult: xcresult) }.filter(options.attachmentFilter)
+                let testableSummariesToTestActivity = testableSummaries.flatMap { $0.flattenedTestSummaryMap(withXCResult: xcresult) }
+                for (testableSummary, childActivitySummaries) in testableSummariesToTestActivity {
+                    if options.testSummaryFilter(testableSummary) == false {
+                        continue
+                    }
 
-                // Now that we know what we want to export, save it to the dictionary so we can have all the exports
-                // done at once with one progress bar per URL
-                var existingAttachmentsForBaseURL = exportURLsToAttachments[testPlanRunScreenshotURL.path] ?? []
-                existingAttachmentsForBaseURL.append(contentsOf: testableSummariesAttachments)
-                exportURLsToAttachments[testPlanRunScreenshotURL.path] = existingAttachmentsForBaseURL
+                    let filteredChildActivities = childActivitySummaries.filter(options.activitySummaryFilter)
+                    let filteredAttachments = filteredChildActivities.flatMap { $0.attachments.filter(options.attachmentFilter) }
+
+                    let testableSummaryScreenshotURL = options.screenshotDirectoryURL(testableSummary, forBaseURL: testPlanRunScreenshotURL)
+                    if testableSummaryScreenshotURL.createDirectoryIfNecessary(createIntermediates: true) != true {
+                        continue
+                    }
+
+                    // Now that we know what we want to export, save it to the dictionary so we can have all the exports
+                    // done at once with one progress bar per URL
+                    var existingAttachmentsForURL = exportURLsToAttachments[testableSummaryScreenshotURL.path] ?? []
+                    existingAttachmentsForURL.append(contentsOf: filteredAttachments)
+                    exportURLsToAttachments[testableSummaryScreenshotURL.path] = existingAttachmentsForURL
+                }
             }
         }
 

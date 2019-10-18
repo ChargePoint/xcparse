@@ -33,6 +33,57 @@ This will cause screenshots to be exported like so:
 
 Options can be added & remove to change the folder structure used for export.  Using no options will lead to all attachments being exported into the output directory.
 
+Options available include:
+
+| Option           | Description                             |
+|------------------|-----------------------------------------|
+| ```--model```    | Divide by test target model             | 
+| ```--os```       | Divide by test target operating system  | 
+| ```--test-run``` | Divide by test run configuration        |
+| ```--test```     | Divide by test                          |
+
+See ```xcparse screenshots --help``` for a full-listing
+
+#### Test Status
+
+The ```--test-status``` option can allow for whitelisting only screenshots from tests that have a status that matches at least one of the provided status strings
+
+| Examples         | Description                             |
+|------------------|-----------------------------------------|
+| ```--test-status Success```         | Passing tests only             | 
+| ```--test-status Failure```         | Failing tests only             | 
+| ```--test-status Success Failure``` | Passing or failing tests only  |
+
+
+Test status strings can be found by using verbose mode with the screenshots sub-command.
+
+#### Activity Type
+
+The ```--activity-type``` option allows for whitelisting screenshots whose activity type matches at least one of the provided activity type strings.
+
+| Examples         | Description                             |
+|------------------|-----------------------------------------|
+| ```--activity-type com.apple.dt.xctest.activity-type.testAssertionFailure```| Test failure screenshots only | 
+| ```--activity-type attachmentContainer userCreated```                       | User created screenshots only | 
+
+Note that when an activity type string is provided which doesn't have a reverse-DNS style domain, it is assumed to be of ```com.apple.dt.xctest.activity-type.<activityTypeString>``` and the domain is automatically added.
+
+Therefore, these two are option calls are equivalent:
+
+```--activity-type userCreated attachmentContainer```
+
+```--activity-type com.apple.dt.xctest.activity-type.userCreated com.apple.dt.xctest.activity-type.attachmentContainer```
+
+Activity types can be found in verbose mode.  Below are a listing of common ones:
+
+| Activity Type         | Description                             |
+|------------------|-----------------------------------------|
+| com.apple.dt.xctest.activity-type.attachmentContainer| Placeholder activity that contains an attachment, may contain user created screenshot | 
+| com.apple.dt.xctest.activity-type.deletedAttachment | Deleted attachment placeholder activity |
+| com.apple.dt.xctest.activity-type.internal | Internal test step, may have automatic screenshot to show test progression |
+| com.apple.dt.xctest.activity-type.testAssertionFailure | Step where the test failed in an assertion, may have failure screenshot |
+| com.apple.dt.xctest.activity-type.userCreated | User created screenshot/attachment |
+
 ### Attachments
 
 ```

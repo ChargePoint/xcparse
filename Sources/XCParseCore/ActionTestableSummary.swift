@@ -47,8 +47,8 @@ open class ActionTestableSummary : ActionAbstractTestSummary {
         try super.init(from: decoder)
     }
 
-    public func attachments(withXCResult xcresult: XCResult) -> [ActionTestAttachment] {
-        var attachments: [ActionTestAttachment] = []
+    public func flattenedTestSummaryMap(withXCResult xcresult: XCResult) -> [(testSummary: ActionTestSummary, activitySummaries: [ActionTestActivitySummary])] {
+        var testSummaryMap: [(ActionTestSummary, [ActionTestActivitySummary])] = []
 
         var tests: [ActionTestSummaryIdentifiableObject] = self.tests
 
@@ -86,32 +86,22 @@ open class ActionTestableSummary : ActionAbstractTestSummary {
             tests = summaryGroups.flatMap { $0.subtests }
         } while tests.count > 0
 
-        // Need to extract out the testSummary until get all ActionTestActivitySummary
-        var activitySummaries = testSummaries.flatMap { $0.activitySummaries }
+        // For those where we already have the ActionTestSummary, add them to the map
+        let testSummariesToAllChildActivities = testSummaries.map { (testSummary: $0, activitySummaries: $0.allChildActivitySummaries()) }
+        testSummaryMap.append(contentsOf: testSummariesToAllChildActivities)
 
-        // Get all subactivities
-        var summariesToCheck = activitySummaries
-        repeat {
-            summariesToCheck = summariesToCheck.flatMap { $0.subactivities }
-
-            // Add the subactivities we found
-            activitySummaries.append(contentsOf: summariesToCheck)
-        } while summariesToCheck.count > 0
-
-        for activitySummary in activitySummaries {
-            let summaryAttachments = activitySummary.attachments
-            attachments.append(contentsOf: summaryAttachments)
-        }
-
+        // Now let's go digging out the ActionTestSummary from these ActionTestMetadata references we got (will involve more xcresulttool calls)
         let testSummaryReferences = testMetadata.compactMap { $0.summaryRef }
         for summaryReference in testSummaryReferences {
             guard let summary: ActionTestSummary = summaryReference.modelFromReference(withXCResult: xcresult) else {
                 xcresult.console.writeMessage("Error: Unhandled test summary type \(String(describing: summaryReference.targetType?.getType()))", to: .error)
                 continue
             }
-            attachments.append(contentsOf: summary.attachments())
+
+            let referenceSummaryChildActivities = summary.allChildActivitySummaries()
+            testSummaryMap.append((summary, referenceSummaryChildActivities))
         }
 
-        return attachments
+        return testSummaryMap
     }
 }

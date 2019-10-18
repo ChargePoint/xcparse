@@ -25,6 +25,10 @@ struct ScreenshotsCommand: Command {
     var divideByTestPlanRun: OptionArgument<Bool>
     var divideByTest: OptionArgument<Bool>
 
+    var excludePassingTests: OptionArgument<Bool>
+    var excludeFailingTests: OptionArgument<Bool>
+    var excludeAutomaticScreenshots: OptionArgument<Bool>
+
     init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, usage: usage, overview: overview)
         path = subparser.add(positional: "xcresult", kind: PathArgument.self,
@@ -37,7 +41,11 @@ struct ScreenshotsCommand: Command {
         divideByModel = subparser.add(option: "--model", shortName: nil, kind: Bool.self, usage: "Divide screenshots by model")
         divideByOS = subparser.add(option: "--os", shortName: nil, kind: Bool.self, usage: "Divide screenshots by OS")
         divideByTestPlanRun = subparser.add(option: "--test-run", shortName: nil, kind: Bool.self, usage: "Divide screenshots by test plan configuration")
-        divideByTest = subparser.add(option: "--test", shortName: nil, kind: Bool.self, usage: "Divide attachments by test")
+        divideByTest = subparser.add(option: "--test", shortName: nil, kind: Bool.self, usage: "Divide screenshots by test")
+
+        excludePassingTests = subparser.add(option: "--exclude-passing-tests", shortName: nil, kind: Bool.self, usage: "Exclude screenshots from passing tests")
+        excludeFailingTests = subparser.add(option: "--exclude-failing-tests", shortName: nil, kind: Bool.self, usage: "Exclude screenshots from failing tests")
+        excludeAutomaticScreenshots = subparser.add(option: "--exclude-automatic", shortName: nil, kind: Bool.self, usage: "Exclude automatic screenshots")
     }
 
     func run(with arguments: ArgumentParser.Result) throws {
@@ -67,6 +75,9 @@ struct ScreenshotsCommand: Command {
                                               divideByTargetOS: arguments.get(self.divideByOS) ?? false,
                                               divideByTestRun: arguments.get(self.divideByTestPlanRun) ?? false,
                                               divideByTest: arguments.get(self.divideByTest) ?? false,
+                                              excludePassingTests: arguments.get(self.excludePassingTests) ?? false,
+                                              excludeFailingTests: arguments.get(self.excludeFailingTests) ?? false,
+                                              excludeAutomaticScreenshots: arguments.get(self.excludeAutomaticScreenshots) ?? false,
                                               attachmentFilter: {
                                                 return UTTypeConformsTo($0.uniformTypeIdentifier as CFString, "public.image" as CFString)
         })

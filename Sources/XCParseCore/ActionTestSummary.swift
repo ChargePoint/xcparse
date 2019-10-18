@@ -8,6 +8,11 @@
 
 import Foundation
 
+public enum TestStatus : String {
+    case Success
+    case Failure
+}
+
 open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
     public let testStatus: String
     public let duration: Double

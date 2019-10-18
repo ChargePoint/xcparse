@@ -78,6 +78,10 @@ struct AttachmentExportOptions {
     var divideByTestRun: Bool = false
     var divideByTest: Bool = false
 
+    var excludePassingTests: Bool = false
+    var excludeFailingTests: Bool = false
+    var excludeAutomaticScreenshots: Bool = false
+
     var attachmentFilter: (ActionTestAttachment) -> Bool = { _ in
         return true
     }
@@ -97,7 +101,7 @@ struct AttachmentExportOptions {
     func screenshotDirectoryURL(_ deviceRecord: ActionDeviceRecord, forBaseURL baseURL: Foundation.URL) -> Foundation.URL {
         var targetDeviceFolderName: String? = nil
 
-        if self.divideByTargetModel && self.divideByTargetOS {
+        if self.divideByTargetModel == true, self.divideByTargetOS == true {
             targetDeviceFolderName = deviceRecord.modelName + " (\(deviceRecord.operatingSystemVersion))"
         } else if self.divideByTargetModel {
             targetDeviceFolderName = deviceRecord.modelName
@@ -106,7 +110,7 @@ struct AttachmentExportOptions {
         }
 
         if let folderName = targetDeviceFolderName {
-            return baseURL.appendingPathComponent(folderName)
+            return baseURL.appendingPathComponent(folderName, isDirectory: true)
         } else {
             return baseURL
         }
@@ -118,7 +122,19 @@ struct AttachmentExportOptions {
         }
 
         if self.divideByTestRun {
-            return baseURL.appendingPathComponent(testPlanRunName)
+            return baseURL.appendingPathComponent(testPlanRunName, isDirectory: true)
+        } else {
+            return baseURL
+        }
+    }
+
+    func screenshotDirectoryURL(_ testSummary: ActionTestSummary, forBaseURL baseURL: Foundation.URL) -> Foundation.URL {
+        guard let summaryIdentifier = testSummary.identifier else {
+            return baseURL
+        }
+
+        if self.divideByTest == true {
+            return baseURL.appendingPathComponent(summaryIdentifier, isDirectory: true)
         } else {
             return baseURL
         }
@@ -178,15 +194,18 @@ class XCPParser {
                 let testableSummaries = testPlanRun.testableSummaries
                 let testableSummariesToTestActivity = testableSummaries.flatMap { $0.flattenedTestSummaryMap(withXCResult: xcresult) }
                 for (testableSummary, childActivitySummaries) in testableSummariesToTestActivity {
+                    if options.excludePassingTests == true, testableSummary.testStatus == TestStatus.Success.rawValue {
+                        continue
+                    } else if options.excludeFailingTests == true, testableSummary.testStatus == TestStatus.Failure.rawValue {
+                        continue
+                    }
+
                     let filteredChildActivities = childActivitySummaries.filter(options.activitySummaryFilter)
                     let filteredAttachments = filteredChildActivities.flatMap { $0.attachments.filter(options.attachmentFilter) }
 
-                    var testableSummaryScreenshotURL = testPlanRunScreenshotURL
-                    if options.divideByTest == true, let summaryIdentifier = testableSummary.identifier {
-                        testableSummaryScreenshotURL = testableSummaryScreenshotURL.appendingPathComponent(summaryIdentifier, isDirectory: true)
-                        if testableSummaryScreenshotURL.createDirectoryIfNecessary(createIntermediates: true) != true {
-                            continue
-                        }
+                    let testableSummaryScreenshotURL = options.screenshotDirectoryURL(testableSummary, forBaseURL: testPlanRunScreenshotURL)
+                    if testableSummaryScreenshotURL.createDirectoryIfNecessary(createIntermediates: true) != true {
+                        continue
                     }
 
                     // Now that we know what we want to export, save it to the dictionary so we can have all the exports

@@ -13,9 +13,8 @@ import Foundation
 // MARK: Main
 
 let parser = XCPParser()
-if CommandLine.argc < 2 {
-    try parser.interactiveMode()
-} else {
+do {
     try parser.staticMode()
+} catch {
+    print("Error: \(error)")
 }
-

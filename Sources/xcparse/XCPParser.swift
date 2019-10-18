@@ -78,14 +78,13 @@ struct AttachmentExportOptions {
     var divideByTestRun: Bool = false
     var divideByTest: Bool = false
 
-    var excludePassingTests: Bool = false
-    var excludeFailingTests: Bool = false
-    var excludeAutomaticScreenshots: Bool = false
-
-    var attachmentFilter: (ActionTestAttachment) -> Bool = { _ in
+    var testSummaryFilter: (ActionTestSummary) -> Bool = { _ in
         return true
     }
     var activitySummaryFilter: (ActionTestActivitySummary) -> Bool = { _ in
+        return true
+    }
+    var attachmentFilter: (ActionTestAttachment) -> Bool = { _ in
         return true
     }
 
@@ -194,9 +193,7 @@ class XCPParser {
                 let testableSummaries = testPlanRun.testableSummaries
                 let testableSummariesToTestActivity = testableSummaries.flatMap { $0.flattenedTestSummaryMap(withXCResult: xcresult) }
                 for (testableSummary, childActivitySummaries) in testableSummariesToTestActivity {
-                    if options.excludePassingTests == true, testableSummary.testStatus == TestStatus.Success.rawValue {
-                        continue
-                    } else if options.excludeFailingTests == true, testableSummary.testStatus == TestStatus.Failure.rawValue {
+                    if options.testSummaryFilter(testableSummary) == false {
                         continue
                     }
 

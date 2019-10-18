@@ -25,7 +25,7 @@ struct AttachmentsCommand: Command {
     var divideByTest: OptionArgument<Bool>
 
     var utiWhitelist: OptionArgument<[String]>
-    var activityType: OptionArgument<[String]>
+    var activityTypeWhitelist: OptionArgument<[String]>
 
     init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, usage: usage, overview: overview)
@@ -41,9 +41,9 @@ struct AttachmentsCommand: Command {
         divideByTest = subparser.add(option: "--test", shortName: nil, kind: Bool.self, usage: "Divide attachments by test")
 
         utiWhitelist = subparser.add(option: "--uti", shortName: nil, kind: [String].self, strategy: .upToNextOption,
-                                     usage: "Takes list of uniform type identifiers (UTI) and export only attachments that conform to at least one")
-        activityType = subparser.add(option: "--activity-type", shortName: nil, kind: [String].self, strategy: .upToNextOption,
-                                     usage: "")
+                                     usage: "Whitelist of uniform type identifiers (UTI) attachments must conform to [optional, example: \"--uti public.image public.plain-text\"]")
+        activityTypeWhitelist = subparser.add(option: "--activity-type", shortName: nil, kind: [String].self, strategy: .upToNextOption,
+                                              usage: "Whitelist of acceptable activity types for screenshots. If value does not specify domain, \"com.apple.dt.xctest.activity-type.\" is assumed and prefixed to the value [optional, example: \"--activity-type userCreated attachmentContainer com.apple.dt.xctest.activity-type.testAssertionFailure\"]")
     }
 
     func run(with arguments: ArgumentParser.Result) throws {
@@ -85,15 +85,16 @@ struct AttachmentsCommand: Command {
                 return false
             }
         }
-        if let allowedActivityTypesToExport = arguments.get(self.activityType) {
-            options.activitySummaryFilter = {
-                for activityType in allowedActivityTypesToExport {
-                    if $0.activityType == activityType {
-                        return true
-                    }
-                }
-                return false
+        if let allowedActivityTypes = arguments.get(self.activityTypeWhitelist) {
+            // Writing the full domain can be exhausting, so if there is no domain specified, assume it was the normal activity type domain
+            var additionalActivityTypes: [String] = allowedActivityTypes
+            
+            let activityTypesWithoutDomain = allowedActivityTypes.filter { $0.contains(Character(".")) == false }
+            for activityType in activityTypesWithoutDomain {
+                additionalActivityTypes.append("com.apple.dt.xctest.activity-type." + activityType)
             }
+
+            options.activitySummaryFilter = { additionalActivityTypes.contains($0.activityType) }
         }
 
         // Now let's get extracting

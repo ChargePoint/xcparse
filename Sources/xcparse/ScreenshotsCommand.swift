@@ -25,9 +25,8 @@ struct ScreenshotsCommand: Command {
     var divideByTestPlanRun: OptionArgument<Bool>
     var divideByTest: OptionArgument<Bool>
 
-    var excludePassingTests: OptionArgument<Bool>
-    var excludeFailingTests: OptionArgument<Bool>
-    var excludeAutomaticScreenshots: OptionArgument<Bool>
+    var testStatusWhitelist: OptionArgument<[String]>
+    var activityTypeWhitelist: OptionArgument<[String]>
 
     init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, usage: usage, overview: overview)
@@ -43,9 +42,10 @@ struct ScreenshotsCommand: Command {
         divideByTestPlanRun = subparser.add(option: "--test-run", shortName: nil, kind: Bool.self, usage: "Divide screenshots by test plan configuration")
         divideByTest = subparser.add(option: "--test", shortName: nil, kind: Bool.self, usage: "Divide screenshots by test")
 
-        excludePassingTests = subparser.add(option: "--exclude-passing-tests", shortName: nil, kind: Bool.self, usage: "Exclude screenshots from passing tests")
-        excludeFailingTests = subparser.add(option: "--exclude-failing-tests", shortName: nil, kind: Bool.self, usage: "Exclude screenshots from failing tests")
-        excludeAutomaticScreenshots = subparser.add(option: "--exclude-automatic", shortName: nil, kind: Bool.self, usage: "Exclude automatic screenshots")
+        testStatusWhitelist = subparser.add(option: "--test-status", shortName: nil, kind: [String].self, strategy: .upToNextOption,
+                                            usage: "Whitelist of acceptable test statuses for screenshots [optional, example: \"--test-status Success Failure\"]")
+        activityTypeWhitelist = subparser.add(option: "--activity-type", shortName: nil, kind: [String].self, strategy: .upToNextOption,
+                                              usage: "Whitelist of acceptable activity types for screenshots. If value does not specify domain, \"com.apple.dt.xctest.activity-type.\" is assumed and prefixed to the value [optional, example: \"--activity-type userCreated attachmentContainer com.apple.dt.xctest.activity-type.testAssertionFailure\"]")
     }
 
     func run(with arguments: ArgumentParser.Result) throws {
@@ -70,17 +70,29 @@ struct ScreenshotsCommand: Command {
         let xcpParser = XCPParser()
         xcpParser.console.verbose = verbose
 
-        let options = AttachmentExportOptions(addTestScreenshotsDirectory: arguments.get(self.addTestScreenshotDirectory) ?? false,
+        var options = AttachmentExportOptions(addTestScreenshotsDirectory: arguments.get(self.addTestScreenshotDirectory) ?? false,
                                               divideByTargetModel: arguments.get(self.divideByModel) ?? false,
                                               divideByTargetOS: arguments.get(self.divideByOS) ?? false,
                                               divideByTestRun: arguments.get(self.divideByTestPlanRun) ?? false,
                                               divideByTest: arguments.get(self.divideByTest) ?? false,
-                                              excludePassingTests: arguments.get(self.excludePassingTests) ?? false,
-                                              excludeFailingTests: arguments.get(self.excludeFailingTests) ?? false,
-                                              excludeAutomaticScreenshots: arguments.get(self.excludeAutomaticScreenshots) ?? false,
                                               attachmentFilter: {
                                                 return UTTypeConformsTo($0.uniformTypeIdentifier as CFString, "public.image" as CFString)
         })
+        if let allowedTestStatuses = arguments.get(self.testStatusWhitelist) {
+            options.testSummaryFilter = { allowedTestStatuses.contains($0.testStatus) }
+        }
+        if let allowedActivityTypes = arguments.get(self.activityTypeWhitelist) {
+            // Writing the full domain can be exhausting, so if there is no domain specified, assume it was the normal activity type domain
+            var additionalActivityTypes: [String] = allowedActivityTypes
+
+            let activityTypesWithoutDomain = allowedActivityTypes.filter { $0.contains(Character(".")) == false }
+            for activityType in activityTypesWithoutDomain {
+                additionalActivityTypes.append("com.apple.dt.xctest.activity-type." + activityType)
+            }
+
+            options.activitySummaryFilter = { additionalActivityTypes.contains($0.activityType) }
+        }
+
         try xcpParser.extractAttachments(xcresultPath: xcresultPath.pathString,
                                          destination: outputPath.pathString,
                                          options: options)

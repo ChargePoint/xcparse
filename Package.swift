@@ -8,6 +8,13 @@ let package = Package(
     platforms: [
        .macOS(.v10_13),
     ],
+    products: [
+        .executable(name: "xcparse", targets: ["xcparse"]),
+        .library(
+            name: "XCParseCore",
+            targets: ["XCParseCore"]
+        )
+    ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),

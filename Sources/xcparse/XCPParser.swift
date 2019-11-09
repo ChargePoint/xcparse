@@ -11,7 +11,7 @@ import Foundation
 import SPMUtility
 import XCParseCore
 
-let xcparseCurrentVersion = Version(1, 0, 0)
+let xcparseCurrentVersion = Version(1, 0, 1)
 
 extension Foundation.URL {
     func fileExistsAsDirectory() -> Bool {

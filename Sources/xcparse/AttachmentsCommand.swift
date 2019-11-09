@@ -97,6 +97,8 @@ struct AttachmentsCommand: Command {
             options.activitySummaryFilter = { additionalActivityTypes.contains($0.activityType) }
         }
 
+        options.xcresulttoolCompatability = xcpParser.checkXCResultToolCompatability(destination: outputPath.pathString)
+
         // Now let's get extracting
         try xcpParser.extractAttachments(xcresultPath: xcresultPath.pathString,
                                          destination: outputPath.pathString,

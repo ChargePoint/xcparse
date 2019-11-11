@@ -167,4 +167,16 @@ open class XCResultToolCommand {
             super.init(withXCResult: xcresult, process: process)
         }
     }
+
+    open class Version: XCResultToolCommand {
+
+        public init() {
+            var processArgs = xcresultToolArguments
+            processArgs.append(contentsOf: ["version"])
+
+            let xcresult = XCResult(path: "")
+            let process = Basic.Process(arguments: processArgs)
+            super.init(withXCResult: xcresult, process: process)
+        }
+    }
 }

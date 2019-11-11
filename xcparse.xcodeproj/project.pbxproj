@@ -21,6 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		62525EAE2376350100472F82 /* Version+XCPTooling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62525EAD2376350100472F82 /* Version+XCPTooling.swift */; };
 		62CC363E23553EA0003C7B68 /* XCResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CC363D23553EA0003C7B68 /* XCResult.swift */; };
 		62CC36592357C110003C7B68 /* AttachmentsCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CC36582357C110003C7B68 /* AttachmentsCommand.swift */; };
 		OBJ_179 /* Await.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_73 /* Await.swift */; };
@@ -327,6 +328,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		62525EAD2376350100472F82 /* Version+XCPTooling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Version+XCPTooling.swift"; sourceTree = "<group>"; };
 		62CC363D23553EA0003C7B68 /* XCResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCResult.swift; sourceTree = "<group>"; };
 		62CC36582357C110003C7B68 /* AttachmentsCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentsCommand.swift; sourceTree = "<group>"; };
 		OBJ_10 /* ActionDeviceRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionDeviceRecord.swift; sourceTree = "<group>"; };
@@ -945,6 +947,7 @@
 				OBJ_52 /* TestFailureIssueSummary.swift */,
 				OBJ_53 /* TypeDefinition.swift */,
 				OBJ_54 /* XCPResultDecoding.swift */,
+				62525EAD2376350100472F82 /* Version+XCPTooling.swift */,
 				OBJ_55 /* XCResultToolCommand.swift */,
 				62CC363D23553EA0003C7B68 /* XCResult.swift */,
 			);
@@ -1267,6 +1270,7 @@
 				OBJ_295 /* ActionTestSummaryIdentifiableObject.swift in Sources */,
 				OBJ_296 /* ActionTestableSummary.swift in Sources */,
 				OBJ_297 /* ActionsInvocationMetadata.swift in Sources */,
+				62525EAE2376350100472F82 /* Version+XCPTooling.swift in Sources */,
 				OBJ_298 /* ActionsInvocationRecord.swift in Sources */,
 				OBJ_299 /* ActivityLogAnalyzerControlFlowStep.swift in Sources */,
 				OBJ_300 /* ActivityLogAnalyzerControlFlowStepEdge.swift in Sources */,

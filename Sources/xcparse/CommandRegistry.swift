@@ -60,15 +60,20 @@ struct CommandRegistry {
 
         do {
             let xcpParser = XCPParser()
+
+            let destination = legacyScreenshotPaths[1].path.pathString
+            let xcresulttoolCompatability = xcpParser.checkXCResultToolCompatability(destination: destination)
+
             let options = AttachmentExportOptions(addTestScreenshotsDirectory: true,
                                                   divideByTargetModel: false,
                                                   divideByTargetOS: false,
                                                   divideByTestRun: false,
+                                                  xcresulttoolCompatability: xcresulttoolCompatability,
                                                   attachmentFilter: {
                                                     return UTTypeConformsTo($0.uniformTypeIdentifier as CFString, "public.image" as CFString)
             })
             try xcpParser.extractAttachments(xcresultPath: legacyScreenshotPaths[0].path.pathString,
-                                             destination: legacyScreenshotPaths[1].path.pathString,
+                                             destination: destination,
                                              options: options)
 
             return true

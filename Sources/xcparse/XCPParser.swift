@@ -11,7 +11,7 @@ import Foundation
 import SPMUtility
 import XCParseCore
 
-let xcparseCurrentVersion = Version(1, 0, 0)
+let xcparseCurrentVersion = Version(1, 0, 1)
 
 extension Foundation.URL {
     func fileExistsAsDirectory() -> Bool {
@@ -49,12 +49,32 @@ extension Foundation.URL {
     }
 }
 
+extension String {
+    func lossyASCIIString() -> String? {
+        let string = self.precomposedStringWithCanonicalMapping
+        guard let lossyASCIIData = string.data(using: .ascii, allowLossyConversion: true) else {
+            return nil
+        }
+        guard let lossyASCIIString = String(data: lossyASCIIData, encoding: .ascii) else {
+            return nil
+        }
+        return lossyASCIIString
+    }
+}
+
+struct XCResultToolCompatability {
+    var supportsExport: Bool = true
+    var supportsUnicodeExportPaths: Bool = true // See https://github.com/ChargePoint/xcparse/issues/30
+}
+
 struct AttachmentExportOptions {
     var addTestScreenshotsDirectory: Bool = false
     var divideByTargetModel: Bool = false
     var divideByTargetOS: Bool = false
     var divideByTestRun: Bool = false
     var divideByTest: Bool = false
+
+    var xcresulttoolCompatability = XCResultToolCompatability()
 
     var testSummaryFilter: (ActionTestSummary) -> Bool = { _ in
         return true
@@ -78,16 +98,27 @@ struct AttachmentExportOptions {
     func screenshotDirectoryURL(_ deviceRecord: ActionDeviceRecord, forBaseURL baseURL: Foundation.URL) -> Foundation.URL {
         var targetDeviceFolderName: String? = nil
 
+        var modelName = deviceRecord.modelName
+        if self.xcresulttoolCompatability.supportsUnicodeExportPaths != true, modelName == "iPhone Xʀ" {
+            // For explaination, see https://github.com/ChargePoint/xcparse/issues/30
+            modelName = "iPhone XR"
+        }
+
         if self.divideByTargetModel == true, self.divideByTargetOS == true {
-            targetDeviceFolderName = deviceRecord.modelName + " (\(deviceRecord.operatingSystemVersion))"
+            targetDeviceFolderName = modelName + " (\(deviceRecord.operatingSystemVersion))"
         } else if self.divideByTargetModel {
-            targetDeviceFolderName = deviceRecord.modelName
+            targetDeviceFolderName = modelName
         } else if self.divideByTargetOS {
             targetDeviceFolderName = deviceRecord.operatingSystemVersion
         }
 
         if let folderName = targetDeviceFolderName {
-            return baseURL.appendingPathComponent(folderName, isDirectory: true)
+            if self.xcresulttoolCompatability.supportsUnicodeExportPaths != true {
+                let asciiFolderName = folderName.lossyASCIIString() ?? folderName
+                return baseURL.appendingPathComponent(asciiFolderName, isDirectory: true)
+            } else {
+                return baseURL.appendingPathComponent(folderName, isDirectory: true)
+            }
         } else {
             return baseURL
         }
@@ -99,7 +130,12 @@ struct AttachmentExportOptions {
         }
 
         if self.divideByTestRun {
-            return baseURL.appendingPathComponent(testPlanRunName, isDirectory: true)
+            if self.xcresulttoolCompatability.supportsUnicodeExportPaths != true {
+                let asciiTestPlanRunName = testPlanRunName.lossyASCIIString() ?? testPlanRunName
+                return baseURL.appendingPathComponent(asciiTestPlanRunName, isDirectory: true)
+            } else {
+                return baseURL.appendingPathComponent(testPlanRunName, isDirectory: true)
+            }
         } else {
             return baseURL
         }
@@ -111,7 +147,12 @@ struct AttachmentExportOptions {
         }
 
         if self.divideByTest == true {
-            return baseURL.appendingPathComponent(summaryIdentifier, isDirectory: true)
+            if self.xcresulttoolCompatability.supportsUnicodeExportPaths != true {
+                let asciiSummaryIdentifier = summaryIdentifier.lossyASCIIString() ?? summaryIdentifier
+                return baseURL.appendingPathComponent(asciiSummaryIdentifier, isDirectory: true)
+            } else {
+                return baseURL.appendingPathComponent(summaryIdentifier, isDirectory: true)
+            }
         } else {
             return baseURL
         }
@@ -127,7 +168,39 @@ class XCPParser {
     // MARK: -
     // MARK: Parsing Actions
 
+    func checkXCResultToolCompatability(destination: String) -> XCResultToolCompatability {
+        var compatability = XCResultToolCompatability()
+
+        guard let xcresulttoolVersion = Version.xcresulttool() else {
+            self.console.writeMessage("Warning: Could not determine xcresulttool version", to: .standard)
+            return compatability
+        }
+
+        let unicodeExport = Version.xcresulttoolCompatibleWithUnicodeExportPath()
+        if xcresulttoolVersion < unicodeExport  {
+            // For explaination, see https://github.com/ChargePoint/xcparse/issues/30
+            let asciiDestinationPath = destination.lossyASCIIString() ?? destination
+            if asciiDestinationPath != destination {
+                self.console.writeMessage("\nYour xcresulttool version \(xcresulttoolVersion.major) does not fully support Unicode export directory paths. Upgrade to Xcode 11.2.1 (xcresulttool version \(unicodeExport.major)) in order to export to your non-ASCII destination path.\n", to: .standard)
+
+                compatability.supportsExport = false
+                compatability.supportsUnicodeExportPaths = false
+            } else {
+                self.console.writeMessage("\nYour xcresulttool version \(xcresulttoolVersion.major) does not fully support Unicode export directory paths. Upgrade to Xcode 11.2.1 (xcresulttool version \(unicodeExport.major)) or above if you use non-Latin characters in your test run configuration names, attachment file names, or file system folder names.\n", to: .standard)
+
+                compatability.supportsUnicodeExportPaths = false
+            }
+        }
+
+        return compatability
+    }
+
     func extractAttachments(xcresultPath: String, destination: String, options: AttachmentExportOptions = AttachmentExportOptions()) throws {
+        // Check the xcresulttool version is compatible to export the request
+        if options.xcresulttoolCompatability.supportsExport != true {
+            return
+        }
+
         var xcresult = XCResult(path: xcresultPath, console: self.console)
         guard let invocationRecord = xcresult.invocationRecord else {
             return

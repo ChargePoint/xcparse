@@ -9,6 +9,7 @@
 import Basic
 import Foundation
 import SPMUtility
+import XCParseCore
 
 struct VersionCommand: Command {
     let command = "version"

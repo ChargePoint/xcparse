@@ -93,6 +93,8 @@ struct ScreenshotsCommand: Command {
             options.activitySummaryFilter = { additionalActivityTypes.contains($0.activityType) }
         }
 
+        options.xcresulttoolCompatability = xcpParser.checkXCResultToolCompatability(destination: outputPath.pathString)
+
         try xcpParser.extractAttachments(xcresultPath: xcresultPath.pathString,
                                          destination: outputPath.pathString,
                                          options: options)

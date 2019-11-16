@@ -11,7 +11,7 @@ import Foundation
 import SPMUtility
 import XCParseCore
 
-let xcparseCurrentVersion = Version(1, 0, 1)
+let xcparseCurrentVersion = Version(1, 1, 0)
 
 extension Foundation.URL {
     func fileExistsAsDirectory() -> Bool {
@@ -331,7 +331,28 @@ class XCPParser {
             return
         }
 
+        let xcresulttoolCompatability = self.checkXCResultToolCompatability(destination: destination)
+        if xcresulttoolCompatability.supportsExport != true {
+            return
+        }
+
+        let destinationURL = URL.init(fileURLWithPath: destination)
         for (index, actionRecord) in invocationRecord.actions.enumerated() {
+            let actionRecordDestinationURL = destinationURL.appendingPathComponent("\(index + 1)_\(actionRecord.schemeCommandName)")
+            if actionRecordDestinationURL.createDirectoryIfNecessary(createIntermediates: false, console: self.console) != true {
+                return
+            }
+
+            if let buildDiagnosticsRef = actionRecord.buildResult.diagnosticsRef {
+                let buildDiagnosticsURL = actionRecordDestinationURL.appendingPathComponent("Diagnostics")
+                XCResultToolCommand.Export(withXCResult: xcresult, id: buildDiagnosticsRef.id, outputPath: buildDiagnosticsURL.path, type: .directory).run()
+            }
+
+            if let actionDiagnosticsRef = actionRecord.actionResult.diagnosticsRef {
+                let actionDiagnosticsURL = actionRecordDestinationURL.appendingPathComponent("Diagnostics")
+                XCResultToolCommand.Export(withXCResult: xcresult, id: actionDiagnosticsRef.id, outputPath: actionDiagnosticsURL.path, type: .directory).run()
+            }
+
             // TODO: Alex - note that these aren't actually log files but ActivityLogSection objects. User from StackOverflow was just exporting those
             // out as text files as for the most party they can be human readable, but it won't match what Xcode exports if you open the XCResult
             // and attempt to export out the log. That seems like it may involve having to create our own pretty printer similar to Xcode's to export
@@ -342,15 +363,15 @@ class XCPParser {
             if let buildResultLogRef = actionRecord.buildResult.logRef {
 //                let activityLogSectionJSON = XCResultToolCommand.Get(withXCResult: xcresult, id: buildResultLogRef.id, outputPath: "", format: .json).run()
 //                let activityLogSection = try decoder.decode(ActivityLogSection.self, from: Data(activityLogSectionJSON.utf8))
-
-                XCResultToolCommand.Export(withXCResult: xcresult, id: buildResultLogRef.id, outputPath: "\(destination)/\(index + 1)_build.txt", type: .file).run()
+                let buildLogURL = actionRecordDestinationURL.appendingPathComponent("build.txt")
+                XCResultToolCommand.Export(withXCResult: xcresult, id: buildResultLogRef.id, outputPath: buildLogURL.path, type: .file).run()
             }
 
             if let actionResultLogRef = actionRecord.actionResult.logRef {
 //                let activityLogSectionJSON = XCResultToolCommand.Get(withXCResult: xcresult, id: actionResultLogRef.id, outputPath: "", format: .json).run()
 //                let activityLogSection = try decoder.decode(ActivityLogSection.self, from: Data(activityLogSectionJSON.utf8))
-
-                XCResultToolCommand.Export(withXCResult: xcresult, id: actionResultLogRef.id, outputPath: "\(destination)/\(index + 1)_action.txt", type: .file).run()
+                let actionLogURL = actionRecordDestinationURL.appendingPathComponent("action.txt")
+                XCResultToolCommand.Export(withXCResult: xcresult, id: actionResultLogRef.id, outputPath: actionLogURL.path, type: .file).run()
             }
         }
     }

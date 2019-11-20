@@ -12,7 +12,7 @@ import SPMUtility
 
 struct LogsCommand: Command {
     let command = "logs"
-    let overview = "Extracts logs from xcresult and saves it in output folder."
+    let overview = "Extracts logs & diagnostics from xcresult and saves it in output folder."
     let usage = "[OPTIONS] xcresult [outputDirectory]"
 
     var path: PositionalArgument<PathArgument>

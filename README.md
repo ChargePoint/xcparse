@@ -108,6 +108,10 @@ This will export the action.xccovreport & action.xccovarchive into your output d
 xcparse logs /path/to/Test.xcresult /path/to/exportLogFiles
 ```
 
+This will export logs & diagnostic files into a per-action folder structure similar to Xcode 10's xcresult format.
+
+![Logs exported into folders](Docs/Images/screenshots_logs.png?raw=true)
+
 ### Help
 
 ```

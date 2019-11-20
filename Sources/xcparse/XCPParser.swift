@@ -11,7 +11,7 @@ import Foundation
 import SPMUtility
 import XCParseCore
 
-let xcparseCurrentVersion = Version(1, 1, 0)
+let xcparseCurrentVersion = Version(2, 0, 0)
 
 extension Foundation.URL {
     func fileExistsAsDirectory() -> Bool {
@@ -303,6 +303,12 @@ class XCPParser {
         guard let invocationRecord = xcresult.invocationRecord else {
             return
         }
+
+        // Let's make sure the destinations is available
+        let destinationURL = URL.init(fileURLWithPath: destination)
+        if destinationURL.createDirectoryIfNecessary() != true {
+            return
+        }
         
         var coverageReferenceIDs: [String] = []
         var coverageArchiveIDs: [String] = []
@@ -336,7 +342,12 @@ class XCPParser {
             return
         }
 
+        // Let's make sure the destinations is available
         let destinationURL = URL.init(fileURLWithPath: destination)
+        if destinationURL.createDirectoryIfNecessary() != true {
+            return
+        }
+
         for (index, actionRecord) in invocationRecord.actions.enumerated() {
             let actionRecordDestinationURL = destinationURL.appendingPathComponent("\(index + 1)_\(actionRecord.schemeCommandName)")
             if actionRecordDestinationURL.createDirectoryIfNecessary(createIntermediates: false, console: self.console) != true {

@@ -146,11 +146,13 @@ struct AttachmentExportOptions {
     func screenshotDirectoryURL(_ testableSummary: ActionTestableSummary, forBaseURL baseURL: Foundation.URL) -> Foundation.URL {
         var languageRegionDirectoryName: String? = nil
 
-        if self.divideByLanguage == true, self.divideByRegion == true, let testLanguage = testableSummary.testLanguage, let testRegion = testableSummary.testRegion {
-            languageRegionDirectoryName = "\(testLanguage)_\(testRegion)"
-        } else if self.divideByLanguage, let testLanguage = testableSummary.testLanguage {
+        let testLanguage = testableSummary.testLanguage ?? "System Language"
+        let testRegion = testableSummary.testRegion ?? "System Region"
+        if self.divideByLanguage == true, self.divideByRegion == true {
+            languageRegionDirectoryName = "\(testLanguage) (\(testRegion))"
+        } else if self.divideByLanguage == true {
             languageRegionDirectoryName = testLanguage
-        } else if self.divideByRegion, let testRegion = testableSummary.testRegion {
+        } else if self.divideByRegion == true {
             languageRegionDirectoryName = testRegion
         }
 

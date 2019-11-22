@@ -11,7 +11,7 @@ import Foundation
 import SPMUtility
 import XCParseCore
 
-let xcparseCurrentVersion = Version(2, 0, 0)
+let xcparseCurrentVersion = Version(2, 1, 0)
 
 extension Foundation.URL {
     func fileExistsAsDirectory() -> Bool {
@@ -71,7 +71,7 @@ struct AttachmentExportOptions {
     var addTestScreenshotsDirectory: Bool = false
     var divideByTargetModel: Bool = false
     var divideByTargetOS: Bool = false
-    var divideByTestRun: Bool = false
+    var divideByTestPlanConfig: Bool = false
     var divideByTest: Bool = false
 
     var xcresulttoolCompatability = XCResultToolCompatability()
@@ -129,7 +129,7 @@ struct AttachmentExportOptions {
             return baseURL
         }
 
-        if self.divideByTestRun {
+        if self.divideByTestPlanConfig {
             if self.xcresulttoolCompatability.supportsUnicodeExportPaths != true {
                 let asciiTestPlanRunName = testPlanRunName.lossyASCIIString() ?? testPlanRunName
                 return baseURL.appendingPathComponent(asciiTestPlanRunName, isDirectory: true)

@@ -22,7 +22,8 @@ struct ScreenshotsCommand: Command {
     var addTestScreenshotDirectory: OptionArgument<Bool>
     var divideByModel: OptionArgument<Bool>
     var divideByOS: OptionArgument<Bool>
-    var divideByTestPlanRun: OptionArgument<Bool>
+    var divideByTestRun: OptionArgument<Bool>
+    var divideByTestPlanConfig: OptionArgument<Bool>
     var divideByLanguage: OptionArgument<Bool>
     var divideByRegion: OptionArgument<Bool>
     var divideByTest: OptionArgument<Bool>
@@ -41,7 +42,8 @@ struct ScreenshotsCommand: Command {
         addTestScreenshotDirectory = subparser.add(option: "--legacy", shortName: nil, kind: Bool.self, usage: "Create \"testScreenshots\" directory in outputDirectory & put screenshots in there")
         divideByModel = subparser.add(option: "--model", shortName: nil, kind: Bool.self, usage: "Divide screenshots by model")
         divideByOS = subparser.add(option: "--os", shortName: nil, kind: Bool.self, usage: "Divide screenshots by OS")
-        divideByTestPlanRun = subparser.add(option: "--test-run", shortName: nil, kind: Bool.self, usage: "Divide screenshots by test plan configuration")
+        divideByTestRun = subparser.add(option: "--test-run", shortName: nil, kind: Bool.self, usage: "Deprecated. Use --test-plan-config")
+        divideByTestPlanConfig = subparser.add(option: "--test-plan-config", shortName: nil, kind: Bool.self, usage: "Divide attachments by test plan configuration")
         divideByLanguage = subparser.add(option: "--language", shortName: nil, kind: Bool.self, usage: "Divide attachments by language")
         divideByRegion = subparser.add(option: "--region", shortName: nil, kind: Bool.self, usage: "Divide attachments by region")
         divideByTest = subparser.add(option: "--test", shortName: nil, kind: Bool.self, usage: "Divide screenshots by test")
@@ -74,10 +76,15 @@ struct ScreenshotsCommand: Command {
         let xcpParser = XCPParser()
         xcpParser.console.verbose = verbose
 
+        if let _ = arguments.get(self.divideByTestRun) {
+            xcpParser.console.writeMessage("\nThe \"--test-run\" flag is deprecated & will be removed in a future release. Please replace with \"--test-plan-config\"\n")
+        }
+
+        // Let's set up our export options
         var options = AttachmentExportOptions(addTestScreenshotsDirectory: arguments.get(self.addTestScreenshotDirectory) ?? false,
                                               divideByTargetModel: arguments.get(self.divideByModel) ?? false,
                                               divideByTargetOS: arguments.get(self.divideByOS) ?? false,
-                                              divideByTestRun: arguments.get(self.divideByTestPlanRun) ?? false,
+                                              divideByTestPlanConfig: arguments.get(self.divideByTestPlanConfig) ?? (arguments.get(self.divideByTestRun) ?? false),
                                               divideByLanguage: arguments.get(self.divideByLanguage) ?? false,
                                               divideByRegion: arguments.get(self.divideByRegion) ?? false,
                                               divideByTest: arguments.get(self.divideByTest) ?? false,

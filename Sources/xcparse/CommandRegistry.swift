@@ -67,7 +67,7 @@ struct CommandRegistry {
             let options = AttachmentExportOptions(addTestScreenshotsDirectory: true,
                                                   divideByTargetModel: false,
                                                   divideByTargetOS: false,
-                                                  divideByTestRun: false,
+                                                  divideByTestPlanConfig: false,
                                                   xcresulttoolCompatability: xcresulttoolCompatability,
                                                   attachmentFilter: {
                                                     return UTTypeConformsTo($0.uniformTypeIdentifier as CFString, "public.image" as CFString)

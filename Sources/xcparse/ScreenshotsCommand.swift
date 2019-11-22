@@ -24,6 +24,8 @@ struct ScreenshotsCommand: Command {
     var divideByOS: OptionArgument<Bool>
     var divideByTestRun: OptionArgument<Bool>
     var divideByTestPlanConfig: OptionArgument<Bool>
+    var divideByLanguage: OptionArgument<Bool>
+    var divideByRegion: OptionArgument<Bool>
     var divideByTest: OptionArgument<Bool>
 
     var testStatusWhitelist: OptionArgument<[String]>
@@ -42,6 +44,8 @@ struct ScreenshotsCommand: Command {
         divideByOS = subparser.add(option: "--os", shortName: nil, kind: Bool.self, usage: "Divide screenshots by OS")
         divideByTestRun = subparser.add(option: "--test-run", shortName: nil, kind: Bool.self, usage: "Deprecated. Use --test-plan-config")
         divideByTestPlanConfig = subparser.add(option: "--test-plan-config", shortName: nil, kind: Bool.self, usage: "Divide attachments by test plan configuration")
+        divideByLanguage = subparser.add(option: "--language", shortName: nil, kind: Bool.self, usage: "Divide attachments by test language")
+        divideByRegion = subparser.add(option: "--region", shortName: nil, kind: Bool.self, usage: "Divide attachments by test region")
         divideByTest = subparser.add(option: "--test", shortName: nil, kind: Bool.self, usage: "Divide screenshots by test")
 
         testStatusWhitelist = subparser.add(option: "--test-status", shortName: nil, kind: [String].self, strategy: .upToNextOption,
@@ -81,6 +85,8 @@ struct ScreenshotsCommand: Command {
                                               divideByTargetModel: arguments.get(self.divideByModel) ?? false,
                                               divideByTargetOS: arguments.get(self.divideByOS) ?? false,
                                               divideByTestPlanConfig: arguments.get(self.divideByTestPlanConfig) ?? (arguments.get(self.divideByTestRun) ?? false),
+                                              divideByLanguage: arguments.get(self.divideByLanguage) ?? false,
+                                              divideByRegion: arguments.get(self.divideByRegion) ?? false,
                                               divideByTest: arguments.get(self.divideByTest) ?? false,
                                               attachmentFilter: {
                                                 return UTTypeConformsTo($0.uniformTypeIdentifier as CFString, "public.image" as CFString)

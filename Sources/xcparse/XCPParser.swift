@@ -72,6 +72,8 @@ struct AttachmentExportOptions {
     var divideByTargetModel: Bool = false
     var divideByTargetOS: Bool = false
     var divideByTestPlanConfig: Bool = false
+    var divideByLanguage: Bool = false
+    var divideByRegion: Bool = false
     var divideByTest: Bool = false
 
     var xcresulttoolCompatability = XCResultToolCompatability()
@@ -135,6 +137,31 @@ struct AttachmentExportOptions {
                 return baseURL.appendingPathComponent(asciiTestPlanRunName, isDirectory: true)
             } else {
                 return baseURL.appendingPathComponent(testPlanRunName, isDirectory: true)
+            }
+        } else {
+            return baseURL
+        }
+    }
+
+    func screenshotDirectoryURL(_ testableSummary: ActionTestableSummary, forBaseURL baseURL: Foundation.URL) -> Foundation.URL {
+        var languageRegionDirectoryName: String? = nil
+
+        let testLanguage = testableSummary.testLanguage ?? "System Language"
+        let testRegion = testableSummary.testRegion ?? "System Region"
+        if self.divideByLanguage == true, self.divideByRegion == true {
+            languageRegionDirectoryName = "\(testLanguage) (\(testRegion))"
+        } else if self.divideByLanguage == true {
+            languageRegionDirectoryName = testLanguage
+        } else if self.divideByRegion == true {
+            languageRegionDirectoryName = testRegion
+        }
+
+        if let folderName = languageRegionDirectoryName {
+            if self.xcresulttoolCompatability.supportsUnicodeExportPaths != true {
+                let asciiFolderName = folderName.lossyASCIIString() ?? folderName
+                return baseURL.appendingPathComponent(asciiFolderName, isDirectory: true)
+            } else {
+                return baseURL.appendingPathComponent(folderName, isDirectory: true)
             }
         } else {
             return baseURL
@@ -242,25 +269,33 @@ class XCPParser {
                 }
 
                 let testableSummaries = testPlanRun.testableSummaries
-                let testableSummariesToTestActivity = testableSummaries.flatMap { $0.flattenedTestSummaryMap(withXCResult: xcresult) }
-                for (testableSummary, childActivitySummaries) in testableSummariesToTestActivity {
-                    if options.testSummaryFilter(testableSummary) == false {
+                for testableSummary in testableSummaries {
+                    let testableSummaryScreenshotDirectoryURL = options.screenshotDirectoryURL(testableSummary, forBaseURL: testPlanRunScreenshotURL)
+                    if testableSummaryScreenshotDirectoryURL.createDirectoryIfNecessary() != true {
                         continue
                     }
 
-                    let filteredChildActivities = childActivitySummaries.filter(options.activitySummaryFilter)
-                    let filteredAttachments = filteredChildActivities.flatMap { $0.attachments.filter(options.attachmentFilter) }
+                    let testableSummariesToTestActivity = testableSummary.flattenedTestSummaryMap(withXCResult: xcresult)
+                    for (testSummary, childActivitySummaries) in testableSummariesToTestActivity {
+                        if options.testSummaryFilter(testSummary) == false {
+                            continue
+                        }
 
-                    let testableSummaryScreenshotURL = options.screenshotDirectoryURL(testableSummary, forBaseURL: testPlanRunScreenshotURL)
-                    if testableSummaryScreenshotURL.createDirectoryIfNecessary(createIntermediates: true) != true {
-                        continue
+                        let filteredChildActivities = childActivitySummaries.filter(options.activitySummaryFilter)
+                        let filteredAttachments = filteredChildActivities.flatMap { $0.attachments.filter(options.attachmentFilter) }
+
+                        let testSummaryScreenshotURL = options.screenshotDirectoryURL(testSummary, forBaseURL: testableSummaryScreenshotDirectoryURL)
+                        if testSummaryScreenshotURL.createDirectoryIfNecessary(createIntermediates: true) != true {
+                            continue
+                        }
+
+                        // Now that we know what we want to export, save it to the dictionary so we can have all the exports
+                        // done at once with one progress bar per URL
+                        var existingAttachmentsForURL = exportURLsToAttachments[testSummaryScreenshotURL.path] ?? []
+                        existingAttachmentsForURL.append(contentsOf: filteredAttachments)
+                        exportURLsToAttachments[testSummaryScreenshotURL.path] = existingAttachmentsForURL
                     }
 
-                    // Now that we know what we want to export, save it to the dictionary so we can have all the exports
-                    // done at once with one progress bar per URL
-                    var existingAttachmentsForURL = exportURLsToAttachments[testableSummaryScreenshotURL.path] ?? []
-                    existingAttachmentsForURL.append(contentsOf: filteredAttachments)
-                    exportURLsToAttachments[testableSummaryScreenshotURL.path] = existingAttachmentsForURL
                 }
             }
         }

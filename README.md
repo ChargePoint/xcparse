@@ -40,6 +40,8 @@ Options available include:
 | ```--model```            | Divide by test target model             | 
 | ```--os```               | Divide by test target operating system  | 
 | ```--test-plan-config``` | Divide by test run configuration        |
+| ```--language```         | Divide by test language                 |
+| ```--region```           | Divide by test region                   |
 | ```--test```             | Divide by test                          |
 
 See ```xcparse screenshots --help``` for a full-listing

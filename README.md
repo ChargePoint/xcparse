@@ -13,6 +13,12 @@ brew install chargepoint/xcparse/xcparse
 ```
 This will tap into our xcparse Homebrew tap and install the tool on your local machine.
 
+### Bitrise
+
+Want to use this in [Bitrise](https://www.bitrise.io)? We have an [xcparse Bitrise step](https://github.com/ChargePoint/bitrise-step-xcparse) available in the [Bitrise StepLib](https://github.com/bitrise-io/bitrise-steplib) so you can add xcparse directly from the Bitrise Workflow UI!
+
+See our [Bitrise step's README](https://github.com/ChargePoint/bitrise-step-xcparse/blob/master/README.md) for more information.
+
 ## Usage
 
 ```

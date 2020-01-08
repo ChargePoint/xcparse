@@ -70,10 +70,60 @@ final class xcparseTests: XCTestCase {
         ]
         var pngChunk = Data(bytes: bytes, count: bytes.count)
 
-        let parsedChunk = PNGChunk(withPNGChunkData: &pngChunk)
+        guard let parsedChunk = PNGChunk(withPNGChunkData: &pngChunk) else {
+            fatalError("Couldn't parse PNG chunk")
+        }
         let parsedBytes = parsedChunk.bytes()
 //        XCTAssertEqual(parsedBytes, pngChunk)
         XCTAssertEqual(parsedChunk.chunkType, .IHDR)
+    }
+
+    func testLoadPNG() throws {
+        let pngURL = URL(fileURLWithPath: "/Users/abotkin/Downloads/CPTAutomation_homeChargerStatus_1_A28AEE4D-1724-4F19-92B1-54C7A7557841.png")
+        let pngData = try Data(contentsOf: pngURL)
+        let pngFile = PNGFile(withPNGData: pngData)
+        print("HERE")
+    }
+
+    func testCreateAPNG() throws {
+        let pngFilePaths = [
+            "/Users/abotkin/Downloads/CPTAutomation_homeChargerStatus_1_A28AEE4D-1724-4F19-92B1-54C7A7557841.png",
+            "/Users/abotkin/Downloads/CPTAutomation_homeChargerSchedule_1_6A563A85-5EFC-4108-B447-D920791141A9.png",
+            "/Users/abotkin/Downloads/CPTAutomation_remindToPlugin_1_7A04D695-F3FE-4ABB-9D93-4FB677023D61.png",
+            "/Users/abotkin/Downloads/CPTAutomation_homeChargerSettings_1_0F34735C-B529-4856-8971-52D4C7FF3B5E.png",
+            "/Users/abotkin/Downloads/CPTAutomation_mySpots_1_879DA714-FAFF-4A41-BDBC-EEC6E155966A.png"
+        ]
+        var frames: [PNGFile] = []
+        for path in pngFilePaths {
+            let url = URL(fileURLWithPath: path)
+            let png = PNGFile(withPNGData: try Data(contentsOf: url))
+            frames.append(png!)
+        }
+
+        let firstFrame = frames.removeFirst()
+        firstFrame.createAPNG(frames: frames)
+        try firstFrame.save()
+    }
+
+    func testCreateAPNGFromJPEG() throws {
+        let pngFilePaths = [
+            "/Users/abotkin/Downloads/failure/Screenshot_BBE66F7A-4EDC-4967-96F2-25FA30AB9BF3.jpg",
+            "/Users/abotkin/Downloads/failure/Screenshot_D8B6E8F0-6BB2-4F6B-8AF0-E3BC88D1605C.jpg",
+            "/Users/abotkin/Downloads/failure/Screenshot_292B0539-03C2-4413-89B7-D23C0E5BA301.jpg",
+            "/Users/abotkin/Downloads/failure/Screenshot_325D3559-9B09-4020-A20B-92A920566FB0.jpg",
+            "/Users/abotkin/Downloads/failure/Screenshot_F22F4A5D-D591-4D1F-B52C-DF4188ED6E83.jpg",
+        ]
+        var frames: [NSImage] = []
+        for path in pngFilePaths {
+            let url = URL(fileURLWithPath: path)
+            guard let image = NSImage(contentsOf: url) else {
+                continue
+            }
+            frames.append(image)
+        }
+
+        let apng = frames.createAPNG()
+        try apng.save()
     }
 
     /// Returns path to the built products directory.

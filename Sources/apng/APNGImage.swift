@@ -5,6 +5,7 @@
 //  Created by Alexander Botkin on 1/7/20.
 //
 
+import AppKit
 import Foundation
 
 // https://en.wikipedia.org/wiki/APNG
@@ -81,6 +82,7 @@ public enum PNGChunkType: UInt32 {
     case iCCP = 0x69434350 // Hex of decimal values - 105 67 67 80
     case sBIT = 0x73424954 // Hex of decimal values - 115 66 73 84
     case sRGB = 0x73524742 // Hex of decimal values - 115 82 71 66
+    case eXIf = 0x65584966
     // Textual information
     case tEXT = 0x74455854 // Hex of decimal values - 116 69 88 116
     case zTXt = 0x7A545874 // Hex of decimal values - 122 84 88 116
@@ -91,6 +93,8 @@ public enum PNGChunkType: UInt32 {
     case pHYs = 0x70485973 // Hex of decimal values - 112 72 89 115
     case sPLT = 0x73504C54 // Hex of decimal values - 115 80 76 84
     case tIME = 0x74494D45 // Hex of decimal values - 116 73 77 69
+    // Undocumented Apple
+    case iDOT = 0x69444f54
 }
 
 extension UInt16 {
@@ -125,12 +129,12 @@ open class PNGChunk {
     public var chunkType: PNGChunkType = .unknown
     public var chunk: Data? = nil
 
-    public required init(type: PNGChunkType, data: Data?) {
+    public init(type: PNGChunkType, data: Data?) {
         chunkType = type
         chunk = data
     }
 
-    public required init(withPNGChunkData data: inout Data) {
+    public init?(withPNGChunkData data: inout Data) {
         var chunkLength: UInt32 = 0
         var bytesCopied = withUnsafeMutableBytes(of: &chunkLength) { data.copyBytes(to: $0, from: 0..<4) } // Need to deal with endianness
         assert(bytesCopied == MemoryLayout.size(ofValue: chunkLength))
@@ -146,7 +150,7 @@ open class PNGChunk {
         chunk = data.subdata(in: 8..<lastChunkIndex)
 
         let indexAfterCRC = lastChunkIndex + MemoryLayout<UInt32>.size
-        data.removeFirst(indexAfterCRC)
+        data = data.subdata(in: indexAfterCRC..<data.count)
     }
 
     public func bytes() -> Data {
@@ -171,6 +175,28 @@ open class PNGChunk {
         retval.append(crcBytes, count: crcBytes.count)
 
         return retval
+    }
+}
+
+public struct IHDR {
+    public let width: UInt32
+    public let height: UInt32
+//    let bit_depth: UInt8
+//    let color_type: UInt8
+//    let compression_method: UInt8
+//    let filter_method: UInt8
+//    let interlace_method: UInt8
+
+    public init(_ data: Data) {
+        var w: UInt32 = 0
+        var bytesCopied = withUnsafeMutableBytes(of: &w) { data.copyBytes(to: $0, from: 0..<4) } // Need to deal with endianness
+        assert(bytesCopied == MemoryLayout.size(ofValue: w))
+        width = UInt32(bigEndian: w)
+
+        var h: UInt32 = 0
+        bytesCopied = withUnsafeMutableBytes(of: &h) { data.copyBytes(to: $0, from: 4..<8) }
+        assert(bytesCopied == MemoryLayout.size(ofValue: h))
+        height = UInt32(bigEndian: h)
     }
 }
 
@@ -267,18 +293,134 @@ public struct fdAT {
 /*
  A valid PNG datastream shall begin with a PNG signature, immediately followed by an IHDR chunk, then one or more IDAT chunks, and shall end with an IEND chunk. Only one IHDR chunk and one IEND chunk are allowed in a PNG datastream.
  */
-//open class PNGFile {
-//    let PNGSignature: Data? // PNG Signature
-//    var IHDR: Data? // Image header
-//    var IDAT: Data? // Image data
-//    var IEND: Data? // Image end
-//
-//    /*
-//     A program wanting to assemble several individual PNG files to an animated PNG could proceed as follows:
-//
-//     1. Take all chunks of the first PNG file as a building basis.
-//     2. Insert an animation control chunk (acTL) after the image header chunk (IHDR).
-//     3. If the first PNG is to be part of the animation, insert a frame control chunk (fcTL) before the image data chunk (IDAT).
-//     4. For each of the remaining frames, add a frame control chunk (fcTL) and a frame data chunk (fdAT). Then add the image end chunk (IEND). The content for the frame data chunks (fdAT) is taken from the image data chunks (IDAT) of their respective source images.
-//     */
-//}
+open class PNGFile {
+    let PNGSignature: Data // PNG Signature
+    var chunks: [PNGChunk]
+
+    public init?(withPNGData data: Data) {
+        let dataSignature = data.subdata(in: 0..<8)
+        let pngSignature = Data.pngSignature()
+        if dataSignature != pngSignature {
+            return nil
+        }
+        PNGSignature = dataSignature
+
+        var chunkData = data.subdata(in: 8..<data.count)
+        var parsedChunks: [PNGChunk] = []
+        while chunkData.count > 0 {
+            if let pngChunk = PNGChunk(withPNGChunkData: &chunkData) {
+                parsedChunks.append(pngChunk)
+            } else {
+                return nil;
+            }
+        }
+        chunks = parsedChunks
+    }
+
+    public func bytes() -> Data {
+        var retval = Data()
+
+        retval.append(PNGSignature)
+
+        for chunk in chunks {
+            let chunkData = chunk.bytes()
+            retval.append(chunkData)
+        }
+
+        return retval
+    }
+
+    public func save() throws {
+        let data = self.bytes()
+        let url = URL(fileURLWithPath: "/tmp/xcparse/test_apng.png")
+        try data.write(to: url)
+    }
+
+    public func createAPNG(frames: [PNGFile]) {
+        guard let ihdrIndex = chunks.firstIndex(where: { $0.chunkType == .IHDR }) else {
+            return
+        }
+        let firstFrameIHDR = chunks[ihdrIndex]
+        let ihdr = IHDR(firstFrameIHDR.chunk!)
+
+        //  Insert an animation control chunk (acTL) after the image header chunk (IHDR)
+        let actl = acTL(num_frames: UInt32(frames.count + 1), num_plays: 0)
+        let actlChunk = PNGChunk(type: .acTL, data: actl.bytes())
+        chunks.insert(actlChunk, at: ihdrIndex + 1)
+
+        var sequenceNumber: UInt32 = 0
+
+        // If the first PNG is to be part of the animation, insert a frame control chunk (fcTL) before the image data chunk (IDAT)
+        let firstFctl = fcTL(sequence_number: sequenceNumber,
+                             width: ihdr.width,
+                             height: ihdr.height,
+                             x_offset: 0,
+                             y_offset: 0,
+                             delay_num: 1,
+                             delay_den: 1,
+                             dispose_op: .none,
+                             blend_op: .source)
+        let firstFctlChunk = PNGChunk(type: .fcTL, data: firstFctl.bytes())
+        guard let firstIDATIndex = chunks.firstIndex(where: { $0.chunkType == .IDAT }) else {
+            return
+        }
+        chunks.insert(firstFctlChunk, at: firstIDATIndex)
+        sequenceNumber += 1
+
+        //  For each of the remaining frames, add a frame control chunk (fcTL) and a frame data chunk (fdAT). The content for the frame data chunks (fdAT) is taken from the image data chunks (IDAT) of their respective source images.
+        guard let iendIndex = chunks.firstIndex(where: { $0.chunkType == .IEND }) else {
+            return
+        }
+        var insertIndex = iendIndex
+
+        for png in frames {
+            let fctl = fcTL(sequence_number: sequenceNumber,
+                            width: ihdr.width,
+                            height: ihdr.height,
+                            x_offset: 0,
+                            y_offset: 0,
+                            delay_num: 1,
+                            delay_den: 1,
+                            dispose_op: .none,
+                            blend_op: .source)
+            let fctlChunk = PNGChunk(type: .fcTL, data: fctl.bytes())
+            chunks.insert(fctlChunk, at: insertIndex)
+            insertIndex += 1
+            sequenceNumber += 1
+
+            let idats = png.chunks.filter({ $0.chunkType == .IDAT })
+            for idat in idats {
+                let fdat = fdAT(sequence_number: sequenceNumber, frame_data: idat.chunk!)
+                let fdatChunk = PNGChunk(type: .fdAT, data: fdat.bytes())
+                chunks.insert(fdatChunk, at: insertIndex)
+
+                insertIndex += 1
+                sequenceNumber += 1
+            }
+        }
+    }
+}
+
+extension Array where Element:NSImage {
+    public func createAPNG() -> PNGFile {
+        var pngs: [PNGFile] = []
+        for image in self {
+            guard let imageData = image.tiffRepresentation else {
+                continue
+            }
+            let bitmap = NSBitmapImageRep(data: imageData)
+            guard let pngData = bitmap?.representation(using: .png, properties: [:]) else {
+                continue
+            }
+
+            guard let png = PNGFile(withPNGData: pngData) else {
+                continue
+            }
+            pngs.append(png)
+        }
+
+        let firstFrame = pngs.removeFirst()
+        firstFrame.createAPNG(frames: pngs)
+        return firstFrame
+    }
+}

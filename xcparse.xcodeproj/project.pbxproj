@@ -24,6 +24,7 @@
 		62525EAE2376350100472F82 /* Version+XCPTooling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62525EAD2376350100472F82 /* Version+XCPTooling.swift */; };
 		62CC363E23553EA0003C7B68 /* XCResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CC363D23553EA0003C7B68 /* XCResult.swift */; };
 		62CC36592357C110003C7B68 /* AttachmentsCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CC36582357C110003C7B68 /* AttachmentsCommand.swift */; };
+		62D9150123C540AC000A6476 /* APNGImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62D9150023C540AC000A6476 /* APNGImage.swift */; };
 		OBJ_179 /* Await.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_73 /* Await.swift */; };
 		OBJ_180 /* ByteString.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_74 /* ByteString.swift */; };
 		OBJ_181 /* CStringArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_75 /* CStringArray.swift */; };
@@ -331,6 +332,7 @@
 		62525EAD2376350100472F82 /* Version+XCPTooling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Version+XCPTooling.swift"; sourceTree = "<group>"; };
 		62CC363D23553EA0003C7B68 /* XCResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCResult.swift; sourceTree = "<group>"; };
 		62CC36582357C110003C7B68 /* AttachmentsCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentsCommand.swift; sourceTree = "<group>"; };
+		62D9150023C540AC000A6476 /* APNGImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APNGImage.swift; sourceTree = "<group>"; };
 		OBJ_10 /* ActionDeviceRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionDeviceRecord.swift; sourceTree = "<group>"; };
 		OBJ_100 /* ProcessEnv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessEnv.swift; sourceTree = "<group>"; };
 		OBJ_101 /* ProcessSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessSet.swift; sourceTree = "<group>"; };
@@ -544,6 +546,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		62D914FF23C5408F000A6476 /* apng */ = {
+			isa = PBXGroup;
+			children = (
+				62D9150023C540AC000A6476 /* APNGImage.swift */,
+			);
+			name = apng;
+			path = Sources/apng;
+			sourceTree = "<group>";
+		};
 		OBJ_113 /* Build */ = {
 			isa = PBXGroup;
 			children = (
@@ -807,6 +818,7 @@
 		OBJ_7 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				62D914FF23C5408F000A6476 /* apng */,
 				OBJ_8 /* XCParseCore */,
 				OBJ_56 /* xcparse */,
 			);
@@ -1276,6 +1288,7 @@
 				OBJ_300 /* ActivityLogAnalyzerControlFlowStepEdge.swift in Sources */,
 				OBJ_301 /* ActivityLogAnalyzerEventStep.swift in Sources */,
 				OBJ_302 /* ActivityLogAnalyzerResultMessage.swift in Sources */,
+				62D9150123C540AC000A6476 /* APNGImage.swift in Sources */,
 				OBJ_303 /* ActivityLogAnalyzerStep.swift in Sources */,
 				OBJ_304 /* ActivityLogAnalyzerWarningMessage.swift in Sources */,
 				OBJ_305 /* ActivityLogCommandInvocationSection.swift in Sources */,

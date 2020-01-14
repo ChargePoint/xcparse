@@ -80,12 +80,12 @@ open class XCResultToolCommand {
             super.init(withXCResult: xcresult, process: process)
         }
 
-        public init(withXCResult xcresult: XCResult, attachment: ActionTestAttachment, outputPath: String) {
+        public init(withXCResult xcresult: XCResult, attachment: ActionTestAttachment, outputPath: String, filenamePrefix: String = "") {
             if let identifier = attachment.payloadRef?.id {
                 self.id = identifier;
 
                 // Now let's figure out the filename & path
-                let filename = attachment.filename ?? identifier
+                let filename = filenamePrefix + (attachment.filename ?? identifier)
                 let attachmentOutputPath = URL.init(fileURLWithPath: outputPath).appendingPathComponent(filename)
                 self.outputPath = attachmentOutputPath.path
             }

@@ -104,4 +104,37 @@ open class ActionTestableSummary : ActionAbstractTestSummary {
 
         return testSummaryMap
     }
+
+
+    public func flattenedDFSTestSummaryMap(withXCResult xcresult: XCResult) -> [(testSummary: ActionTestSummary, activitySummaries: [ActionTestActivitySummary])] {
+        var testSummaryMap: [(ActionTestSummary, [ActionTestActivitySummary])] = []
+
+        var tests: [ActionTestSummaryIdentifiableObject] = self.tests.reversed()
+        if tests.count <= 0 {
+            return []
+        }
+
+        repeat {
+            let identifiableObject = tests.popLast()
+
+            if let summaryGroup = identifiableObject as? ActionTestSummaryGroup {
+                let reversedSubtests = summaryGroup.subtests.reversed()
+                tests.append(contentsOf: reversedSubtests)
+            } else if let summary = identifiableObject as? ActionTestSummary {
+                let activitySummaires = summary.allDFSChildActivitySummaries()
+                testSummaryMap.append((summary, activitySummaires))
+            } else if let metadata = identifiableObject as? ActionTestMetadata {
+                if let metadataSummaryRef = metadata.summaryRef {
+                    guard let summary: ActionTestSummary = metadataSummaryRef.modelFromReference(withXCResult: xcresult) else {
+                        xcresult.console.writeMessage("Error: Unhandled test summary type \(String(describing: metadataSummaryRef.targetType?.getType()))", to: .error)
+                        continue
+                    }
+
+                    tests.append(summary)
+                }
+            }
+        } while tests.isEmpty != true
+
+        return testSummaryMap
+    }
 }

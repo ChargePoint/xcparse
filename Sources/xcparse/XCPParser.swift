@@ -6,6 +6,7 @@
 //  Copyright © 2019 ChargePoint, Inc. All rights reserved.
 //
 
+import AppKit
 import Basic
 import Foundation
 import SPMUtility
@@ -275,7 +276,7 @@ class XCPParser {
                         continue
                     }
 
-                    let testableSummariesToTestActivity = testableSummary.flattenedTestSummaryMap(withXCResult: xcresult)
+                    let testableSummariesToTestActivity = testableSummary.flattenedDFSTestSummaryMap(withXCResult: xcresult)
                     for (testSummary, childActivitySummaries) in testableSummariesToTestActivity {
                         if options.testSummaryFilter(testSummary) == false {
                             continue
@@ -326,11 +327,32 @@ class XCPParser {
         for (index, attachment) in attachments.enumerated() {
             progressBar.update(step: index, total: attachments.count, text: "Extracting \"\(attachment.filename ?? "Unknown Filename")\"")
 
-            XCResultToolCommand.Export(withXCResult: xcresult, attachment: attachment, outputPath: screenshotDirectoryURL.path).run()
+            let indexString = String(format: "%06d-", index)
+            XCResultToolCommand.Export(withXCResult: xcresult, attachment: attachment, outputPath: screenshotDirectoryURL.path, filenamePrefix: indexString).run()
         }
 
         progressBar.update(step: attachments.count, total: attachments.count, text: "🎊 Export complete! 🎊")
         progressBar.complete(success: true)
+
+        // TODO: Alex - create animated PNG here for now
+
+        do {
+            let screenshotNames = try FileManager.default.contentsOfDirectory(atPath: screenshotDirectoryURL.path).sorted()
+
+            var frames: [NSImage] = []
+            for name in screenshotNames {
+                let url = screenshotDirectoryURL.appendingPathComponent(name)
+                guard let image = NSImage(contentsOf: url) else {
+                    continue
+                }
+                frames.append(image)
+            }
+
+            let apng = frames.createAPNG()
+            try apng.save()
+        } catch {
+            print("Failed to get screenshot paths: \(error)")
+        }
     }
     
     func extractCoverage(xcresultPath : String, destination : String) throws {

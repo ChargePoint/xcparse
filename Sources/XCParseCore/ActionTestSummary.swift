@@ -53,4 +53,24 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
 
         return activitySummaries
     }
+
+    public func allDFSChildActivitySummaries() -> [ActionTestActivitySummary] {
+        var activitySummaries: [ActionTestActivitySummary] = []
+
+        var summariesToCheck = self.activitySummaries
+        summariesToCheck.reverse()
+        repeat {
+            guard let summary = summariesToCheck.popLast() else {
+                continue
+            }
+            activitySummaries.append(summary)
+
+            // Let's add the subactivities in now
+            var subactivities = summary.subactivities
+            subactivities.reverse()
+            summariesToCheck.append(contentsOf: subactivities)
+        } while summariesToCheck.isEmpty != true
+
+        return activitySummaries
+    }
 }

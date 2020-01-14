@@ -74,6 +74,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "screenshots --test -v /tmp/xcparse/Test-Xcode11.xcresult /tmp/xcparse/screenshots --test-status Failure"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-s /tmp/xcparse/Test-Xcode11\ With\ Spaces.xcresult /tmp/xcparse/My\ Folder\ With\ Spaces"
             isEnabled = "NO">
          </CommandLineArgument>

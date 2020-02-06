@@ -6,12 +6,34 @@ To learn more about Xcode 11's xcresult format, read [Rishab Sukumar's post on t
 
 ## Installation 
 
-xcparse is installed via [Homebrew](https://brew.sh). Enter the following command in Terminal:
+### [Homebrew](https://brew.sh)
 
-```
+Enter the following command into your terminal:
+
+```shell
 brew install chargepoint/xcparse/xcparse
 ```
 This will tap into our xcparse Homebrew tap and install the tool on your local machine.
+
+### [Mint](https://github.com/yonaskolb/Mint)
+
+To use xcparse via Mint you can run the following command which will print the most up to date version:
+
+```shell
+mint run ChargePoint/xcparse xcparse version
+```
+
+To use a specific version of xcparse:
+
+```shell
+mint run ChargePoint/xcparse@2.1.0 xcparse version
+```
+
+To extract screenshots from a xcresult bundle and sort images into forlers categorized by test plan and device model:
+
+```shell
+mint run ChargePoint/xcparse xcparse screenshots --test-plan-config --model "$results_path" "$screens_path"
+```
 
 ### Bitrise
 

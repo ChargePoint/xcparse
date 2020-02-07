@@ -6,12 +6,28 @@ To learn more about Xcode 11's xcresult format, read [Rishab Sukumar's post on t
 
 ## Installation 
 
-xcparse is installed via [Homebrew](https://brew.sh). Enter the following command in Terminal:
+### [Homebrew](https://brew.sh)
 
-```
+Enter the following command into your terminal:
+
+```shell
 brew install chargepoint/xcparse/xcparse
 ```
 This will tap into our xcparse Homebrew tap and install the tool on your local machine.
+
+### [Mint](https://github.com/yonaskolb/Mint)
+
+To use xcparse via Mint, prefix the normal usage with mint run ChargePoint/xcparse like so:
+
+```shell
+mint run ChargePoint/xcparse xcparse <command> <options>
+```
+
+To use a specific version of xcparse, add the release tag like so:
+
+```shell
+mint run ChargePoint/xcparse@2.1.0 xcparse --help
+```
 
 ### Bitrise
 

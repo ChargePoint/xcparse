@@ -17,22 +17,16 @@ This will tap into our xcparse Homebrew tap and install the tool on your local m
 
 ### [Mint](https://github.com/yonaskolb/Mint)
 
-To use xcparse via Mint you can run the following command which will print the most up to date version:
+To use xcparse via Mint, prefix the normal usage with mint run ChargePoint/xcparse like so:
 
 ```shell
-mint run ChargePoint/xcparse xcparse version
+mint run ChargePoint/xcparse xcparse <command> <options>
 ```
 
-To use a specific version of xcparse:
+To use a specific version of xcparse, add the release tag like so:
 
 ```shell
-mint run ChargePoint/xcparse@2.1.0 xcparse version
-```
-
-To extract screenshots from a xcresult bundle and sort images into forlers categorized by test plan and device model:
-
-```shell
-mint run ChargePoint/xcparse xcparse screenshots --test-plan-config --model "$results_path" "$screens_path"
+mint run ChargePoint/xcparse@2.1.0 xcparse --help
 ```
 
 ### Bitrise

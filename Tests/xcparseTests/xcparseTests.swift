@@ -281,6 +281,16 @@ final class xcparseTests: XCTestCase {
     }()
 
     static var allTests = [
-        ("testScreenshots", testScreenshots),("testDivideByTestPlanConfig",testDivideByTestPlanConfig)
+        ("testScreenshots", testScreenshots),
+        ("testDivideByTestPlanConfig",testDivideByTestPlanConfig),
+        ("testDivideByOS",testDivideByOS),
+        ("testDivideByModel",testDivideByModel),
+        ("testDivideByLanguage",testDivideByLanguage),
+        ("testDivideByRegion",testDivideByRegion),
+        ("testDivideByTest",testDivideByTest),
+        ("testGetCodeCoverage",testGetCodeCoverage),
+        ("testGetLogs",testGetLogs),
+        ("testDivideAttachmentsWithUTIFlags",testDivideAttachmentsWithUTIFlags),
+        ("testGetTestsWithFailure",testGetTestsWithFailure)
     ]
 }

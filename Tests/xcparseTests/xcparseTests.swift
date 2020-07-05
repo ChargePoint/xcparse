@@ -4,6 +4,53 @@ import xcparse
 import XCParseCore
 
 final class xcparseTests: XCTestCase {
+    lazy var xcparseProcess: Process  = {
+        let fooBinary = productsDirectory.appendingPathComponent("xcparse")
+        let process = Process()
+        process.executableURL = fooBinary
+        return process
+    }()
+
+    /// Returns path to the built products directory.
+    var productsDirectory: URL {
+        #if os(macOS)
+        for bundle in Bundle.allBundles where bundle.bundlePath.hasSuffix(".xctest") {
+            return bundle.bundleURL.deletingLastPathComponent()
+        }
+        fatalError("couldn't find the products directory")
+        #else
+        return Bundle.main.bundleURL
+        #endif
+    }
+
+    lazy var temporaryOutputDirectoryURL:URL  = {
+        // Setup a temp test folder that can be used as a sandbox
+        let tempDirectoryURL = FileManager.default.temporaryDirectory
+        let temporaryOutputDirectoryName = ProcessInfo().globallyUniqueString
+        let temporaryOutputDirectoryURL =
+            tempDirectoryURL.appendingPathComponent(temporaryOutputDirectoryName)
+        return temporaryOutputDirectoryURL
+    }()
+
+    static var allTests = [
+        ("testScreenshots", testScreenshots),
+        ("testDivideByTestPlanConfig",testDivideByTestPlanConfig),
+        ("testDivideByOS",testDivideByOS),
+        ("testDivideByModel",testDivideByModel),
+        ("testDivideByLanguage",testDivideByLanguage),
+        ("testDivideByRegion",testDivideByRegion),
+        ("testDivideByTest",testDivideByTest),
+        ("testGetTestsWithFailure",testGetTestsWithFailure),
+        ("testScreenshotsHEIC", testScreenshotsHEIC),
+        ("testGetCodeCoverage",testGetCodeCoverage),
+        ("testGetLogs",testGetLogs),
+        ("testDivideAttachmentsWithUTIFlags",testDivideAttachmentsWithUTIFlags),
+    ]
+
+    func runAndWaitForXCParseProcess() throws  {
+        try xcparseProcess.run()
+        xcparseProcess.waitUntilExit()
+    }
 
     override func tearDown() {
         if FileManager.default.fileExists(atPath: temporaryOutputDirectoryURL.path) {
@@ -11,6 +58,8 @@ final class xcparseTests: XCTestCase {
         }
         super.tearDown()
     }
+
+    // MARK: - Command - Screenshots
 
     func testScreenshots() throws {
 
@@ -184,6 +233,35 @@ final class xcparseTests: XCTestCase {
 
     }
 
+    func testGetTestsWithFailure() throws {
+        guard #available(macOS 10.13, *) else {
+            return
+        }
+
+        let file = try Resource(name: "testFailure", type: "xcresult")
+        xcparseProcess.arguments = ["screenshots",file.url.path,temporaryOutputDirectoryURL.path,"--test-status", "Failure"]
+
+        try runAndWaitForXCParseProcess()
+        let fileUrls = FileManager.default.listFiles(path: temporaryOutputDirectoryURL.path)
+        XCTAssertTrue(fileUrls.filter{$0.path.contains("Screenshot")}.count == 12)
+    }
+
+    func testScreenshotsHEIC() throws {
+        guard #available(macOS 10.13, *) else {
+            return
+        }
+
+        let file = try Resource(name: "testHEIC", type: "xcresult")
+        xcparseProcess.arguments = ["screenshots", file.url.path, temporaryOutputDirectoryURL.path]
+
+        try runAndWaitForXCParseProcess()
+        let fileURLs = FileManager.default.listFiles(path: temporaryOutputDirectoryURL.path)
+        let heicURLs = fileURLs.filter { $0.pathExtension == "heic" }
+        XCTAssertTrue(heicURLs.count == 18)
+    }
+
+    // MARK: - Command - Code Coverage
+
     func testGetCodeCoverage() throws {
         guard #available(macOS 10.13, *) else {
             return
@@ -203,6 +281,8 @@ final class xcparseTests: XCTestCase {
 
     }
 
+    // MARK: - Command - Logs
+
     func testGetLogs() throws {
         guard #available(macOS 10.13, *) else {
             return
@@ -219,6 +299,8 @@ final class xcparseTests: XCTestCase {
         XCTAssertTrue(fileUrls.count > 0)
     }
 
+    // MARK: - Command - Attachments
+
     func testDivideAttachmentsWithUTIFlags() throws {
         guard #available(macOS 10.13, *) else {
             return
@@ -233,64 +315,17 @@ final class xcparseTests: XCTestCase {
         XCTAssertTrue(fileUrls.filter{$0.path.contains("MyAutomation_darkMapView")}.count == 3)
     }
 
-    func testGetTestsWithFailure() throws {
+    func testAttachmentsHEIC() throws {
         guard #available(macOS 10.13, *) else {
             return
         }
 
-        let file = try Resource(name: "testFailure", type: "xcresult")
-        xcparseProcess.arguments = ["screenshots",file.url.path,temporaryOutputDirectoryURL.path,"--test-status", "Failure"]
+        let file = try Resource(name: "testHEIC", type: "xcresult")
+        xcparseProcess.arguments = ["attachments", file.url.path, temporaryOutputDirectoryURL.path]
 
         try runAndWaitForXCParseProcess()
-        let fileUrls = FileManager.default.listFiles(path: temporaryOutputDirectoryURL.path)
-        XCTAssertTrue(fileUrls.filter{$0.path.contains("Screenshot")}.count == 12)
+        let fileURLs = FileManager.default.listFiles(path: temporaryOutputDirectoryURL.path)
+        let heicURLs = fileURLs.filter { $0.pathExtension == "heic" }
+        XCTAssertTrue(heicURLs.count == 18)
     }
-    
-
-    lazy var xcparseProcess: Process  = {
-        let fooBinary = productsDirectory.appendingPathComponent("xcparse")
-        let process = Process()
-        process.executableURL = fooBinary
-        return process
-    }()
-
-    /// Returns path to the built products directory.
-    var productsDirectory: URL {
-        #if os(macOS)
-        for bundle in Bundle.allBundles where bundle.bundlePath.hasSuffix(".xctest") {
-            return bundle.bundleURL.deletingLastPathComponent()
-        }
-        fatalError("couldn't find the products directory")
-        #else
-        return Bundle.main.bundleURL
-        #endif
-    }
-
-    func runAndWaitForXCParseProcess() throws  {
-        try xcparseProcess.run()
-        xcparseProcess.waitUntilExit()
-    }
-
-    lazy var temporaryOutputDirectoryURL:URL  = {
-        // Setup a temp test folder that can be used as a sandbox
-        let tempDirectoryURL = FileManager.default.temporaryDirectory
-        let temporaryOutputDirectoryName = ProcessInfo().globallyUniqueString
-        let temporaryOutputDirectoryURL =
-            tempDirectoryURL.appendingPathComponent(temporaryOutputDirectoryName)
-        return temporaryOutputDirectoryURL
-    }()
-
-    static var allTests = [
-        ("testScreenshots", testScreenshots),
-        ("testDivideByTestPlanConfig",testDivideByTestPlanConfig),
-        ("testDivideByOS",testDivideByOS),
-        ("testDivideByModel",testDivideByModel),
-        ("testDivideByLanguage",testDivideByLanguage),
-        ("testDivideByRegion",testDivideByRegion),
-        ("testDivideByTest",testDivideByTest),
-        ("testGetCodeCoverage",testGetCodeCoverage),
-        ("testGetLogs",testGetLogs),
-        ("testDivideAttachmentsWithUTIFlags",testDivideAttachmentsWithUTIFlags),
-        ("testGetTestsWithFailure",testGetTestsWithFailure)
-    ]
 }

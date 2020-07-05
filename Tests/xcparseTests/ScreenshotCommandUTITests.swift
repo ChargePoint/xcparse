@@ -1,5 +1,5 @@
 //
-//  ScreenshotCommandTests.swift
+//  ScreenshotCommandUTITests.swift
 //  
 //
 //  Created by Alexander Botkin on 6/30/20.
@@ -8,7 +8,7 @@
 import XCTest
 import class Foundation.Bundle
 
-final class ScreenshotCommandTests: XCTestCase {
+final class ScreenshotCommandUTITests: XCTestCase {
     func testScreenshotUTIFilter() throws {
         let imageUTIs = [
             "public.heic",

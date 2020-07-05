@@ -465,7 +465,7 @@
 		"SwiftPM::Basic::Product" /* Basic.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Basic.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		"SwiftPM::SPMLibc::Product" /* SPMLibc.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SPMLibc.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		"SwiftPM::SPMUtility::Product" /* SPMUtility.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SPMUtility.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"SwiftPM::clibc::Product" /* clibc.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = clibc.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"SwiftPM::clibc::Product" /* clibc.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = clibc.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		"xcparse::XCParseCore::Product" /* XCParseCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = XCParseCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		"xcparse::xcparse::Product" /* xcparse */ = {isa = PBXFileReference; lastKnownFileType = text; path = xcparse; sourceTree = BUILT_PRODUCTS_DIR; };
 		"xcparse::xcparseTests::Product" /* xcparseTests.xctest */ = {isa = PBXFileReference; lastKnownFileType = file; path = xcparseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };

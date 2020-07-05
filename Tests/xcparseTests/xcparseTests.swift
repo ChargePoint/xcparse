@@ -260,6 +260,24 @@ final class xcparseTests: XCTestCase {
         XCTAssertTrue(heicURLs.count == 18)
     }
 
+    func testScreenshotsMissingInput() throws {
+        guard #available(macOS 10.13, *) else {
+            return
+        }
+
+        xcparseProcess.arguments = ["screenshots", "/tmp", temporaryOutputDirectoryURL.path]
+
+        let pipe = Pipe()
+        xcparseProcess.standardError = pipe
+
+        try runAndWaitForXCParseProcess()
+
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let output = String(data: data, encoding: .utf8)
+
+        XCTAssertEqual(output, "Error: “/tmp” does not appear to be an xcresult\n")
+    }
+
     // MARK: - Command - Code Coverage
 
     func testGetCodeCoverage() throws {
@@ -281,6 +299,24 @@ final class xcparseTests: XCTestCase {
 
     }
 
+    func testCodeCoverageMissingInput() throws {
+        guard #available(macOS 10.13, *) else {
+            return
+        }
+
+        xcparseProcess.arguments = ["codecov", "/tmp", temporaryOutputDirectoryURL.path]
+
+        let pipe = Pipe()
+        xcparseProcess.standardError = pipe
+
+        try runAndWaitForXCParseProcess()
+
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let output = String(data: data, encoding: .utf8)
+
+        XCTAssertEqual(output, "Error: “/tmp” does not appear to be an xcresult\n")
+    }
+
     // MARK: - Command - Logs
 
     func testGetLogs() throws {
@@ -297,6 +333,24 @@ final class xcparseTests: XCTestCase {
         XCTAssertTrue(fileUrls.filter{$0.path.contains("build.txt")}.count == 1)
         fileUrls = FileManager.default.listFiles(path: temporaryOutputDirectoryURL.appendingPathComponent("1_Test").appendingPathComponent("Diagnostics").path)
         XCTAssertTrue(fileUrls.count > 0)
+    }
+
+    func testLogsMissingInput() throws {
+        guard #available(macOS 10.13, *) else {
+            return
+        }
+
+        xcparseProcess.arguments = ["logs", "/tmp", temporaryOutputDirectoryURL.path]
+
+        let pipe = Pipe()
+        xcparseProcess.standardError = pipe
+
+        try runAndWaitForXCParseProcess()
+
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let output = String(data: data, encoding: .utf8)
+
+        XCTAssertEqual(output, "Error: “/tmp” does not appear to be an xcresult\n")
     }
 
     // MARK: - Command - Attachments

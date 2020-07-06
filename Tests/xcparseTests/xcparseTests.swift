@@ -1,6 +1,6 @@
 import XCTest
 import class Foundation.Bundle
-import xcparse
+
 import XCParseCore
 
 final class xcparseTests: XCTestCase {

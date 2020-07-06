@@ -35,6 +35,20 @@ public class ActionsInvocationRecord : Codable {
     }
 
     class public func recordFromXCResult(_ xcresult: XCResult) -> ActionsInvocationRecord? {
+        let xcresultURL = URL(fileURLWithPath: xcresult.path)
+        if xcresultURL.fileExistsAsDirectory() == false {
+            // .xcresult is a directory structure, if yours is a file perhaps someone gave you a zip
+            // and didn't attach the file extension?
+            //
+            // See: https://github.com/bitrise-steplib/steps-create-zip/issues/7
+            return nil
+        }
+        let xcresultPlistURL = xcresultURL.appendingPathComponent("Info.plist")
+        if FileManager.default.fileExists(atPath: xcresultPlistURL.path) == false {
+            // .xcresult should have an Info.plist in both pre-Xcode 11 and post-Xcode 11
+            return nil
+        }
+
         guard let xcresultGetResult = XCResultToolCommand.Get(withXCResult: xcresult, id: "", outputPath: "", format: .json).run() else {
             return nil
         }

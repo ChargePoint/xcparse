@@ -13,55 +13,6 @@ import XCParseCore
 
 let xcparseCurrentVersion = Version(2, 1, 0)
 
-extension Foundation.URL {
-    func fileExistsAsDirectory() -> Bool {
-        var isDirectory: ObjCBool = false
-        if FileManager.default.fileExists(atPath: self.path, isDirectory: &isDirectory) {
-            if isDirectory.boolValue {
-                return true // Exists as a directory
-            } else {
-                return false // Exists as a file
-            }
-        } else {
-            return false // Does not exist
-        }
-    }
-
-    func createDirectoryIfNecessary(createIntermediates: Bool = false, console: Console = Console()) -> Bool {
-        var isDirectory: ObjCBool = false
-        if FileManager.default.fileExists(atPath: self.path, isDirectory: &isDirectory) {
-            if isDirectory.boolValue {
-                // Directory already exists, do nothing
-                return true
-            } else {
-                console.writeMessage("\(self) is not a directory", to: .error)
-                return false
-            }
-        } else {
-            if createIntermediates == true {
-                console.shellCommand(["mkdir", "-p", self.path])
-            } else {
-                console.shellCommand(["mkdir", self.path])
-            }
-        }
-
-        return self.fileExistsAsDirectory()
-    }
-}
-
-extension String {
-    func lossyASCIIString() -> String? {
-        let string = self.precomposedStringWithCanonicalMapping
-        guard let lossyASCIIData = string.data(using: .ascii, allowLossyConversion: true) else {
-            return nil
-        }
-        guard let lossyASCIIString = String(data: lossyASCIIData, encoding: .ascii) else {
-            return nil
-        }
-        return lossyASCIIString
-    }
-}
-
 struct XCResultToolCompatability {
     var supportsExport: Bool = true
     var supportsUnicodeExportPaths: Bool = true // See https://github.com/ChargePoint/xcparse/issues/30
@@ -230,6 +181,7 @@ class XCPParser {
 
         var xcresult = XCResult(path: xcresultPath, console: self.console)
         guard let invocationRecord = xcresult.invocationRecord else {
+            xcresult.console.writeMessage("“\(xcresult.path)” does not appear to be an xcresult", to: .error)
             return
         }
 
@@ -336,6 +288,7 @@ class XCPParser {
     func extractCoverage(xcresultPath : String, destination : String) throws {
         var xcresult = XCResult(path: xcresultPath, console: self.console)
         guard let invocationRecord = xcresult.invocationRecord else {
+            xcresult.console.writeMessage("“\(xcresult.path)” does not appear to be an xcresult", to: .error)
             return
         }
 
@@ -369,6 +322,7 @@ class XCPParser {
     func extractLogs(xcresultPath : String, destination : String) throws {
         var xcresult = XCResult(path: xcresultPath, console: self.console)
         guard let invocationRecord = xcresult.invocationRecord else {
+            xcresult.console.writeMessage("“\(xcresult.path)” does not appear to be an xcresult", to: .error)
             return
         }
 

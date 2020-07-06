@@ -42,9 +42,14 @@ final class xcparseTests: XCTestCase {
         ("testDivideByTest",testDivideByTest),
         ("testGetTestsWithFailure",testGetTestsWithFailure),
         ("testScreenshotsHEIC", testScreenshotsHEIC),
+        ("testScreenshotsMissingInput", testScreenshotsMissingInput),
         ("testGetCodeCoverage",testGetCodeCoverage),
+        ("testCodeCoverageMissingInput",testCodeCoverageMissingInput),
         ("testGetLogs",testGetLogs),
+        ("testLogsMissingInput",testLogsMissingInput),
         ("testDivideAttachmentsWithUTIFlags",testDivideAttachmentsWithUTIFlags),
+        ("testAttachmentsHEIC",testAttachmentsHEIC),
+        ("testAttachmentsMissingInput",testAttachmentsMissingInput),
     ]
 
     func runAndWaitForXCParseProcess() throws  {
@@ -381,5 +386,23 @@ final class xcparseTests: XCTestCase {
         let fileURLs = FileManager.default.listFiles(path: temporaryOutputDirectoryURL.path)
         let heicURLs = fileURLs.filter { $0.pathExtension == "heic" }
         XCTAssertTrue(heicURLs.count == 18)
+    }
+
+    func testAttachmentsMissingInput() throws {
+        guard #available(macOS 10.13, *) else {
+            return
+        }
+
+        xcparseProcess.arguments = ["attachments", "/tmp", temporaryOutputDirectoryURL.path]
+
+        let pipe = Pipe()
+        xcparseProcess.standardError = pipe
+
+        try runAndWaitForXCParseProcess()
+
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let output = String(data: data, encoding: .utf8)
+
+        XCTAssertEqual(output, "Error: “/tmp” does not appear to be an xcresult\n")
     }
 }

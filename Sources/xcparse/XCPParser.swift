@@ -12,6 +12,7 @@ import SPMUtility
 import XCParseCore
 
 let xcparseCurrentVersion = Version(2, 1, 0)
+let validFastlaneLanguageCodes = ["ar-SA", "ca", "cs", "da", "de-DE", "el", "en-AU", "en-CA", "en-GB", "en-US", "es-ES", "es-MX", "fi", "fr-CA", "fr-FR", "he", "hi", "hr", "hu", "id", "it", "ja", "ko", "ms", "nl-NL", "no", "pl", "pt-BR", "pt-PT", "ro", "ru", "sk", "sv", "th", "tr", "uk", "vi", "zh-Hans", "zh-Hant"]
 
 struct XCResultToolCompatability {
     var supportsExport: Bool = true
@@ -26,6 +27,7 @@ struct AttachmentExportOptions {
     var divideByLanguage: Bool = false
     var divideByRegion: Bool = false
     var divideByTest: Bool = false
+    var fastlaneDeliver: Bool = false
 
     var xcresulttoolCompatability = XCResultToolCompatability()
 
@@ -99,7 +101,17 @@ struct AttachmentExportOptions {
 
         let testLanguage = testableSummary.testLanguage ?? "System Language"
         let testRegion = testableSummary.testRegion ?? "System Region"
-        if self.divideByLanguage == true, self.divideByRegion == true {
+        if self.fastlaneDeliver == true {
+            print(validFastlaneLanguageCodes.count)
+            if validFastlaneLanguageCodes.contains(testLanguage) {
+                languageRegionDirectoryName = testLanguage
+            } else if validFastlaneLanguageCodes.contains("\(testLanguage)-\(testRegion)"){
+                languageRegionDirectoryName = "\(testLanguage)-\(testRegion)"
+            } else if testLanguage == "nb" {
+                // Norwegian language code is 'nb' but Fastlane only recognizes 'no' as valid
+                languageRegionDirectoryName = "no"
+            }
+        } else if self.divideByLanguage == true, self.divideByRegion == true {
             languageRegionDirectoryName = "\(testLanguage) (\(testRegion))"
         } else if self.divideByLanguage == true {
             languageRegionDirectoryName = testLanguage
@@ -186,8 +198,12 @@ class XCPParser {
         }
 
         // Let's figure out where these attachments are going
-        let screenshotBaseDirectoryURL = options.baseScreenshotDirectoryURL(path: destination)
+        var screenshotBaseDirectoryURL = options.baseScreenshotDirectoryURL(path: destination)
+        if options.fastlaneDeliver == true {
+            screenshotBaseDirectoryURL = screenshotBaseDirectoryURL.appendingPathComponent("screenshots")
+        }
         if screenshotBaseDirectoryURL.createDirectoryIfNecessary() != true {
+            xcresult.console.writeMessage("“\(screenshotBaseDirectoryURL.path)” does not appear to be a valid output directory")
             return
         }
 
@@ -420,6 +436,7 @@ class XCPParser {
         var registry = CommandRegistry(usage: "<command> <options>",
                                        overview: "This program can extract screenshots and coverage files from an *.xcresult file.")
         registry.register(command: ScreenshotsCommand.self)
+        registry.register(command: FastlaneDeliverCommand.self)
         registry.register(command: CodeCoverageCommand.self)
         registry.register(command: LogsCommand.self)
         registry.register(command: AttachmentsCommand.self)

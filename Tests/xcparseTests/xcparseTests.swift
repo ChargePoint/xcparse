@@ -50,6 +50,7 @@ final class xcparseTests: XCTestCase {
         ("testDivideAttachmentsWithUTIFlags",testDivideAttachmentsWithUTIFlags),
         ("testAttachmentsHEIC",testAttachmentsHEIC),
         ("testAttachmentsMissingInput",testAttachmentsMissingInput),
+        ("testPerfomanceMetrics",testPerfomanceMetrics),
     ]
 
     func runAndWaitForXCParseProcess() throws  {
@@ -62,6 +63,27 @@ final class xcparseTests: XCTestCase {
             try? FileManager.default.removeItem(at: temporaryOutputDirectoryURL)
         }
         super.tearDown()
+    }
+
+    // MARK: - Metrics -
+
+    func testPerfomanceMetrics() throws {
+        let file = try Resource(name: "testMetrics", type: "xcresult")
+        let xcresultPath = file.url.path
+
+        var xcresult = XCResult(path: xcresultPath)
+        guard let invocationRecord = xcresult.invocationRecord else { return }
+
+        guard let action = invocationRecord.actions.filter({ $0.actionResult.testsRef != nil }).first else { return }
+
+        guard let testPlanRunSummaries: ActionTestPlanRunSummaries = action.actionResult.testsRef!.modelFromReference(withXCResult: xcresult) else { return }
+
+        let testableSummaries = testPlanRunSummaries.summaries[0].testableSummaries
+
+        for testSummaries in testableSummaries[0].flattenedTestSummaryMap(withXCResult: xcresult).map({ $0.testSummary }) {
+            let perfMetricsCount = testSummaries.performanceMetrics[0].measurements.count
+            assert(perfMetricsCount != 0) // Fails!
+        }
     }
 
     // MARK: - Command - Screenshots

@@ -350,6 +350,11 @@ extension KeyedDecodingContainer {
             let resultObj = try container.decode(XCResultObject.self)
             if let type = resultObj.type.getType() as? T.Type {
                 list.append(try tmpContainer.decode(type))
+            } else if let type = resultObj.type.getType() as? XCResultValueType.Type {
+                let decodedValue = try tmpContainer.decode(type)
+                if let value = decodedValue.getValue() as? T {
+                    list.append(value)
+                }
             }
         }
         return list

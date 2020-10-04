@@ -190,7 +190,7 @@ enum XCResultTypeFamily: String, ClassFamily {
         case .ActionTestAttachment:
             return XCParseCore.ActionTestAttachment.self
         case .ActionTestFailureSummary:
-            return XCParseCore.ActionTestActivitySummary.self
+            return XCParseCore.ActionTestFailureSummary.self
         case .ActionTestMetadata:
             return XCParseCore.ActionTestMetadata.self
         case .ActionTestPerformanceMetricSummary:

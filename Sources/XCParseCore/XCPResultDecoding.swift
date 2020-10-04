@@ -29,7 +29,7 @@ class XCResultArrayValue<T: Codable> : Codable {
     }
 }
 
-class XCResultValueType : Codable {
+public class XCResultValueType : Codable {
     let type: XCResultType
     let value: String
     
@@ -261,9 +261,9 @@ enum XCResultTypeFamily: String, ClassFamily {
         case .ResultMetrics:
             return XCParseCore.ResultMetrics.self
         case .SortedKeyValueArray:
-            return AnyObject.self
+            return XCParseCore.SortedKeyValueArray.self
         case .SortedKeyValueArrayPair:
-            return AnyObject.self
+            return XCParseCore.SortedKeyValueArrayPair.self
         case .String:
             return XCParseCore.XCResultValueType.self
         case .TestFailureIssueSummary:

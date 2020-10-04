@@ -17,7 +17,7 @@ open class ActionTestAttachment : Codable {
     public let uniformTypeIdentifier: String // Note: You'll want to use CoreServices' UTType functions with this
     public let name: String?
     public let timestamp: Date?
-//    public let userInfo: SortedKeyValueArray?
+    public let userInfo: SortedKeyValueArray?
     public let lifetime: String
     public let inActivityIdentifier: Int
     public let filename: String?
@@ -28,7 +28,7 @@ open class ActionTestAttachment : Codable {
         case uniformTypeIdentifier
         case name
         case timestamp
-//        case userInfo
+        case userInfo
         case lifetime
         case inActivityIdentifier
         case filename
@@ -41,7 +41,7 @@ open class ActionTestAttachment : Codable {
         uniformTypeIdentifier = try container.decodeXCResultType(forKey: .uniformTypeIdentifier)
         name = try container.decodeXCResultTypeIfPresent(forKey: .name)
         timestamp = try container.decodeXCResultTypeIfPresent(forKey: .timestamp)
-//        userInfo = try container.decodeXCResultObjectIfPresent(forKey: .userInfo)
+        userInfo = try container.decodeXCResultObjectIfPresent(forKey: .userInfo)
         lifetime = try container.decodeXCResultType(forKey: .lifetime)
         inActivityIdentifier = try container.decodeXCResultType(forKey: .inActivityIdentifier)
         filename = try container.decodeXCResultTypeIfPresent(forKey: .filename)

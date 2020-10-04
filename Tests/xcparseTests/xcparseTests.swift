@@ -50,7 +50,9 @@ final class xcparseTests: XCTestCase {
         ("testDivideAttachmentsWithUTIFlags",testDivideAttachmentsWithUTIFlags),
         ("testAttachmentsHEIC",testAttachmentsHEIC),
         ("testAttachmentsMissingInput",testAttachmentsMissingInput),
-        ("testPerfomanceMetrics",testPerfomanceMetrics),
+        ("testPerfomanceMetrics",testPerformanceMetricsCategorySearch),
+        ("testPerformanceMetricsSearchAlongTheRoad",testPerformanceMetricsSearchAlongTheRoad),
+        ("testPerformanceMetricsUsualSearch",testPerformanceMetricsUsualSearch),
     ]
 
     func runAndWaitForXCParseProcess() throws  {
@@ -67,7 +69,7 @@ final class xcparseTests: XCTestCase {
 
     // MARK: - Metrics -
 
-    func testPerfomanceMetrics() throws {
+    func testPerformanceMetricsCategorySearch() throws {
         let file = try Resource(name: "testMetrics", type: "xcresult")
         let xcresultPath = file.url.path
 
@@ -80,9 +82,125 @@ final class xcparseTests: XCTestCase {
 
         let testableSummaries = testPlanRunSummaries.summaries[0].testableSummaries
 
-        for testSummaries in testableSummaries[0].flattenedTestSummaryMap(withXCResult: xcresult).map({ $0.testSummary }) {
-            let perfMetricsCount = testSummaries.performanceMetrics[0].measurements.count
-            assert(perfMetricsCount != 0) // Fails!
+        let testSummaries = testableSummaries[0].flattenedTestSummaryMap(withXCResult: xcresult).map({ $0.testSummary })
+        let categorySearch = testSummaries.filter {
+            guard let testName = $0.name else {
+                return false
+            }
+
+            return testName == "testCategorySearch()"
+        }
+
+        for testSummary in categorySearch {
+            for metric in testSummary.performanceMetrics {
+                let perfMetricMeasurements = metric.measurements
+
+                switch metric.metricType {
+                case .ClockMonotonicTime:
+                    XCTAssertEqual(perfMetricMeasurements, [6.109e-06, 6.273000000000001e-06, 6.314e-06, 4.633e-06, 6.15e-06])
+                    break
+                case .CPUCycles:
+                    XCTAssertEqual(perfMetricMeasurements, [1965.018, 2366.559, 2923.601, 2114.557, 3463.443])
+                    break
+                case .CPUInstructionsRetired:
+                    XCTAssertEqual(perfMetricMeasurements, [3262.079, 3518.519, 3657.059, 3185.146, 4164.798])
+                    break
+                case .CPUTime:
+                    XCTAssertEqual(perfMetricMeasurements, [0.001053659, 0.00140999, 0.0016860430000000001, 0.0012279090000000001, 0.002028352])
+                    break
+                case .DiskLogicalWrites:
+                    XCTAssertEqual(perfMetricMeasurements, [0.0, 0.0, 49.152, 0.0, 0.0])
+                    break
+                case .MemoryPhysical:
+                    XCTAssertEqual(perfMetricMeasurements, [32.768, 81.92, 98.304, 32.768, 32.768])
+                    break
+                case .MemoryPhysicalPeak:
+                    XCTAssertEqual(perfMetricMeasurements, [0.0, 0.0, 0.0, 0.0, 0.0])
+                    break
+                default:
+                    break
+                }
+            }
+        }
+    }
+
+    func testPerformanceMetricsSearchAlongTheRoad() throws {
+        let file = try Resource(name: "testMetrics", type: "xcresult")
+        let xcresultPath = file.url.path
+
+        var xcresult = XCResult(path: xcresultPath)
+        guard let invocationRecord = xcresult.invocationRecord else { return }
+
+        guard let action = invocationRecord.actions.filter({ $0.actionResult.testsRef != nil }).first else { return }
+
+        guard let testPlanRunSummaries: ActionTestPlanRunSummaries = action.actionResult.testsRef!.modelFromReference(withXCResult: xcresult) else { return }
+
+        let testableSummaries = testPlanRunSummaries.summaries[0].testableSummaries
+
+        let testSummaries = testableSummaries[0].flattenedTestSummaryMap(withXCResult: xcresult).map({ $0.testSummary })
+        let categorySearch = testSummaries.filter {
+            guard let testName = $0.name else {
+                return false
+            }
+
+            return testName == "testSearchAlongTheRoad()"
+        }
+
+        for testSummary in categorySearch {
+            for metric in testSummary.performanceMetrics {
+                let perfMetricMeasurements = metric.measurements
+
+                switch metric.metricType {
+                case .MemoryPhysical:
+                    XCTAssertEqual(perfMetricMeasurements, [0.0, 16.384, 0.0, 0.0, 0.0])
+                    break
+                case .MemoryPhysicalPeak:
+                    XCTAssertEqual(perfMetricMeasurements, [0.0, 0.0, 0.0, 0.0, 0.0])
+                    break
+                default:
+                    break
+                }
+            }
+        }
+    }
+
+    func testPerformanceMetricsUsualSearch() throws {
+        let file = try Resource(name: "testMetrics", type: "xcresult")
+        let xcresultPath = file.url.path
+
+        var xcresult = XCResult(path: xcresultPath)
+        guard let invocationRecord = xcresult.invocationRecord else { return }
+
+        guard let action = invocationRecord.actions.filter({ $0.actionResult.testsRef != nil }).first else { return }
+
+        guard let testPlanRunSummaries: ActionTestPlanRunSummaries = action.actionResult.testsRef!.modelFromReference(withXCResult: xcresult) else { return }
+
+        let testableSummaries = testPlanRunSummaries.summaries[0].testableSummaries
+
+        let testSummaries = testableSummaries[0].flattenedTestSummaryMap(withXCResult: xcresult).map({ $0.testSummary })
+        let categorySearch = testSummaries.filter {
+            guard let testName = $0.name else {
+                return false
+            }
+
+            return testName == "testUsualSearch()"
+        }
+
+        for testSummary in categorySearch {
+            for metric in testSummary.performanceMetrics {
+                let perfMetricMeasurements = metric.measurements
+
+                switch metric.metricType {
+                case .MemoryPhysical:
+                    XCTAssertEqual(perfMetricMeasurements, [0.0, 16.384, 147.456, 32.768, 65.536])
+                    break
+                case .MemoryPhysicalPeak:
+                    XCTAssertEqual(perfMetricMeasurements, [0.0, 0.0, 0.0, 0.0, 0.0])
+                    break
+                default:
+                    break
+                }
+            }
         }
     }
 

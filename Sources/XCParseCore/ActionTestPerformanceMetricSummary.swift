@@ -8,6 +8,40 @@
 
 import Foundation
 
+
+public enum ActionTestPerformanceMetric : ExpressibleByStringLiteral {
+    case ClockMonotonicTime
+    case CPUCycles
+    case CPUInstructionsRetired
+    case CPUTime
+    case DiskLogicalWrites
+    case MemoryPhysical
+    case MemoryPhysicalPeak
+    case Unknown(name: String)
+
+    public init(stringLiteral name: String) {
+        switch name {
+        case "com.apple.dt.XCTMetric_Clock.time.monotonic":
+            self = .ClockMonotonicTime
+        case "com.apple.dt.XCTMetric_CPU.cycles":
+            self = .CPUCycles
+        case "com.apple.dt.XCTMetric_CPU.instructions_retired":
+            self = .CPUInstructionsRetired
+        case "com.apple.dt.XCTMetric_CPU.time":
+            self = .CPUTime
+        case "com.apple.dt.XCTMetric_Disk.logical.writes":
+            self = .DiskLogicalWrites
+        case "com.apple.dt.XCTMetric_Memory.physical":
+            self = .MemoryPhysical
+        case "com.apple.dt.XCTMetric_Memory.physical-peak":
+            self = .MemoryPhysicalPeak
+        default:
+            self = .Unknown(name: name)
+        }
+    }
+}
+
+
 open class ActionTestPerformanceMetricSummary : Codable {
     public let displayName: String
     public let unitOfMeasurement: String
@@ -19,6 +53,12 @@ open class ActionTestPerformanceMetricSummary : Codable {
     public let maxPercentRelativeStandardDeviation: Double?
     public let maxRegression: Double?
     public let maxStandardDeviation: Double?
+
+    // Derived
+    public var metricType : ActionTestPerformanceMetric {
+        let identifierString = identifier ?? "Identifier Missing"
+        return ActionTestPerformanceMetric(stringLiteral: identifierString)
+    }
 
     enum ActionTestPerformanceMetricSummaryCodingKeys: String, CodingKey {
         case displayName

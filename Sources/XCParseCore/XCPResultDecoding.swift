@@ -158,7 +158,12 @@ enum XCResultTypeFamily: String, ClassFamily {
     case ResultMetrics
     case SortedKeyValueArray
     case SortedKeyValueArrayPair
+    case SourceCodeContext
+    case SourceCodeFrame
+    case SourceCodeLocation
+    case SourceCodeSymbolInfo
     case String
+    case TestAssociatedError
     case TestFailureIssueSummary
     case TypeDefinition
     
@@ -264,8 +269,18 @@ enum XCResultTypeFamily: String, ClassFamily {
             return XCParseCore.SortedKeyValueArray.self
         case .SortedKeyValueArrayPair:
             return XCParseCore.SortedKeyValueArrayPair.self
+        case .SourceCodeContext:
+            return XCParseCore.SourceCodeContext.self
+        case .SourceCodeFrame:
+            return XCParseCore.SourceCodeFrame.self
+        case .SourceCodeLocation:
+            return XCParseCore.SourceCodeLocation.self
+        case .SourceCodeSymbolInfo:
+            return XCParseCore.SourceCodeSymbolInfo.self
         case .String:
             return XCParseCore.XCResultValueType.self
+        case .TestAssociatedError:
+            return XCParseCore.TestAssociatedError.self
         case .TestFailureIssueSummary:
             return XCParseCore.TestFailureIssueSummary.self
         case .TypeDefinition:

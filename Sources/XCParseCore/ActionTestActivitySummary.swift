@@ -25,6 +25,9 @@ open class ActionTestActivitySummary : Codable {
     public let attachments: [ActionTestAttachment]
     public let subactivities: [ActionTestActivitySummary]
 
+    // xcresult 3.26 and above
+    public let failureSummaryIDs: [String]
+
     enum ActionTestActivitySummaryCodingKeys: String, CodingKey {
         case title
         case activityType
@@ -33,6 +36,7 @@ open class ActionTestActivitySummary : Codable {
         case finish
         case attachments
         case subactivities
+        case failureSummaryIDs
     }
 
      required public init(from decoder: Decoder) throws {
@@ -45,5 +49,6 @@ open class ActionTestActivitySummary : Codable {
 
         attachments = try container.decodeXCResultArray(forKey: .attachments)
         subactivities = try container.decodeXCResultArray(forKey: .subactivities)
+        failureSummaryIDs = try container.decodeXCResultArray(forKey: .failureSummaryIDs)
     }
 }

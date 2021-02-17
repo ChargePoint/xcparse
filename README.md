@@ -4,6 +4,9 @@ A command line tool to extract code coverage & screenshots from Xcode 11 XCResul
 
 To learn more about Xcode 11's xcresult format, read [Rishab Sukumar's post on the ChargePoint Engineering blog](https://www.chargepoint.com/engineering/xcparse/)
 
+## Requirements
+- Xcode 11+ 
+
 ## Installation 
 
 ### [Homebrew](https://brew.sh)
@@ -135,6 +138,14 @@ xcparse logs /path/to/Test.xcresult /path/to/exportLogFiles
 This will export logs & diagnostic files into a per-action folder structure similar to Xcode 10's xcresult format.
 
 ![Logs exported into folders](Docs/Images/screenshots_logs.png?raw=true)
+
+### Contributing
+If you like what you see and willing to support the work, you could:
+- Open an [issue](https://github.com/ChargePoint/xcparse/issues/new/choose)
+- Contribute code, and pull requests.
+
+How to debug the project? 
+You can run the project in XCode by opening the package.swift.
 
 ### Help
 

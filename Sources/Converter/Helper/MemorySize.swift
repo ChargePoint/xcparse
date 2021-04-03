@@ -7,11 +7,14 @@
 
 import Foundation
 
-enum MemoryUnit {
-    case bytes, kilobytes, megabytes, gigabytes
-}
+public struct MemorySize {
+    enum Unit: String, Codable {
+        case bytes = "B"
+        case kilobytes = "KB"
+        case megabytes = "MB"
+        case gigabytes = "GB"
+    }
 
-public struct Units {
     public var bytes: Int64 {
         get {
             return Int64(Double(kilobytes) * 1_024)
@@ -58,7 +61,7 @@ public struct Units {
     }
 }
 
-extension Units {
+extension MemorySize {
     var displayString: String {
         switch bytes {
         case 0..<1_024:
@@ -74,8 +77,8 @@ extension Units {
         }
     }
 
-    func parseFrom(text: String) -> Units? {
-        let dictionary: [String: MemoryUnit] =
+    func parseFrom(text: String) -> MemorySize? {
+        let textToMemoryUnit: [String: MemorySize.Unit] =
             [
                 "b": .bytes,
                 "byte": .bytes,
@@ -91,21 +94,24 @@ extension Units {
                 "gigabytes": .gigabytes,
             ]
 
-        guard let unit = dictionary[parseUnits(text: text)], let size = parseSize(text: text) else { return nil }
+        guard let unit = textToMemoryUnit[parseUnits(text: text)],
+              let size = parseSize(text: text)
+        else { return nil }
 
         switch unit {
         case .bytes:
-            return Units(bytes: size)
+            return MemorySize(bytes: size)
         case .kilobytes:
-            return Units(kilobytes: size)
+            return MemorySize(kilobytes: size)
         case .megabytes:
-            return Units(megabytes: size)
+            return MemorySize(megabytes: size)
         case .gigabytes:
-            return Units(gigabytes: size)
+            return MemorySize(gigabytes: size)
         }
     }
 
     func parseUnits(text: String) -> String {
+        if text.lowercased() == Self.zeroSize { return "kb" }
         return parseUnits(text: Array(text))
     }
 
@@ -122,6 +128,7 @@ extension Units {
     }
 
     func parseSize(text: String) -> Double? {
+        if text.lowercased() == Self.zeroSize { return 0 }
         return parseSize(text: Array(text))
     }
 
@@ -138,16 +145,20 @@ extension Units {
     }
 }
 
-extension Units: Comparable {
-    public static func < (lhs: Units, rhs: Units) -> Bool {
+extension MemorySize: Comparable {
+    public static func < (lhs: MemorySize, rhs: MemorySize) -> Bool {
         return lhs.kilobytes < rhs.kilobytes
     }
 
-    public static func > (lhs: Units, rhs: Units) -> Bool {
+    public static func > (lhs: MemorySize, rhs: MemorySize) -> Bool {
         return lhs.kilobytes > rhs.kilobytes
     }
 
-    public static func == (lhs: Units, rhs: Units) -> Bool {
+    public static func == (lhs: MemorySize, rhs: MemorySize) -> Bool {
         return lhs.kilobytes == rhs.kilobytes
     }
+}
+
+public extension MemorySize {
+    static let zeroSize = "zero kb"
 }

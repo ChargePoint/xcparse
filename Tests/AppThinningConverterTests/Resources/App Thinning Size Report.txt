@@ -1,0 +1,57 @@
+
+App Thinning Size Report for All Variants of CP
+
+Variant: ChargePointAppClip-0F01226A-99F0-4092-8BBD-6919103E6F0A.ipa
+Supported variant descriptors: [device: iPhone8,4, os-version: 14.0], [device: iPhone8,1, os-version: 14.0], and [device: iPod9,1, os-version: 14.0]
+App + On Demand Resources size: 5.4 MB compressed, 11.6 MB uncompressed
+App size: 5.4 MB compressed, 11.6 MB uncompressed
+On Demand Resources size: Zero KB compressed, Zero KB uncompressed
+
+
+Variant: ChargePointAppClip-35AD0331-EA57-4B82-B8E6-029D7786B9B7.ipa
+Supported variant descriptors: [device: iPhone10,3, os-version: 14.0], [device: iPhone10,6, os-version: 14.0], [device: iPhone13,4, os-version: 14.0], [device: iPhone9,4, os-version: 14.0], [device: iPhone10,2, os-version: 14.0], [device: iPhone12,3, os-version: 14.0], [device: iPhone12,5, os-version: 14.0], [device: iPhone11,4, os-version: 14.0], [device: iPhone9,2, os-version: 14.0], [device: iPhone11,2, os-version: 14.0], [device: iPhone13,1, os-version: 14.0], [device: iPhone13,3, os-version: 14.0], [device: iPhone10,5, os-version: 14.0], [device: iPhone13,2, os-version: 14.0], and [device: iPhone11,6, os-version: 14.0]
+App + On Demand Resources size: 6.6 MB compressed, 12.9 MB uncompressed
+App size: 6.6 MB compressed, 12.9 MB uncompressed
+On Demand Resources size: Zero KB compressed, Zero KB uncompressed
+
+
+Variant: ChargePointAppClip-4982417C-64B2-48AA-B47A-AB97290C2D46.ipa
+Supported variant descriptors: [device: iPad8,11, os-version: 14.0], [device: iPad8,5, os-version: 14.0], [device: MacFamily20,1, os-version: 14.0], [device: iPad8,6, os-version: 14.0], [device: iPad13,2, os-version: 14.0], [device: iPad8,8, os-version: 14.0], [device: iPad7,3, os-version: 14.0], [device: iPad11,4, os-version: 14.0], [device: iPad11,2, os-version: 14.0], [device: iPad6,3, os-version: 14.0], [device: iPad7,1, os-version: 14.0], [device: iPad8,12, os-version: 14.0], [device: iPad11,3, os-version: 14.0], [device: iPad7,4, os-version: 14.0], [device: iPad8,1, os-version: 14.0], [device: iPad11,1, os-version: 14.0], [device: iPad7,2, os-version: 14.0], [device: iPad8,10, os-version: 14.0], [device: iPad6,4, os-version: 14.0], [device: iPad8,9, os-version: 14.0], [device: iPad8,2, os-version: 14.0], [device: iPad8,3, os-version: 14.0], [device: iPad13,1, os-version: 14.0], [device: iPad8,7, os-version: 14.0], and [device: iPad8,4, os-version: 14.0]
+App + On Demand Resources size: 5.4 MB compressed, 11.6 MB uncompressed
+App size: 5.4 MB compressed, 11.6 MB uncompressed
+On Demand Resources size: Zero KB compressed, Zero KB uncompressed
+
+
+Variant: ChargePointAppClip-759FEA38-87EA-46C1-96A1-010F088B2E3A.ipa
+Supported variant descriptors: [device: iPad5,3, os-version: 14.0], [device: iPad5,2, os-version: 14.0], [device: iPad6,11, os-version: 14.0], [device: iPad7,6, os-version: 14.0], [device: iPad6,8, os-version: 14.0], [device: iPad5,4, os-version: 14.0], [device: iPad7,12, os-version: 14.0], [device: iPad6,7, os-version: 14.0], [device: iPad7,5, os-version: 14.0], [device: iPad6,12, os-version: 14.0], [device: iPad11,6, os-version: 14.0], [device: iPad7,11, os-version: 14.0], [device: iPad5,1, os-version: 14.0], and [device: iPad11,7, os-version: 14.0]
+App + On Demand Resources size: 5.4 MB compressed, 11.6 MB uncompressed
+App size: 5.4 MB compressed, 11.6 MB uncompressed
+On Demand Resources size: Zero KB compressed, Zero KB uncompressed
+
+
+Variant: ChargePointAppClip-9EC3FFDB-82C5-4EC0-882B-2005C6FEADD2.ipa
+Supported variant descriptors: [device: iPhone8,2, os-version: 14.0]
+App + On Demand Resources size: 6.6 MB compressed, 12.9 MB uncompressed
+App size: 6.6 MB compressed, 12.9 MB uncompressed
+On Demand Resources size: Zero KB compressed, Zero KB uncompressed
+
+
+Variant: ChargePointAppClip-CDC4B730-FF8B-43B3-B392-3E29B1DC4A13.ipa
+Supported variant descriptors: [device: iPhone12,8, os-version: 14.0], [device: iPhone9,3, os-version: 14.0], [device: iPhone9,1, os-version: 14.0], [device: iPhone10,1, os-version: 14.0], and [device: iPhone10,4, os-version: 14.0]
+App + On Demand Resources size: 5.4 MB compressed, 11.6 MB uncompressed
+App size: 5.4 MB compressed, 11.6 MB uncompressed
+On Demand Resources size: Zero KB compressed, Zero KB uncompressed
+
+
+Variant: ChargePointAppClip-D958C2E0-14C7-481E-BB6B-6450CC20B2C1.ipa
+Supported variant descriptors: [device: iPhone12,1, os-version: 14.0] and [device: iPhone11,8, os-version: 14.0]
+App + On Demand Resources size: 5.4 MB compressed, 11.6 MB uncompressed
+App size: 5.4 MB compressed, 11.6 MB uncompressed
+On Demand Resources size: Zero KB compressed, Zero KB uncompressed
+
+
+Variant: ChargePointAppClip.ipa
+Supported variant descriptors: Universal
+App + On Demand Resources size: 9.3 MB compressed, 16 MB uncompressed
+App size: 9.3 MB compressed, 16 MB uncompressed
+On Demand Resources size: Zero KB compressed, Zero KB uncompressed

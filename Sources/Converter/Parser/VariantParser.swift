@@ -7,9 +7,9 @@
 
 import Foundation
 
-class VariantParser: ModelParser<String> {
+final class VariantParser: ModelParser<String> {
     override func parseText() {
         guard !text.isEmpty else { return }
-        result = text.replacingOccurrences(of: "Variant: ", with: "")
+        result = text
     }
 }

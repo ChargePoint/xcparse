@@ -7,9 +7,9 @@
 
 import Foundation
 
-class VariantDescriptorParser: ModelParser<[DeviceModel]> {
-    typealias keys = DeviceModel.CodingKeys
-    
+final class VariantDescriptorParser: ModelParser<[DeviceModel]> {
+    typealias keys = DeviceModel.ParsingKeys
+
     override func parseText() {
         guard !text.isEmpty else { return }
         let text = Array(self.text)
@@ -39,7 +39,7 @@ class VariantDescriptorParser: ModelParser<[DeviceModel]> {
     }
 
     func parseToModel(text: String) -> DeviceModel {
-        return parseToModel(Array(text))
+        return parseToModel(text: Array(text))
     }
 
     func parseToModel(text: [Character]) -> DeviceModel {
@@ -47,7 +47,7 @@ class VariantDescriptorParser: ModelParser<[DeviceModel]> {
             return i-1 > text.count || i+1 >= text.count || !(text[i-1].isNumber && text[i+1].isNumber)
         }
 
-        // we are going to split the string based on key value pairs
+        // split the string based on key value pairs
         var properties = [String: String]()
 
         // start point of the string that we are going to parse

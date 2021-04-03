@@ -7,12 +7,16 @@
 
 import Foundation
 
-struct DeviceModel: Codable {
+struct DeviceModel: Codable, Equatable {
     let device: String
     let osVersion: String
 
-    enum CodingKeys: String, CodingKey, CaseIterable {
+    enum ParsingKeys: String, CaseIterable {
         case device
         case osVersion = "os-version"
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case device, osVersion
     }
 }

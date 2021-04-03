@@ -7,8 +7,8 @@
 
 import Foundation
 
-class ResultFactory {
-    func parse(from text: String, to modelType: VariantModel.CodingKeys) -> Any? {
+final class ResultFactory {
+    func parse(from text: String, to modelType: VariantModel.ParsingKeys) -> Any? {
         let result: Any?
         switch modelType {
         case .variant:

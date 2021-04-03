@@ -13,6 +13,10 @@ let package = Package(
         .library(
             name: "XCParseCore",
             targets: ["XCParseCore"]
+        ),
+        .library(
+            name: "Converter",
+            targets: ["Converter"]
         )
     ],
     dependencies: [
@@ -25,10 +29,13 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "xcparse",
-            dependencies: [ "XCParseCore", "SPMUtility" ]),
+            dependencies: [ "XCParseCore", "SPMUtility", "Converter" ]),
         .target(
             name: "XCParseCore",
             dependencies: [ "SPMUtility" ]),
+        .target(
+            name: "Converter",
+            dependencies: []),
         .testTarget(
             name: "xcparseTests",
             dependencies: ["xcparse"]),

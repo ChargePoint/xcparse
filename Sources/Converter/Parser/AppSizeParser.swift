@@ -7,8 +7,9 @@
 
 import Foundation
 
-class AppSizeParser: ModelParser<AppSizeModel> {
+final class AppSizeParser: ModelParser<AppSizeModel> {
     typealias keys = AppSizeModel.CodingKeys
+    var standardizedUnit: MemorySize.Unit = .megabytes
 
     override func parseText() {
         guard !text.isEmpty else { return }
@@ -25,7 +26,23 @@ class AppSizeParser: ModelParser<AppSizeModel> {
             }
         }
 
-        result = AppSizeModel(compressed: properties[keys.compressed.rawValue] ?? "Unknown",
-                              uncompressed: properties[keys.uncompressed.rawValue] ?? "Unknown")
+        if let compressedString = properties[keys.compressed.rawValue],
+           let uncompressedString = properties[keys.uncompressed.rawValue],
+           let compressedValue = MemorySize(text: compressedString)?.megabytes,
+           let uncompressedValue = MemorySize(text: uncompressedString)?.megabytes
+           {
+            let compressedRawValue = compressedString.lowercased() == MemorySize.zeroSize ? "0 KB" : compressedString
+            let compressed = SizeModel(rawValue: compressedRawValue,
+                                       value: compressedValue,
+                                       unit: standardizedUnit)
+            let uncompressedRawValue = uncompressedString.lowercased() == MemorySize.zeroSize ? "0 KB" : uncompressedString
+            let uncompressed = SizeModel(rawValue: uncompressedRawValue,
+                                       value: uncompressedValue,
+                                       unit: standardizedUnit)
+            result = AppSizeModel(compressed: compressed, uncompressed: uncompressed)
+        } else {
+            result = AppSizeModel()
+        }
     }
 }
+

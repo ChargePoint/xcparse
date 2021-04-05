@@ -71,14 +71,14 @@ public final class ReportConverter {
         return variants
     }
 
-    public static func writeJSON(from text: String, to: String) {
+    public static func writeJSON(from text: String, to: String, outputName: String = "ConverterResult") {
         let variants = self.parse(text: text)
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
         do {
             let data = try encoder.encode(variants)
             if let json = String(data: data, encoding: String.Encoding.utf8) {
-                FileController.writeFile(data: json, url: to)
+                FileController.writeFile(data: json, url: to, outputName)
             } else {
                 print("JSON Empty")
             }

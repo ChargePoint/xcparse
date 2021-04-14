@@ -47,7 +47,7 @@ struct ConverterCommand: Command {
 
         guard let option = arguments.get(inputFormat)
         else {
-            print("Missing option ")
+            print("Missing option")
             return
         }
 

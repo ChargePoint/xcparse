@@ -7,6 +7,8 @@
 
 import Foundation
 
+/// class that parse the appsize from the report
+/// return AppSizeModel
 final class AppSizeParser: ModelParser<AppSizeModel> {
     typealias keys = AppSizeModel.CodingKeys
     var standardizedUnit: MemorySize.Unit = .megabytes
@@ -16,6 +18,9 @@ final class AppSizeParser: ModelParser<AppSizeModel> {
         let parseableText = text.split(separator: ",")
         var properties = [String: String]()
 
+        // preprocessed the text
+        // uncompressed: 6 MB would add key "uncompressed" : "6 MB" to the properties
+        // compressed: 11 MB would add key "compressed" : "11 MB" to the properties
         for text in parseableText {
             for property in AppSizeModel.CodingKeys.allCases {
                 let key = property.rawValue
@@ -26,6 +31,7 @@ final class AppSizeParser: ModelParser<AppSizeModel> {
             }
         }
 
+        // parse it to memory size model and initialize the app size model based on it
         if let compressedString = properties[keys.compressed.rawValue],
            let uncompressedString = properties[keys.uncompressed.rawValue],
            let compressedValue = MemorySize(text: compressedString)?.megabytes,

@@ -15,9 +15,9 @@ public struct MemorySize {
         case gigabytes = "GB"
     }
 
-    public var bytes: Int64 {
+    public var bytes: Double {
         get {
-            return Int64(Double(kilobytes) * 1_024)
+            return Double(kilobytes) * 1_024
         }
     }
 
@@ -64,19 +64,20 @@ public struct MemorySize {
 extension MemorySize {
     var displayString: String {
         switch bytes {
-        case 0..<1_024:
+        case 0..<pow(1_024, 1):
             return "\(bytes) bytes"
-        case 1_024..<(1_024 * 1_024):
+        case pow(1_024, 1)..<pow(1_024, 2):
             return "\(String(format: "%.2f", kilobytes)) kb"
-        case 1_024..<(1_024 * 1_024 * 1_024):
+        case pow(1_024, 2)..<pow(1_024, 3):
             return "\(String(format: "%.2f", megabytes)) mb"
-        case (1_024 * 1_024 * 1_024)...Int64.max:
+        case pow(1_024, 3)...:
             return "\(String(format: "%.2f", gigabytes)) gb"
         default:
             return "\(bytes) bytes"
         }
     }
 
+    // parse memory size from text
     func parseFrom(text: String) -> MemorySize? {
         let textToMemoryUnit: [String: MemorySize.Unit] =
             [
@@ -110,11 +111,14 @@ extension MemorySize {
         }
     }
 
+    // parse the unit from text
     func parseUnits(text: String) -> String {
+        // when it's 0 kb the report text is going to be "zero kb" so we need to handle it manually
         if text.lowercased() == Self.zeroSize { return "kb" }
         return parseUnits(text: Array(text))
     }
 
+    // parse the unit from text (array of character)
     func parseUnits(text: [Character]) -> String {
         var unitString = ""
 
@@ -127,11 +131,14 @@ extension MemorySize {
         return unitString
     }
 
+    // parse the memory size from text
     func parseSize(text: String) -> Double? {
+        // when it's 0 kb the report text is going to be "zero kb" so we need to handle it manually
         if text.lowercased() == Self.zeroSize { return 0 }
         return parseSize(text: Array(text))
     }
 
+    // parse the memory size from text (array of character)
     func parseSize(text: [Character]) -> Double? {
         var sizeString = ""
 

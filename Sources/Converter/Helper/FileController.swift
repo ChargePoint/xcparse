@@ -8,6 +8,7 @@
 import Foundation
 
 public class FileController {
+    // load file with given url
     public static func loadFile(url: String) -> String? {
         var res: String?
         let url = URL(fileURLWithPath: url)
@@ -18,6 +19,7 @@ public class FileController {
         return res
     }
 
+    // write file to the url directory for the given data
     public static func writeFile(data: String, url: String, _ outputName: String = "report") {
         let url = URL(fileURLWithPath: url)
         let location = url.appendingPathComponent("\(outputName).json")

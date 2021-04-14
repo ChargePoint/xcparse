@@ -20,6 +20,8 @@ class AppSizeModel: ModelSize {
         case compressed, uncompressed
     }
 
+    // MARK: - Constructor
+    
     init(compressed: SizeModel = SizeModel.placeholder(), uncompressed: SizeModel = SizeModel.placeholder()) {
         self.compressed = compressed
         self.uncompressed = uncompressed

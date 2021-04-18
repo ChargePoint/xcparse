@@ -424,6 +424,7 @@ class XCPParser {
         registry.register(command: LogsCommand.self)
         registry.register(command: AttachmentsCommand.self)
         registry.register(command: VersionCommand.self)
+        registry.register(command: ConverterCommand.self)
         registry.run()
 
         self.printLatestVersionInfoIfNeeded()

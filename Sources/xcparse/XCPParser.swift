@@ -6,9 +6,9 @@
 //  Copyright © 2019 ChargePoint, Inc. All rights reserved.
 //
 
-import Basic
 import Foundation
-import SPMUtility
+import TSCBasic
+import TSCUtility
 import XCParseCore
 
 let xcparseCurrentVersion = Version(2, 1, 0)
@@ -272,7 +272,7 @@ class XCPParser {
         }
 
         let header = (displayName != "") ? "Exporting \"\(displayName)\" Attachments" : "Exporting Attachments"
-        let progressBar = PercentProgressAnimation(stream: stdoutStream, header: header)
+        let progressBar = PercentProgressAnimation(stream: TSCBasic.stdoutStream, header: header)
         progressBar.update(step: 0, total: attachments.count, text: "")
 
         for (index, attachment) in attachments.enumerated() {

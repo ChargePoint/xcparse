@@ -29,7 +29,7 @@ class XCResultArrayValue<T: Codable> : Codable {
     }
 }
 
-class XCResultValueType : Codable {
+public class XCResultValueType : Codable {
     let type: XCResultType
     let value: String
     
@@ -158,7 +158,12 @@ enum XCResultTypeFamily: String, ClassFamily {
     case ResultMetrics
     case SortedKeyValueArray
     case SortedKeyValueArrayPair
+    case SourceCodeContext
+    case SourceCodeFrame
+    case SourceCodeLocation
+    case SourceCodeSymbolInfo
     case String
+    case TestAssociatedError
     case TestFailureIssueSummary
     case TypeDefinition
     
@@ -185,7 +190,7 @@ enum XCResultTypeFamily: String, ClassFamily {
         case .ActionTestAttachment:
             return XCParseCore.ActionTestAttachment.self
         case .ActionTestFailureSummary:
-            return XCParseCore.ActionTestActivitySummary.self
+            return XCParseCore.ActionTestFailureSummary.self
         case .ActionTestMetadata:
             return XCParseCore.ActionTestMetadata.self
         case .ActionTestPerformanceMetricSummary:
@@ -261,11 +266,21 @@ enum XCResultTypeFamily: String, ClassFamily {
         case .ResultMetrics:
             return XCParseCore.ResultMetrics.self
         case .SortedKeyValueArray:
-            return AnyObject.self
+            return XCParseCore.SortedKeyValueArray.self
         case .SortedKeyValueArrayPair:
-            return AnyObject.self
+            return XCParseCore.SortedKeyValueArrayPair.self
+        case .SourceCodeContext:
+            return XCParseCore.SourceCodeContext.self
+        case .SourceCodeFrame:
+            return XCParseCore.SourceCodeFrame.self
+        case .SourceCodeLocation:
+            return XCParseCore.SourceCodeLocation.self
+        case .SourceCodeSymbolInfo:
+            return XCParseCore.SourceCodeSymbolInfo.self
         case .String:
             return XCParseCore.XCResultValueType.self
+        case .TestAssociatedError:
+            return XCParseCore.TestAssociatedError.self
         case .TestFailureIssueSummary:
             return XCParseCore.TestFailureIssueSummary.self
         case .TypeDefinition:

@@ -3,7 +3,7 @@
 //  xcparse
 //
 //  Created by Alex Botkin on 8/13/19.
-//  Copyright © 2019 ChargePoint, Inc. All rights reserved.
+//  Copyright © 2021 ChargePoint, Inc. All rights reserved.
 //
 
 import Foundation
@@ -118,11 +118,15 @@ enum XCResultTypeFamily: String, ClassFamily {
     case ActionSDKRecord
     case ActionTestActivitySummary
     case ActionTestAttachment
+    case ActionTestConfiguration
+    case ActionTestExpectedFailure
     case ActionTestFailureSummary
     case ActionTestMetadata
+    case ActionTestNoticeSummary
     case ActionTestPerformanceMetricSummary
     case ActionTestPlanRunSummaries
     case ActionTestPlanRunSummary
+    case ActionTestRepetitionPolicySummary
     case ActionTestSummary
     case ActionTestSummaryGroup
     case ActionTestSummaryIdentifiableObject
@@ -189,16 +193,24 @@ enum XCResultTypeFamily: String, ClassFamily {
             return XCParseCore.ActionTestActivitySummary.self
         case .ActionTestAttachment:
             return XCParseCore.ActionTestAttachment.self
+        case .ActionTestConfiguration:
+            return XCParseCore.ActionTestConfiguration.self
+        case .ActionTestExpectedFailure:
+            return XCParseCore.ActionTestExpectedFailure.self
         case .ActionTestFailureSummary:
             return XCParseCore.ActionTestFailureSummary.self
         case .ActionTestMetadata:
             return XCParseCore.ActionTestMetadata.self
+        case .ActionTestNoticeSummary:
+            return XCParseCore.ActionTestNoticeSummary.self
         case .ActionTestPerformanceMetricSummary:
             return XCParseCore.ActionTestPerformanceMetricSummary.self
         case .ActionTestPlanRunSummaries:
             return XCParseCore.ActionTestPlanRunSummaries.self
         case .ActionTestPlanRunSummary:
             return XCParseCore.ActionTestPlanRunSummary.self
+        case .ActionTestRepetitionPolicySummary:
+            return XCParseCore.ActionTestRepetitionPolicySummary.self
         case .ActionTestSummary:
             return XCParseCore.ActionTestSummary.self
         case .ActionTestSummaryGroup:

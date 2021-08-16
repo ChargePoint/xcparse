@@ -54,6 +54,9 @@ open class ActionTestPerformanceMetricSummary : Codable {
     public let maxRegression: Double?
     public let maxStandardDeviation: Double?
 
+    // xcresult 3.34 and above
+    public let polarity: String?
+
     // Derived
     public var metricType : ActionTestPerformanceMetric {
         let identifierString = identifier ?? "Identifier Missing"
@@ -71,6 +74,7 @@ open class ActionTestPerformanceMetricSummary : Codable {
         case maxPercentRelativeStandardDeviation
         case maxRegression
         case maxStandardDeviation
+        case polarity
     }
 
      required public init(from decoder: Decoder) throws {
@@ -87,5 +91,6 @@ open class ActionTestPerformanceMetricSummary : Codable {
         maxPercentRelativeStandardDeviation = try container.decodeXCResultTypeIfPresent(forKey: .maxPercentRelativeStandardDeviation)
         maxRegression = try container.decodeXCResultTypeIfPresent(forKey: .maxRegression)
         maxStandardDeviation = try container.decodeXCResultTypeIfPresent(forKey: .maxStandardDeviation)
+        polarity = try container.decodeXCResultTypeIfPresent(forKey: .polarity)
     }
 }

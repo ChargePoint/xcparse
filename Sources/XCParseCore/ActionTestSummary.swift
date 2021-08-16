@@ -20,12 +20,24 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
     public let failureSummaries: [ActionTestFailureSummary]
     public let activitySummaries: [ActionTestActivitySummary]
 
+    // Missing from earlier additions
+//    public let skipNoticeSummary: ActionTestNoticeSummary?
+
+    // xcresult 3.34 and above
+//    public let expectedFailures: [ActionTestExpectedFailure]
+//    public let repetitionPolicySummary: ActionTestRepetitionPolicySummary?
+//    public let configuration: ActionTestConfiguration?
+
     enum ActionTestSummaryCodingKeys: String, CodingKey {
         case testStatus
         case duration
         case performanceMetrics
         case failureSummaries
         case activitySummaries
+//        case skipNoticeSummary
+//        case expectedFailures
+//        case repetitionPolicySummary
+//        case configuration
     }
 
      required public init(from decoder: Decoder) throws {
@@ -36,6 +48,12 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
         performanceMetrics = try container.decodeXCResultArray(forKey: .performanceMetrics)
         failureSummaries = try container.decodeXCResultArray(forKey: .failureSummaries)
         activitySummaries = try container.decodeXCResultArray(forKey: .activitySummaries)
+
+//        skipNoticeSummary = try container.decodeXCResultObjectIfPresent(forKey: .skipNoticeSummary)
+//
+//        expectedFailures = try container.decodeXCResultArray(forKey: .expectedFailures)
+//        repetitionPolicySummary = try container.decodeXCResultObjectIfPresent(forKey: .repetitionPolicySummary)
+//        configuration = try container.decodeXCResultObjectIfPresent(forKey: .configuration)
 
         try super.init(from: decoder)
     }

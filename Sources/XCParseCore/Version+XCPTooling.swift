@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SPMUtility
+import TSCUtility
 
 public extension Version {
     static func xcresulttoolCompatibleWithUnicodeExportPath() -> Version {

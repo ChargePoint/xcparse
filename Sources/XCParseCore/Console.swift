@@ -6,8 +6,8 @@
 //  Copyright © 2019 ChargePoint, Inc. All rights reserved.
 //
 
-import Basic
 import Foundation
+import TSCBasic
 
 public enum OutputType {
   case error
@@ -42,7 +42,7 @@ open class Console {
     @discardableResult public func shellCommand(_ command: [String]) -> String {
         self.writeMessage("Command: \(command.joined(separator: " "))\n", to: .verbose)
 
-        let process = Basic.Process(arguments: command)
+        let process = TSCBasic.Process(arguments: command)
         do {
             try process.launch()
             let result = try process.waitUntilExit()

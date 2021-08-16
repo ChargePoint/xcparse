@@ -6,9 +6,9 @@
 //  Copyright © 2019 ChargePoint, Inc. All rights reserved.
 //
 
-import Basic
 import Foundation
-import SPMUtility
+import TSCBasic
+import TSCUtility
 
 // This is cribbed form a great blog post on ArgumentParser
 // https://www.enekoalonso.com/articles/handling-commands-with-swift-package-manager
@@ -113,7 +113,7 @@ struct CommandRegistry {
         // We've determined it isn't a legacy command, so use new parsing
         guard let subparser = arguments.subparser(parser),
             let command = commands.first(where: { $0.command == subparser }) else {
-            parser.printUsage(on: stdoutStream)
+            parser.printUsage(on: TSCBasic.stdoutStream)
             return
         }
         try command.run(with: arguments)

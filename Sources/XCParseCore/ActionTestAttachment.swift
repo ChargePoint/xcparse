@@ -24,9 +24,13 @@ open class ActionTestAttachment : Codable {
     public let payloadRef: Reference?
     public let payloadSize: Int
 
+    // xcresult 3.34 and above
+    public let uuid: String?
+
     enum ActionTestAttachmentCodingKeys: String, CodingKey {
         case uniformTypeIdentifier
         case name
+        case uuid
         case timestamp
         case userInfo
         case lifetime
@@ -40,6 +44,7 @@ open class ActionTestAttachment : Codable {
         let container = try decoder.container(keyedBy: ActionTestAttachmentCodingKeys.self)
         uniformTypeIdentifier = try container.decodeXCResultType(forKey: .uniformTypeIdentifier)
         name = try container.decodeXCResultTypeIfPresent(forKey: .name)
+        uuid = try container.decodeXCResultTypeIfPresent(forKey: .uuid)
         timestamp = try container.decodeXCResultTypeIfPresent(forKey: .timestamp)
         userInfo = try container.decodeXCResultObjectIfPresent(forKey: .userInfo)
         lifetime = try container.decodeXCResultType(forKey: .lifetime)

@@ -11,7 +11,7 @@ import TSCBasic
 import TSCUtility
 import XCParseCore
 
-let xcparseCurrentVersion = Version(2, 1, 0)
+let xcparseCurrentVersion = Version(2, 2, 1)
 
 struct XCResultToolCompatability {
     var supportsExport: Bool = true

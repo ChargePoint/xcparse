@@ -6,9 +6,8 @@
 //  Copyright © 2019 ChargePoint, Inc. All rights reserved.
 //
 
-import Basic
 import Foundation
-import SPMUtility
+import TSCUtility
 import XCParseCore
 
 struct VersionCommand: Command {

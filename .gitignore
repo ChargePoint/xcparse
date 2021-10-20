@@ -42,7 +42,7 @@ playground.xcworkspace
 # Package.pins
 # Package.resolved
 .build/
-
+.swiftpm/xcode/xcshareddata/
 # CocoaPods
 #
 # We recommend against adding the Pods directory to your .gitignore. However

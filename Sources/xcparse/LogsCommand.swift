@@ -6,9 +6,9 @@
 //  Copyright © 2019 ChargePoint, Inc. All rights reserved.
 //
 
-import Basic
 import Foundation
-import SPMUtility
+import TSCBasic
+import TSCUtility
 
 struct LogsCommand: Command {
     let command = "logs"
@@ -35,7 +35,7 @@ struct LogsCommand: Command {
         }
         let xcresultPath = xcresultPathArgument.path
 
-        var outputPath: AbsolutePath
+        var outputPath: TSCBasic.AbsolutePath
         if let outputPathArgument = arguments.get(self.outputPath) {
             outputPath = outputPathArgument.path
         } else if let workingDirectory = localFileSystem.currentWorkingDirectory {

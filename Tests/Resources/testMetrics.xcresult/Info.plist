@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>dateCreated</key>
+	<date>2020-08-24T22:35:35Z</date>
+	<key>externalLocations</key>
+	<array/>
+	<key>rootId</key>
+	<dict>
+		<key>hash</key>
+		<string>0~k19jmlIfY6-T69UZzxSgz-dohjtf-XoZrqgF06fevp05vGd92yV7we2bNn83ct1Ble8J48QfQJby9Hp2CdXL7g==</string>
+	</dict>
+	<key>storage</key>
+	<dict>
+		<key>backend</key>
+		<string>fileBacked2</string>
+		<key>compression</key>
+		<string>standard</string>
+	</dict>
+	<key>version</key>
+	<dict>
+		<key>major</key>
+		<integer>3</integer>
+		<key>minor</key>
+		<integer>24</integer>
+	</dict>
+</dict>
+</plist>

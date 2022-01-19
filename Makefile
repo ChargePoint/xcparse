@@ -3,10 +3,10 @@ bindir = $(prefix)/bin
 libdir = $(prefix)/lib
 
 build:
-	swift build -c release --disable-sandbox
+	swift build -c release --disable-sandbox --arch arm64 --arch x86_64
 
 install: build
-	install ".build/release/xcparse" "$(bindir)"
+	install ".build/apple/Products/Release/xcparse" "$(bindir)"
 
 uninstall:
 	rm -rf "$(bindir)/xcparse"

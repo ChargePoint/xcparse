@@ -131,6 +131,11 @@ public final class ReportConverter {
         return result
     }
     
+    /// Generate a report with all the variants that exceed the size limit.
+    /// - Parameters:
+    ///             - variants: list of variant that we want to analyze
+    ///             - limit: the memory size limit
+    /// - Returns: The report listing all variants that are over the limit
     public static func generateAppSizeViolationsReport(variants: [VariantModel], limit: MemorySize = MemorySize(megabytes: 10)) -> String? {
         let flaggedVariants = self.flagVariants(variants: variants, limit: limit)
         if (flaggedVariants.isEmpty) {

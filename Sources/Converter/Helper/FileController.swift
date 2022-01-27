@@ -9,7 +9,7 @@ import Foundation
 
 public class FileController {
     // load file with given url
-    public static func loadFile(url: String) -> String? {
+    public static func loadFileContents(url: String) -> String? {
         var res: String?
         let url = URL(fileURLWithPath: url)
         if let fileContents = try? String(contentsOf: url) {
@@ -20,9 +20,9 @@ public class FileController {
     }
 
     // write file to the url directory for the given data
-    public static func writeFile(data: String, url: String, _ outputName: String = "report") {
+    public static func writeFile(data: String, url: String, outputName: String = "report", format: String = "json") {
         let url = URL(fileURLWithPath: url)
-        let location = url.appendingPathComponent("\(outputName).json")
+        let location = url.appendingPathComponent("\(outputName).\(format)")
         do {
             try data.write(to: location, atomically: true, encoding: String.Encoding.utf8)
         } catch {

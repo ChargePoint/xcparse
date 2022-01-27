@@ -6,12 +6,13 @@
 //  Copyright © 2019 ChargePoint, Inc. All rights reserved.
 //
 
-import Basic
 import Foundation
-import SPMUtility
+import TSCBasic
+import TSCUtility
 import XCParseCore
+import Converter
 
-let xcparseCurrentVersion = Version(2, 1, 0)
+let xcparseCurrentVersion = Version(2, 2, 1)
 
 struct XCResultToolCompatability {
     var supportsExport: Bool = true
@@ -135,6 +136,15 @@ struct AttachmentExportOptions {
             return baseURL
         }
     }
+}
+
+struct FlagVariants {
+    var flag: Bool = false
+    var limit: String = ""
+}
+
+struct ReportConverterOptions {
+    var flagVariants = FlagVariants()
 }
 
 class XCPParser {
@@ -272,7 +282,7 @@ class XCPParser {
         }
 
         let header = (displayName != "") ? "Exporting \"\(displayName)\" Attachments" : "Exporting Attachments"
-        let progressBar = PercentProgressAnimation(stream: stdoutStream, header: header)
+        let progressBar = PercentProgressAnimation(stream: TSCBasic.stdoutStream, header: header)
         progressBar.update(step: 0, total: attachments.count, text: "")
 
         for (index, attachment) in attachments.enumerated() {
@@ -373,6 +383,47 @@ class XCPParser {
                 let actionLogURL = actionRecordDestinationURL.appendingPathComponent("action.txt")
                 XCResultToolCommand.Export(withXCResult: xcresult, id: actionResultLogRef.id, outputPath: actionLogURL.path, type: .file).run()
             }
+        }
+    }
+    
+    func convertAppSizeReport(reportPath: String, destination outputDirectoryURL: String, options: ReportConverterOptions) throws {
+        guard let report = FileController.loadFileContents(url: reportPath),
+              let urlPath = URL(string: reportPath)
+        else {
+            print("Input file unreadable")
+            return
+        }
+
+        let outputName = urlPath.deletingPathExtension().lastPathComponent
+        
+        if (!ReportConverter.isValidAppSizeReport(report)) {
+            self.console.writeMessage("“\(reportPath)” does not appear to be a valid App Thinning Size Report", to: .error)
+            return
+        }
+        
+        let variants = ReportConverter.parse(text: report)
+        
+        if (options.flagVariants.flag) {
+            if let flaggedViolationsReport = ReportConverter.generateAppSizeViolationsReport(variants: variants, limit: MemorySize(text: options.flagVariants.limit) ?? MemorySize(megabytes: 10)) {
+                FileController.writeFile(data: flaggedViolationsReport, url: outputDirectoryURL, outputName: "appSizeViolationsReport", format: "txt")
+                self.console.writeMessage("App Size Violations report written to \(outputDirectoryURL)")
+            } else {
+                self.console.writeMessage("No app size violations found")
+            }
+        }
+        
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        do {
+            let data = try encoder.encode(variants)
+            if let json = String(data: data, encoding: String.Encoding.utf8) {
+                FileController.writeFile(data: json, url: outputDirectoryURL, outputName: outputName, format: "json")
+                self.console.writeMessage("🎊 Conversion complete! 🎊")
+            } else {
+                print("JSON Empty")
+            }
+        } catch {
+            print(error.localizedDescription)
         }
     }
 

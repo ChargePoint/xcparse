@@ -6,9 +6,9 @@
 //
 
 import XCTest
-@testable import AppThinningConverter
+@testable import Converter
 
-class VariantParserTests: XCTestCase {
+final class VariantParserTests: XCTestCase {
     func testParseTextReturnsExpected() throws {
         let text = "ChargePointAppClip-0F01226A-99F0-4092-8BBD-6919103E6F0A.ipa"
         let parser = VariantParser(text: text)

@@ -6,9 +6,9 @@
 //
 
 import XCTest
-@testable import AppThinningConverter
+@testable import Converter
 
-class AppSizeParserTests: XCTestCase {
+final class AppSizeParserTests: XCTestCase {
     func testParseTextReturnsExpected() throws {
         let text = "11.6 MB compressed, 12.9 MB uncompressed"
         let parser = AppSizeParser(text: text)

@@ -37,7 +37,13 @@ public final class ReportConverter {
     public static func parse(text: String) -> [VariantModel] {
         // Add splitter id so that we know the boundary between each variant
         let splitterID = UUID().uuidString
-        let preprocessedData = text.replacingOccurrences(of: "\n\n", with: "\n\(splitterID)\n")
+        
+        // First we trim the report text
+        var preprocessedData = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        preprocessedData = text.replacingOccurrences(of: "\n\n", with: "\n\(splitterID)\n")
+        // Also append the splitter ID to the end of the text so we do not miss the last variant
+        preprocessedData += "\n\(splitterID)\n"
 
         // split it to multiple array so we can easily iterate it
         let datas = preprocessedData.split(separator: "\n")
@@ -90,44 +96,50 @@ public final class ReportConverter {
 
         return variants
     }
-
-    /// write the parsing result to json filer.
-    /// - Parameter:
-    ///             - text: the text you want to parse.
-    ///             - to: the output url directory.
-    ///             - outputName: the output file name.
-    public static func writeJSON(from text: String, to directoryURL: String, outputName: String = "ConverterResult") {
-        let variants = self.parse(text: text)
-        let encoder = JSONEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
-        do {
-            let data = try encoder.encode(variants)
-            if let json = String(data: data, encoding: String.Encoding.utf8) {
-                FileController.writeFile(data: json, url: directoryURL, outputName)
-            } else {
-                print("JSON Empty")
+    
+    /// Check if the input file is a valid App Thinning Size Report
+    /// - Parameters:
+    ///             - text: contents of the input file
+    public static func isValidAppSizeReport(_ text: String) -> Bool {
+        let properties = VariantModel.ParsingKeys.allCases
+        for property in properties {
+            let key = property.rawValue
+            if !text.contains(key) {
+                return false
             }
-        } catch {
-            print(error.localizedDescription)
         }
+        return true;
     }
 
     /// Report all the variant that are over the size limit.
+    /// - Parameters:
     ///             - variants: list of variant that we want to analyze
     ///             - limit: the memory size limit
-    /// - Returns: The list of variant that are over the limit
-    func flagVariants(_  variants: [VariantModel], limit: MemorySize = MemorySize(megabytes: 10)) -> [String] {
-        var result = [String]()
+    /// - Returns: The list of variants that are over the limit
+    static func flagVariants(variants: [VariantModel], limit: MemorySize = MemorySize(megabytes: 10)) -> [VariantModel] {
+        var result = [VariantModel]()
 
         for variant in variants {
             let appSizeUncompressed = MemorySize(megabytes: variant.appSize.uncompressed.value)
             let appOnDemandSizeUncompressed = MemorySize(megabytes: variant.appOnDemandResourcesSize.uncompressed.value)
 
             if appSizeUncompressed > limit || appOnDemandSizeUncompressed > limit {
-                result.append(variant.variant)
+                result.append(variant)
             }
         }
 
         return result
+    }
+    
+    public static func generateAppSizeViolationsReport(variants: [VariantModel], limit: MemorySize = MemorySize(megabytes: 10)) -> String? {
+        let flaggedVariants = self.flagVariants(variants: variants, limit: limit)
+        if (flaggedVariants.isEmpty) {
+            return nil
+        }
+        var violationsReport = "App Size Violations\n\nSize Limit = \(limit.displayString)\n\n"
+        for variantModel in flaggedVariants {
+            violationsReport += "Variant: \(variantModel.variant)\nApp Size: \(variantModel.appSize.compressed.rawValue) compressed, \(variantModel.appSize.uncompressed.rawValue) uncompressed\nOn Demand Resources size: \(variantModel.onDemandResourcesSize.compressed.rawValue) compressed, \(variantModel.onDemandResourcesSize.uncompressed.rawValue) uncompressed\n\n"
+        }
+        return violationsReport
     }
 }

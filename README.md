@@ -136,6 +136,26 @@ This will export logs & diagnostic files into a per-action folder structure simi
 
 ![Logs exported into folders](Docs/Images/screenshots_logs.png?raw=true)
 
+### Convert
+
+```
+xcparse convert /path/to/AppThinningSizeReport.txt /path/to/outputDirectory --flagVariants sizeLimit
+```
+
+This will export a JSON representation of the given App Thinning Size Report to the output directory.
+
+#### Flag Variants
+
+The ```--flag-variants``` option can allow for the generation of an app size violations report with all the app variants that exceed the specified size limit.
+
+| Examples                            | Description                    |
+|-------------------------------------|--------------------------------|
+| ```--flag-variants 10MB```          | Flags variants that exceed 10MB| 
+| ```--flag-variants 13```            | Flags variants that exceed 13MB| 
+| ```--flag-variants invalid```       | Flags variants that exceed 10MB|
+
+If a size unit is not specified, the default unit is considered to be megabytes. Similarly, invalid arguments cause a default size limit of 10MB to be used for flagging app size violations.
+
 ### Help
 
 ```

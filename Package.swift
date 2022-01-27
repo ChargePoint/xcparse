@@ -22,23 +22,30 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-package-manager.git", .exact("0.5.0")),
+        .package(url: "https://github.com/apple/swift-tools-support-core.git", .exact("0.2.4")),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "xcparse",
-            dependencies: [ "XCParseCore", "SPMUtility", "Converter" ]),
+            dependencies: [ "XCParseCore", "SwiftToolsSupport-auto", "Converter" ]),
         .target(
             name: "XCParseCore",
-            dependencies: [ "SPMUtility" ]),
+            dependencies: [ "SwiftToolsSupport-auto" ]),
         .target(
             name: "Converter",
-            dependencies: []),
+            dependencies: ["XCParseCore"]),
+        .target(
+            name: "testUtility",
+            dependencies: [],
+            path: "Tests/Utility"),
         .testTarget(
             name: "xcparseTests",
-            dependencies: ["xcparse"]),
+            dependencies: ["xcparse", "testUtility"]),
+        .testTarget(
+            name: "appThinningConverterTests",
+            dependencies: ["Converter", "testUtility"]),
     ],
     swiftLanguageVersions: [.v5]
 )

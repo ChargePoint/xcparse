@@ -3,7 +3,7 @@
 //  xcparse
 //
 //  Created by Alex Botkin on 8/13/19.
-//  Copyright © 2019 ChargePoint, Inc. All rights reserved.
+//  Copyright © 2021 ChargePoint, Inc. All rights reserved.
 //
 
 import Foundation
@@ -29,7 +29,7 @@ class XCResultArrayValue<T: Codable> : Codable {
     }
 }
 
-class XCResultValueType : Codable {
+public class XCResultValueType : Codable {
     let type: XCResultType
     let value: String
     
@@ -118,11 +118,15 @@ enum XCResultTypeFamily: String, ClassFamily {
     case ActionSDKRecord
     case ActionTestActivitySummary
     case ActionTestAttachment
+    case ActionTestConfiguration
+    case ActionTestExpectedFailure
     case ActionTestFailureSummary
     case ActionTestMetadata
+    case ActionTestNoticeSummary
     case ActionTestPerformanceMetricSummary
     case ActionTestPlanRunSummaries
     case ActionTestPlanRunSummary
+    case ActionTestRepetitionPolicySummary
     case ActionTestSummary
     case ActionTestSummaryGroup
     case ActionTestSummaryIdentifiableObject
@@ -158,7 +162,12 @@ enum XCResultTypeFamily: String, ClassFamily {
     case ResultMetrics
     case SortedKeyValueArray
     case SortedKeyValueArrayPair
+    case SourceCodeContext
+    case SourceCodeFrame
+    case SourceCodeLocation
+    case SourceCodeSymbolInfo
     case String
+    case TestAssociatedError
     case TestFailureIssueSummary
     case TypeDefinition
     
@@ -184,16 +193,24 @@ enum XCResultTypeFamily: String, ClassFamily {
             return XCParseCore.ActionTestActivitySummary.self
         case .ActionTestAttachment:
             return XCParseCore.ActionTestAttachment.self
+        case .ActionTestConfiguration:
+            return XCParseCore.ActionTestConfiguration.self
+        case .ActionTestExpectedFailure:
+            return XCParseCore.ActionTestExpectedFailure.self
         case .ActionTestFailureSummary:
-            return XCParseCore.ActionTestActivitySummary.self
+            return XCParseCore.ActionTestFailureSummary.self
         case .ActionTestMetadata:
             return XCParseCore.ActionTestMetadata.self
+        case .ActionTestNoticeSummary:
+            return XCParseCore.ActionTestNoticeSummary.self
         case .ActionTestPerformanceMetricSummary:
             return XCParseCore.ActionTestPerformanceMetricSummary.self
         case .ActionTestPlanRunSummaries:
             return XCParseCore.ActionTestPlanRunSummaries.self
         case .ActionTestPlanRunSummary:
             return XCParseCore.ActionTestPlanRunSummary.self
+        case .ActionTestRepetitionPolicySummary:
+            return XCParseCore.ActionTestRepetitionPolicySummary.self
         case .ActionTestSummary:
             return XCParseCore.ActionTestSummary.self
         case .ActionTestSummaryGroup:
@@ -261,11 +278,21 @@ enum XCResultTypeFamily: String, ClassFamily {
         case .ResultMetrics:
             return XCParseCore.ResultMetrics.self
         case .SortedKeyValueArray:
-            return AnyObject.self
+            return XCParseCore.SortedKeyValueArray.self
         case .SortedKeyValueArrayPair:
-            return AnyObject.self
+            return XCParseCore.SortedKeyValueArrayPair.self
+        case .SourceCodeContext:
+            return XCParseCore.SourceCodeContext.self
+        case .SourceCodeFrame:
+            return XCParseCore.SourceCodeFrame.self
+        case .SourceCodeLocation:
+            return XCParseCore.SourceCodeLocation.self
+        case .SourceCodeSymbolInfo:
+            return XCParseCore.SourceCodeSymbolInfo.self
         case .String:
             return XCParseCore.XCResultValueType.self
+        case .TestAssociatedError:
+            return XCParseCore.TestAssociatedError.self
         case .TestFailureIssueSummary:
             return XCParseCore.TestFailureIssueSummary.self
         case .TypeDefinition:

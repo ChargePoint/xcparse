@@ -67,11 +67,11 @@ extension MemorySize {
         case 0..<pow(1_024, 1):
             return "\(bytes) bytes"
         case pow(1_024, 1)..<pow(1_024, 2):
-            return "\(String(format: "%.2f", kilobytes)) kb"
+            return "\(String(format: "%.2f", kilobytes)) KB"
         case pow(1_024, 2)..<pow(1_024, 3):
-            return "\(String(format: "%.2f", megabytes)) mb"
+            return "\(String(format: "%.2f", megabytes)) MB"
         case pow(1_024, 3)...:
-            return "\(String(format: "%.2f", gigabytes)) gb"
+            return "\(String(format: "%.2f", gigabytes)) GB"
         default:
             return "\(bytes) bytes"
         }
@@ -95,9 +95,10 @@ extension MemorySize {
                 "gigabytes": .gigabytes,
             ]
 
-        guard let unit = textToMemoryUnit[parseUnits(text: text)],
-              let size = parseSize(text: text)
-        else { return nil }
+        let unit = textToMemoryUnit[parseUnits(text: text)] ?? .megabytes
+        guard let size = parseSize(text: text) else {
+            return nil
+        }
 
         switch unit {
         case .bytes:

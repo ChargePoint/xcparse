@@ -6,9 +6,9 @@
 //
 
 import XCTest
-@testable import AppThinningConverter
+@testable import Converter
 
-class VariantDescriptorParserTests: XCTestCase {
+final class VariantDescriptorParserTests: XCTestCase {
     func testParseTextReturnsExpected() throws {
         let text = "[device: iPhone8,4, os-version: 14.0], [device: iPhone8,1, os-version: 14.0], and [device: iPod9,1, os-version: 14.0]"
         let parser = VariantDescriptorParser(text: text)

@@ -6,28 +6,29 @@
 //
 
 import XCTest
-@testable import AppThinningConverter
+@testable import Converter
+@testable import testUtility
 
-class ReportConverterTests: XCTestCase {
-    var converter: ReportConverter!
+final class ReportConverterTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        converter = ReportConverter()
     }
 
     func testParseTextReturnsExpected() throws {
         let bundle = Bundle(for: type(of: self))
-        let filepath = try XCTUnwrap(bundle.path(forResource: "App Thinning Size Report", ofType: "txt"))
-        let file = try String(contentsOfFile: filepath)
+        
+        let filepath = try Resource(name: "App Thinning Size Report", type: "txt")
+        let file = try String(contentsOfFile: filepath.url.path)
         let text = try XCTUnwrap(file)
 
-        let path = try XCTUnwrap(bundle.url(forResource: "ExpectedResult", withExtension: "json"))
-        let data = try Data(contentsOf: path, options: .mappedIfSafe)
+        let jsonPath = try Resource(name: "appThinningSizeReport", type: "json")
+        let data = try Data(contentsOf: jsonPath.url, options: .mappedIfSafe)
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         
-        let result = converter.parse(text: text)
+        let result = ReportConverter.parse(text: text)
+        
         let expectation = try decoder.decode([VariantModel].self, from: data)
 
         XCTAssertEqual(result, expectation)

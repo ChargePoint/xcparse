@@ -13,7 +13,7 @@ import Converter
 struct ConverterCommand: Command {
     let command = "convert"
     let overview = "Converts App Thinning Size Report to JSON and saves it in output folder."
-    let usage = "[OPTIONS] appSizeReport [outputDirectory]"
+    let usage = "[OPTIONS] appSizeReport outputDirectory"
 
     var flagVariants: OptionArgument<String>
     var reportPath: PositionalArgument<PathArgument>

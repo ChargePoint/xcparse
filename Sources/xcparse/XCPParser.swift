@@ -387,12 +387,13 @@ class XCPParser {
     }
     
     func convertAppSizeReport(reportPath: String, destination outputDirectoryURL: String, options: ReportConverterOptions) throws {
-        guard let report = FileController.loadFileContents(url: reportPath),
-              let urlPath = URL(string: reportPath)
+        guard let report = FileController.loadFileContents(url: reportPath)
         else {
             print("Input file unreadable")
             return
         }
+        
+        let urlPath = URL(fileURLWithPath: reportPath)
 
         let outputName = urlPath.deletingPathExtension().lastPathComponent
         

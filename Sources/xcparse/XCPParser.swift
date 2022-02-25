@@ -10,6 +10,7 @@ import Foundation
 import TSCBasic
 import TSCUtility
 import XCParseCore
+import Converter
 
 let xcparseCurrentVersion = Version(2, 2, 1)
 
@@ -135,6 +136,15 @@ struct AttachmentExportOptions {
             return baseURL
         }
     }
+}
+
+struct FlagVariants {
+    var flag: Bool = false
+    var limit: String = ""
+}
+
+struct ReportConverterOptions {
+    var flagVariants = FlagVariants()
 }
 
 class XCPParser {
@@ -375,6 +385,48 @@ class XCPParser {
             }
         }
     }
+    
+    func convertAppSizeReport(reportPath: String, destination outputDirectoryURL: String, options: ReportConverterOptions) throws {
+        guard let report = FileController.loadFileContents(url: reportPath)
+        else {
+            print("Input file unreadable")
+            return
+        }
+        
+        let urlPath = URL(fileURLWithPath: reportPath)
+
+        let outputName = urlPath.deletingPathExtension().lastPathComponent
+        
+        if (!ReportConverter.isValidAppSizeReport(report)) {
+            self.console.writeMessage("“\(reportPath)” does not appear to be a valid App Thinning Size Report", to: .error)
+            return
+        }
+        
+        let variants = ReportConverter.parse(text: report)
+        
+        if (options.flagVariants.flag) {
+            if let flaggedViolationsReport = ReportConverter.generateAppSizeViolationsReport(variants: variants, limit: MemorySize(text: options.flagVariants.limit) ?? MemorySize(megabytes: 10)) {
+                FileController.writeFile(data: flaggedViolationsReport, url: outputDirectoryURL, outputName: "appSizeViolationsReport", format: "txt")
+                self.console.writeMessage("App Size Violations report written to \(outputDirectoryURL)")
+            } else {
+                self.console.writeMessage("No app size violations found")
+            }
+        }
+        
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        do {
+            let data = try encoder.encode(variants)
+            if let json = String(data: data, encoding: String.Encoding.utf8) {
+                FileController.writeFile(data: json, url: outputDirectoryURL, outputName: outputName, format: "json")
+                self.console.writeMessage("🎊 Conversion complete! 🎊")
+            } else {
+                print("JSON Empty")
+            }
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
 
     func printVersion() {
         self.console.writeMessage("\(xcparseCurrentVersion)")
@@ -424,6 +476,7 @@ class XCPParser {
         registry.register(command: LogsCommand.self)
         registry.register(command: AttachmentsCommand.self)
         registry.register(command: VersionCommand.self)
+        registry.register(command: ConverterCommand.self)
         registry.run()
 
         self.printLatestVersionInfoIfNeeded()

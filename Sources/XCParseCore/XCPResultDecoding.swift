@@ -150,6 +150,8 @@ enum XCResultTypeFamily: String, ClassFamily {
     case Array
     case Bool
     case CodeCoverageInfo
+    case ConsoleLogItem
+    case ConsoleLogSection
     case Date
     case DocumentLocation
     case Double
@@ -257,6 +259,10 @@ enum XCResultTypeFamily: String, ClassFamily {
             return XCParseCore.XCResultValueType.self
         case .CodeCoverageInfo:
             return XCParseCore.CodeCoverageInfo.self
+        case .ConsoleLogItem:
+            return XCParseCore.ConsoleLogItem.self
+        case .ConsoleLogSection:
+            return XCParseCore.ConsoleLogSection.self
         case .Date:
             return XCParseCore.XCResultValueType.self
         case .DocumentLocation:

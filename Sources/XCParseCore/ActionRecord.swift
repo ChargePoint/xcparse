@@ -17,6 +17,9 @@ open class ActionRecord : Codable {
     public let runDestination: ActionRunDestinationRecord
     public let buildResult: ActionResult
     public let actionResult: ActionResult
+    
+    // xcresult 3.39 and above
+    public let testPlanName: String?
 
     enum ActionRecordCodingKeys: String, CodingKey {
         case schemeCommandName
@@ -27,6 +30,7 @@ open class ActionRecord : Codable {
         case runDestination
         case buildResult
         case actionResult
+        case testPlanName
     }
 
      required public init(from decoder: Decoder) throws {
@@ -39,5 +43,6 @@ open class ActionRecord : Codable {
         runDestination = try container.decodeXCResultObject(forKey: .runDestination)
         buildResult = try container.decodeXCResultObject(forKey: .buildResult)
         actionResult = try container.decodeXCResultObject(forKey: .actionResult)
+        testPlanName = try container.decodeXCResultTypeIfPresent(forKey: .testPlanName)
     }
 }

@@ -17,8 +17,12 @@ open class ActionTestableSummary : ActionAbstractTestSummary {
     public let failureSummaries: [ActionTestFailureSummary]
     public let testLanguage: String?
     public let testRegion: String?
+   
+    // xcresult 3.39 and above
+    public let identifierURL: String?
 
     enum ActionTestableSummaryCodingKeys: String, CodingKey {
+        case identifierURL
         case projectRelativePath
         case targetName
         case testKind
@@ -31,6 +35,7 @@ open class ActionTestableSummary : ActionAbstractTestSummary {
 
      required public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ActionTestableSummaryCodingKeys.self)
+        identifierURL = try container.decodeXCResultTypeIfPresent(forKey: .identifierURL)
         projectRelativePath = try container.decodeXCResultTypeIfPresent(forKey: .projectRelativePath)
         targetName = try container.decodeXCResultTypeIfPresent(forKey: .targetName)
         testKind = try container.decodeXCResultTypeIfPresent(forKey: .testKind)

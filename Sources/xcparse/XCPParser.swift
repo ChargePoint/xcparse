@@ -438,7 +438,8 @@ class XCPParser {
         var releaseRequest = URLRequest(url: latestReleaseURL)
         releaseRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        let task = URLSession.shared.dataTask(with: releaseRequest) { (data, response, error) in
+		let urlSession = URLSession(configuration: .ephemeral)
+        let task = urlSession.dataTask(with: releaseRequest) { (data, response, error) in
             if error != nil || data == nil {
                 return
             }

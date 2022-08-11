@@ -18,6 +18,9 @@ open class ActionResult : Codable {
     public let logRef: Reference?
     public let testsRef: Reference?
     public let diagnosticsRef: Reference?
+    
+    // xcresult 3.39 and above
+    public let consoleLogRef: Reference?
 
     enum ActionResultCodingKeys: String, CodingKey {
         case resultName
@@ -29,6 +32,7 @@ open class ActionResult : Codable {
         case logRef
         case testsRef
         case diagnosticsRef
+        case consoleLogRef
     }
 
      required public init(from decoder: Decoder) throws {
@@ -42,5 +46,6 @@ open class ActionResult : Codable {
         logRef = try container.decodeXCResultObjectIfPresent(forKey: .logRef)
         testsRef = try container.decodeXCResultObjectIfPresent(forKey: .testsRef)
         diagnosticsRef = try container.decodeXCResultObjectIfPresent(forKey: .diagnosticsRef)
+        consoleLogRef = try container.decodeXCResultObjectIfPresent(forKey: .consoleLogRef)
     }
 }

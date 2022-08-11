@@ -12,11 +12,15 @@ open class ActionTestNoticeSummary : Codable {
     public let message: String?
     public let fileName: String
     public let lineNumber: Int
+    
+    // xcresult 3.39 and above
+    public let timestamp: Date?
 
     enum ActionTestNoticeSummaryCodingKeys: String, CodingKey {
         case message
         case fileName
         case lineNumber
+        case timestamp
     }
 
      required public init(from decoder: Decoder) throws {
@@ -25,5 +29,6 @@ open class ActionTestNoticeSummary : Codable {
         message = try container.decodeXCResultTypeIfPresent(forKey: .message)
         fileName = try container.decodeXCResultType(forKey: .fileName)
         lineNumber = try container.decodeXCResultType(forKey: .lineNumber)
+        timestamp = try container.decodeXCResultTypeIfPresent(forKey: .timestamp)
     }
 }

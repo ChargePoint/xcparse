@@ -12,7 +12,7 @@ import TSCUtility
 import XCParseCore
 import Converter
 
-let xcparseCurrentVersion = Version(2, 2, 1)
+let xcparseCurrentVersion = Version(2, 3, 1)
 
 struct XCResultToolCompatability {
     var supportsExport: Bool = true

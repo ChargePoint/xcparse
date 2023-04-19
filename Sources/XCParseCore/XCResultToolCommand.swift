@@ -107,7 +107,7 @@ open class XCResultToolCommand {
         public override func run() -> ProcessResult? {
             let superResult = super.run()
             if superResult == nil { return nil }
-            guard let timestamp else { return superResult }
+            guard let timestamp = timestamp else { return superResult }
             try? FileManager.default.setAttributes([.modificationDate: timestamp as Any], ofItemAtPath: outputPath)
             return superResult
         }

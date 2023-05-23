@@ -65,6 +65,7 @@ struct CommandRegistry {
             let xcresulttoolCompatability = xcpParser.checkXCResultToolCompatability(destination: destination)
 
             let options = AttachmentExportOptions(addTestScreenshotsDirectory: true,
+                                                  divideByIdentifier: false,
                                                   divideByTargetModel: false,
                                                   divideByTargetOS: false,
                                                   divideByTestPlanConfig: false,

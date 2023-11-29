@@ -72,11 +72,13 @@ See ```xcparse screenshots --help``` for a full-listing
 
 The ```--test-status``` option can allow for whitelisting only screenshots from tests that have a status that matches at least one of the provided status strings
 
-| Examples                            | Description                    |
-|-------------------------------------|--------------------------------|
-| ```--test-status Success```         | Passing tests only             | 
-| ```--test-status Failure```         | Failing tests only             | 
-| ```--test-status Success Failure``` | Passing or failing tests only  |
+| Examples                                       | Description                            |
+|------------------------------------------------|----------------------------------------|
+| ```--test-status Success```                    | Passing tests only                     | 
+| ```--test-status Failure```                    | Failing tests only                     | 
+| ```--test-status Success Failure```            | Passing or failing tests only          |
+| ```--test-status 'Expected Failure' Failure``` | Expected failure or failing tests only |
+| ```--test-status 'Expected Failure'```         | Expected failure tests only            |
 
 
 Test status strings can be found by using verbose mode with the screenshots sub-command.

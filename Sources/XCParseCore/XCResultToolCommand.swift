@@ -74,7 +74,8 @@ open class XCResultToolCommand {
                                             "--type", self.type.rawValue,
                                             "--path", xcresult.path,
                                             "--id", self.id,
-                                            "--output-path", self.outputPath])
+                                            "--output-path", self.outputPath,
+                                            "--legacy"])
 
             let process = TSCBasic.Process(arguments: processArgs)
             super.init(withXCResult: xcresult, process: process)
@@ -95,7 +96,8 @@ open class XCResultToolCommand {
                                             "--type", self.type.rawValue,
                                             "--path", xcresult.path,
                                             "--id", self.id,
-                                            "--output-path", self.outputPath])
+                                            "--output-path", self.outputPath,
+                                            "--legacy"])
 
             let process = TSCBasic.Process(arguments: processArgs)
             super.init(withXCResult: xcresult, process: process)

@@ -129,6 +129,7 @@ open class XCResultToolCommand {
             if self.outputPath != "" {
                 processArgs.append(contentsOf: ["--output-path", self.outputPath])
             }
+            processArgs.append("--legacy")
 
             let process = TSCBasic.Process(arguments: processArgs)
             super.init(withXCResult: xcresult, process: process)

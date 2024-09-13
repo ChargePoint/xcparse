@@ -153,6 +153,7 @@ open class XCResultToolCommand {
             if let version = self.version {
                 processArgs.append(contentsOf: ["--version", "\(version)"])
             }
+            processArgs.append("--legacy")
 
             let process = TSCBasic.Process(arguments: processArgs)
             super.init(withXCResult: xcresult, process: process)

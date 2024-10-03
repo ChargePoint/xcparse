@@ -18,24 +18,34 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
     public let duration: Double
     public let performanceMetrics: [ActionTestPerformanceMetricSummary]
     public let failureSummaries: [ActionTestFailureSummary]
+    public let expectedFailures: [ActionTestExpectedFailure]
     public let skipNoticeSummary: ActionTestNoticeSummary?
     public let activitySummaries: [ActionTestActivitySummary]
-
-    // xcresult 3.34 and above
-    public let expectedFailures: [ActionTestExpectedFailure]
     public let repetitionPolicySummary: ActionTestRepetitionPolicySummary?
+    public let arguments: [TestArgument]
     public let configuration: ActionTestConfiguration?
+    public let warningSummaries: [ActionTestIssueSummary]
+    public let summary: String?
+    public let documentation: [TestDocumentation]
+    public let trackedIssues: [IssueTrackingMetadata]
+    public let tags: [TestTag]
 
     enum ActionTestSummaryCodingKeys: String, CodingKey {
         case testStatus
         case duration
         case performanceMetrics
         case failureSummaries
+        case expectedFailures
         case skipNoticeSummary
         case activitySummaries
-        case expectedFailures
         case repetitionPolicySummary
+        case arguments
         case configuration
+        case warningSummaries
+        case summary
+        case documentation
+        case trackedIssues
+        case tags
     }
 
      required public init(from decoder: Decoder) throws {
@@ -45,12 +55,17 @@ open class ActionTestSummary : ActionTestSummaryIdentifiableObject {
 
         performanceMetrics = try container.decodeXCResultArray(forKey: .performanceMetrics)
         failureSummaries = try container.decodeXCResultArray(forKey: .failureSummaries)
+        expectedFailures = try container.decodeXCResultArray(forKey: .expectedFailures)
         skipNoticeSummary = try container.decodeXCResultObjectIfPresent(forKey: .skipNoticeSummary)
         activitySummaries = try container.decodeXCResultArray(forKey: .activitySummaries)
-
-        expectedFailures = try container.decodeXCResultArray(forKey: .expectedFailures)
         repetitionPolicySummary = try container.decodeXCResultObjectIfPresent(forKey: .repetitionPolicySummary)
+        arguments = try container.decodeXCResultArray(forKey: .arguments)
         configuration = try container.decodeXCResultObjectIfPresent(forKey: .configuration)
+        warningSummaries = try container.decodeXCResultArray(forKey: .warningSummaries)
+        summary = try container.decodeXCResultTypeIfPresent(forKey: .summary)
+        documentation = try container.decodeXCResultArray(forKey: .documentation)
+        trackedIssues = try container.decodeXCResultArray(forKey: .trackedIssues)
+        tags = try container.decodeXCResultArray(forKey: .tags)
 
         try super.init(from: decoder)
     }

@@ -14,6 +14,7 @@ open class ResultMetrics : Codable {
     public let testsCount: Int
     public let testsFailedCount: Int
     public let warningCount: Int
+    public let totalCoveragePercentage: Double?
 
     enum ResultMetricsCodingKeys: String, CodingKey {
         case analyzerWarningCount
@@ -21,6 +22,7 @@ open class ResultMetrics : Codable {
         case testsCount
         case testsFailedCount
         case warningCount
+        case totalCoveragePercentage
     }
 
      required public init(from decoder: Decoder) throws {
@@ -30,5 +32,6 @@ open class ResultMetrics : Codable {
         testsCount = try container.decodeXCResultTypeIfPresent(forKey: .testsCount) ?? 0
         testsFailedCount = try container.decodeXCResultTypeIfPresent(forKey: .testsFailedCount) ?? 0
         warningCount = try container.decodeXCResultTypeIfPresent(forKey: .warningCount) ?? 0
+        totalCoveragePercentage = try container.decodeXCResultTypeIfPresent(forKey: .totalCoveragePercentage) ?? 0
     }
 }

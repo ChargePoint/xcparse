@@ -23,6 +23,7 @@ open class ActionTestFailureSummary : Codable {
     public let sourceCodeContext: SourceCodeContext?
     public let timestamp: Date?
     public let isTopLevelFailure: Bool
+    public let expression: TestExpression?
 
     enum ActionTestFailureSummaryCodingKeys: String, CodingKey {
         case message
@@ -38,6 +39,7 @@ open class ActionTestFailureSummary : Codable {
         case sourceCodeContext
         case timestamp
         case isTopLevelFailure
+        case expression
     }
 
      required public init(from decoder: Decoder) throws {
@@ -55,5 +57,6 @@ open class ActionTestFailureSummary : Codable {
         sourceCodeContext = try container.decodeXCResultObjectIfPresent(forKey: .sourceCodeContext)
         timestamp = try container.decodeXCResultTypeIfPresent(forKey: .timestamp)
         isTopLevelFailure = try container.decodeXCResultType(forKey: .isTopLevelFailure)
+        expression = try container.decodeXCResultType(forKey: .expression)
     }
 }

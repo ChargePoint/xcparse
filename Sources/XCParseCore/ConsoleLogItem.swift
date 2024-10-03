@@ -13,12 +13,14 @@ open class ConsoleLogItem : Codable {
     public let kind: String?
     public let timestamp: Double
     public let content: String
+    public let logData: ConsoleLogItemLogData?
 
     enum ConsoleLogItemCodingKeys: String, CodingKey {
         case adaptorType
         case kind
         case timestamp
         case content
+        case logData
     }
 
      required public init(from decoder: Decoder) throws {
@@ -27,6 +29,7 @@ open class ConsoleLogItem : Codable {
         kind = try container.decodeXCResultTypeIfPresent(forKey: .kind)
         timestamp = try container.decodeXCResultType(forKey: .timestamp)
         content = try container.decodeXCResultType(forKey: .content)
+        logData = try container.decodeXCResultTypeIfPresent(forKey: .logData)
     }
 }
 

@@ -75,6 +75,7 @@ open class XCResultToolCommand {
                                             "--path", xcresult.path,
                                             "--id", self.id,
                                             "--output-path", self.outputPath])
+            processArgs.addLegacyFlagIfNeeded()
 
             let process = TSCBasic.Process(arguments: processArgs)
             super.init(withXCResult: xcresult, process: process)
@@ -96,6 +97,8 @@ open class XCResultToolCommand {
                                             "--path", xcresult.path,
                                             "--id", self.id,
                                             "--output-path", self.outputPath])
+
+            processArgs.addLegacyFlagIfNeeded()
 
             let process = TSCBasic.Process(arguments: processArgs)
             super.init(withXCResult: xcresult, process: process)
@@ -127,6 +130,7 @@ open class XCResultToolCommand {
             if self.outputPath != "" {
                 processArgs.append(contentsOf: ["--output-path", self.outputPath])
             }
+            processArgs.addLegacyFlagIfNeeded()
 
             let process = TSCBasic.Process(arguments: processArgs)
             super.init(withXCResult: xcresult, process: process)
@@ -150,6 +154,7 @@ open class XCResultToolCommand {
             if let version = self.version {
                 processArgs.append(contentsOf: ["--version", "\(version)"])
             }
+            processArgs.addLegacyFlagIfNeeded()
 
             let process = TSCBasic.Process(arguments: processArgs)
             super.init(withXCResult: xcresult, process: process)
@@ -179,4 +184,24 @@ open class XCResultToolCommand {
             super.init(withXCResult: xcresult, process: process)
         }
     }
+}
+
+// MARK: - Legacy flag
+
+private let shouldAddLegacyFlag: Bool = {
+    guard let xcresulttoolVersion = Version.xcresulttool() else {
+      return false
+    }
+
+    let versionWithDeprecatedAPIs = Version.xcresulttoolWithDeprecatedAPIs()
+
+    return xcresulttoolVersion >= versionWithDeprecatedAPIs
+}()
+
+private extension Array where Element: StringProtocol {
+  mutating func addLegacyFlagIfNeeded() {
+    if shouldAddLegacyFlag {
+      self.append("--legacy")
+    }
+  }
 }

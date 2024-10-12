@@ -13,6 +13,10 @@ public extension Version {
         return Version(15500, 0, 0)
     }
 
+    static func xcresulttoolWithDeprecatedAPIs() -> Version {
+        return Version(23028, 0, 0)
+    }
+
     static func xcresulttool() -> Version? {
         guard let xcresulttoolVersionResult = XCResultToolCommand.Version().run() else {
             return nil

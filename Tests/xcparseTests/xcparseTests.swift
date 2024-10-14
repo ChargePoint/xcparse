@@ -35,6 +35,7 @@ final class xcparseTests: XCTestCase {
     static var allTests = [
         ("testScreenshots", testScreenshots),
         ("testDivideByTestPlanConfig",testDivideByTestPlanConfig),
+        ("testDivideByIdentifier",testDivideByIdentifier),
         ("testDivideByOS",testDivideByOS),
         ("testDivideByModel",testDivideByModel),
         ("testDivideByLanguage",testDivideByLanguage),
@@ -254,6 +255,27 @@ final class xcparseTests: XCTestCase {
         XCTAssertTrue(fileUrls.filter{$0.path.contains("MyAutomation_darkMapView")}.count == 1)
         XCTAssertTrue(fileUrls.filter{$0.path.contains("MyAutomation_todayWidget")}.count == 1)
 
+    }
+
+    func testDivideByIdentifier() throws {
+        // Some of the APIs that we use below are available in macOS 10.13 and above.
+        guard #available(macOS 10.13, *) else {
+            return
+        }
+
+        let file = try Resource(name: "testSuccess", type: "xcresult")
+        xcparseProcess.arguments = ["screenshots","--identifier",file.url.path,temporaryOutputDirectoryURL.path]
+
+        try runAndWaitForXCParseProcess()
+
+        // check for the files. The device identifier in xcresult is BFB8C9E3-0E55-4E20-B332-091631DF4F90 for simulator
+        // so we append "BFB8C9E3-0E55-4E20-B332-091631DF4F90" to temporary directory
+
+        let fileUrls = FileManager.default.listFiles(path: temporaryOutputDirectoryURL.appendingPathComponent("BFB8C9E3-0E55-4E20-B332-091631DF4F90").path)
+
+        XCTAssertTrue(fileUrls.count ==  6)
+        XCTAssertTrue(fileUrls.filter{$0.path.contains("MyAutomation_darkMapView")}.count == 3)
+        XCTAssertTrue(fileUrls.filter{$0.path.contains("MyAutomation_todayWidget")}.count == 3)
     }
 
     func testDivideByOS() throws {

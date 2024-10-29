@@ -59,6 +59,7 @@ Options available include:
 
 | Option                   | Description                             |
 |--------------------------|-----------------------------------------|
+| ```--identifier```       | Divide by test target identifier        | 
 | ```--model```            | Divide by test target model             | 
 | ```--os```               | Divide by test target operating system  | 
 | ```--test-plan-config``` | Divide by test run configuration        |

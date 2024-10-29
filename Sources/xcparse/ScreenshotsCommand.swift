@@ -20,6 +20,7 @@ struct ScreenshotsCommand: Command {
     var verbose: OptionArgument<Bool>
 
     var addTestScreenshotDirectory: OptionArgument<Bool>
+    var divideByIdentifier: OptionArgument<Bool>
     var divideByModel: OptionArgument<Bool>
     var divideByOS: OptionArgument<Bool>
     var divideByTestRun: OptionArgument<Bool>
@@ -40,6 +41,7 @@ struct ScreenshotsCommand: Command {
         verbose = subparser.add(option: "--verbose", shortName: "-v", kind: Bool.self, usage: "Enable verbose logging")
 
         addTestScreenshotDirectory = subparser.add(option: "--legacy", shortName: nil, kind: Bool.self, usage: "Create \"testScreenshots\" directory in outputDirectory & put screenshots in there")
+        divideByIdentifier = subparser.add(option: "--identifier", shortName: nil, kind: Bool.self, usage: "Divide attachments by device identifier")
         divideByModel = subparser.add(option: "--model", shortName: nil, kind: Bool.self, usage: "Divide screenshots by model")
         divideByOS = subparser.add(option: "--os", shortName: nil, kind: Bool.self, usage: "Divide screenshots by OS")
         divideByTestRun = subparser.add(option: "--test-run", shortName: nil, kind: Bool.self, usage: "Deprecated. Use --test-plan-config")
@@ -82,6 +84,7 @@ struct ScreenshotsCommand: Command {
 
         // Let's set up our export options
         var options = AttachmentExportOptions(addTestScreenshotsDirectory: arguments.get(self.addTestScreenshotDirectory) ?? false,
+                                              divideByIdentifier: arguments.get(self.divideByIdentifier) ?? false,
                                               divideByTargetModel: arguments.get(self.divideByModel) ?? false,
                                               divideByTargetOS: arguments.get(self.divideByOS) ?? false,
                                               divideByTestPlanConfig: arguments.get(self.divideByTestPlanConfig) ?? (arguments.get(self.divideByTestRun) ?? false),
